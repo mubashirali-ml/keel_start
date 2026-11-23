@@ -1,4 +1,4 @@
-"""Plans, entitlements and subscription types (ADR-0030 as superseded by ADR-0038).
+"""Plans, entitlements and subscription types (ADR-0030 as superseded by ADR-0038; support wording ADR-0042).
 
 Every number of a plan is a setting (``PLAN_*``); ``build_plans`` turns the amounts into
 ``Plan`` records and ``Settings.plans()`` is the only source of plans for services. ``PLANS``
@@ -87,13 +87,14 @@ class Plan(BaseModel):
     max_companies: int
     llm_calls_per_month: int
     support: SupportLevel
-    support_label: str  # e.g. "Priority email, reply within 1 business day, answered first"
+    support_label: str  # e.g. "Priority support" (ADR-0042: never a reply time)
     highlights: list[str]  # pricing-card bullets, built from the amounts
 
 
 _PAID_FEATURES = [Feature.DOCUMENTS, Feature.ESIGN, Feature.SIGNED_PDF, Feature.WEBSITE_DEPLOY]
 
-# Static (non-numeric) parts of each plan. Support labels pending Q-009 (ADR-0038 table).
+# Static (non-numeric) parts of each plan. Support labels per ADR-0042: email support on every
+# plan, priority on Team, no promised reply times.
 _PLAN_BASE: dict[PlanId, dict] = {
     PlanId.FREE: {
         "rank": 0,
@@ -101,7 +102,7 @@ _PLAN_BASE: dict[PlanId, dict] = {
         "tagline": "Plan your company with every agent, free.",
         "features": [],
         "support": SupportLevel.BASIC,
-        "support_label": "Help guides and email, best effort",
+        "support_label": "Email support",
     },
     PlanId.LAUNCH: {
         "rank": 1,
@@ -109,7 +110,7 @@ _PLAN_BASE: dict[PlanId, dict] = {
         "tagline": "Form your company: documents, e-signatures and a live website.",
         "features": list(_PAID_FEATURES),
         "support": SupportLevel.STANDARD,
-        "support_label": "Email, reply within 2 business days",
+        "support_label": "Email support",
     },
     PlanId.TEAM: {
         "rank": 2,
@@ -117,7 +118,7 @@ _PLAN_BASE: dict[PlanId, dict] = {
         "tagline": "For serial founders, studios and advisers who set up several companies.",
         "features": list(_PAID_FEATURES),
         "support": SupportLevel.PRIORITY,
-        "support_label": "Priority email, reply within 1 business day, answered first",
+        "support_label": "Priority support",
     },
 }
 
