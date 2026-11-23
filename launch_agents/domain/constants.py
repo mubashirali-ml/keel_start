@@ -1,7 +1,7 @@
-"""Shared constants (ADR-0008, ADR-0031, ADR-0039).
+"""Shared constants (ADR-0008, ADR-0031, ADR-0041).
 
 This is the only source file in ``launch_agents/`` that spells out the brand name; every
-other module reads ``BRAND_NAME`` or ``Settings.brand_name`` (ADR-0039).
+other module reads ``BRAND_NAME`` or ``Settings.brand_name`` (ADR-0041).
 """
 
 from __future__ import annotations
@@ -23,8 +23,8 @@ __all__ = [
     "USPTO_TRADEMARK_SEARCH_URL",
 ]
 
-# Brand (ADR-0039, confirmed by the product owner: Q-007).
-BRAND_NAME = "Charterly"
+# Brand (ADR-0041: the product owner renamed the product Keelstart; supersedes ADR-0039).
+BRAND_NAME = "Keelstart"
 
 # Case rules (ADR-0008, ADR-0013).
 AUTHORIZED_SHARES = 10_000_000

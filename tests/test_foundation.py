@@ -162,6 +162,7 @@ from launch_agents.ports import (
     StaticEntitlements,
     UnconfiguredSiteHost,
 )
+from launch_agents.domain.constants import BRAND_NAME
 from launch_agents.reliability import Deadline, RetryPolicy, call_with_retry, is_transient
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -412,7 +413,7 @@ def test_job_kinds_and_constants():
     assert c.DEFAULT_SITE_PAGES == ("Home", "About", "Services", "Contact")
     assert c.LEGAL_NOTICE.startswith("This is not legal advice.")
     assert c.USPTO_TRADEMARK_SEARCH_URL == "https://tmsearch.uspto.gov/search/search-information"
-    assert c.BRAND_NAME == "Charterly"
+    assert c.BRAND_NAME == "Keelstart"
     assert ESIGN_CONSENT_VERSION == "2026-11-23"
     assert ESIGN_CONSENT_TEXT.startswith("I agree to sign this document electronically.")
 
@@ -495,7 +496,7 @@ def _samples(sample_facts) -> list[BaseModel]:
                csrf_token="tok"),
         MemberView(user_id="usr_1", full_name="Alice", email="a@x.test", role=MemberRole.OWNER, founder_id="f1",
                    founder_name="Alice", joined_at=NOW),
-        PublicConfig(brand_name="Charterly", demo_mode=False, payments_test_mode=True, hosting_configured=False,
+        PublicConfig(brand_name=BRAND_NAME, demo_mode=False, payments_test_mode=True, hosting_configured=False,
                      plans=list(PLANS.values()), esign_consent_text=ESIGN_CONSENT_TEXT,
                      esign_consent_version=ESIGN_CONSENT_VERSION, support_email=None, yearly_enabled=True),
         BillingOverview(subscription=subscription, plan=PLANS[PlanId.TEAM], can_switch_plan=True,
@@ -679,7 +680,7 @@ def test_manager_greeting_uses_the_brand():
 
     greeting = manager_greeting()
     assert greeting.agent == AgentId.MANAGER and greeting.kind == MessageKind.TEXT
-    assert "the Manager at Charterly" in greeting.content
+    assert f"the Manager at {BRAND_NAME}" in greeting.content and "the Manager at Keelstart" in greeting.content
     assert [r.label for r in greeting.suggested_replies] == [
         "I want to start an LLC", "Help me choose LLC or C-Corp", "Find a company name"]
     assert "the Manager at Acme" in manager_greeting("Acme").content
@@ -836,7 +837,7 @@ def test_development_defaults():
     assert (s.email_provider, s.payments_provider, s.jobs_embedded_worker, s.log_format) == ("console", "fake", True, "text")
     assert (s.llm_provider, s.domain_checker, s.hosting_provider, s.fake_services) == ("fake", "rdap", "none", False)
     assert s.secret_key and len(s.secret_key) >= 32
-    assert s.brand_name == "Charterly" and s.db_url == "sqlite:///./launch_agents.db"
+    assert s.brand_name == BRAND_NAME == "Keelstart" and s.db_url == "sqlite:///./launch_agents.db"
     assert s.cors_origins == ["http://localhost:5173"] and s.app_base_url == "http://localhost:8000"
     assert load_settings({"STRIPE_SECRET_KEY": "sk_test_1"}).payments_provider == "stripe"
     assert load_settings({"NETLIFY_AUTH_TOKEN": "t"}).hosting_provider == "netlify"
@@ -1101,11 +1102,9 @@ def test_plan_required_messages_per_feature():
 # =========================================================================================
 def test_default_plans_match_the_adr0038_table():
     expected = {
-        PlanId.FREE: (0, 0, 0, 1, 300, SupportLevel.BASIC, "Help guides and email, best effort", False, []),
-        PlanId.LAUNCH: (1, 2900, 29000, 3, 2000, SupportLevel.STANDARD, "Email, reply within 2 business days", True,
-                        list(Feature)),
-        PlanId.TEAM: (2, 7900, 79000, 15, 10000, SupportLevel.PRIORITY,
-                      "Priority email, reply within 1 business day, answered first", True, list(Feature)),
+        PlanId.FREE: (0, 0, 0, 1, 300, SupportLevel.BASIC, "Email support", False, []),
+        PlanId.LAUNCH: (1, 2900, 29000, 3, 2000, SupportLevel.STANDARD, "Email support", True, list(Feature)),
+        PlanId.TEAM: (2, 7900, 79000, 15, 10000, SupportLevel.PRIORITY, "Priority support", True, list(Feature)),
     }
     assert list(PLANS) == [PlanId.FREE, PlanId.LAUNCH, PlanId.TEAM]
     for plan_id, (rank, month, year, companies, ai, support, label, yearly, features) in expected.items():
@@ -1115,7 +1114,7 @@ def test_default_plans_match_the_adr0038_table():
                 plan.llm_calls_per_month) == (rank, month, year, companies, ai)
         assert plan.price_year_cents == 10 * plan.price_month_cents
         assert (plan.support, plan.support_label, plan.yearly_available, plan.features) == (support, label, yearly, features)
-        assert plan.tagline and plan.highlights and label in plan.highlights
+        assert plan.tagline and plan.highlights and plan.highlights[-1] == label  # ADR-0042: last highlight
         ent = Entitlements.for_plan(plan_id)
         assert (ent.plan, ent.features, ent.max_companies, ent.llm_calls_per_month, ent.support) == (
             plan_id, frozenset(features), companies, ai, support)
@@ -2135,7 +2134,7 @@ def test_env_example_lists_every_variable_with_a_comment():
     for plan_id, amounts in DEFAULT_PLAN_AMOUNTS.items():
         for suffix, field in _PLAN_FIELDS.items():
             assert commented[f"PLAN_{plan_id.value.upper()}_{suffix}"] == str(getattr(amounts, field))
-    assert active["BRAND_NAME"] == "Charterly"
+    assert active["BRAND_NAME"] == "Keelstart"
     assert "# LLM_MODEL_NAME=claude-haiku-5-5" in lines and "# LLM_MODEL_QA=claude-haiku-5-5" in lines
     known = set(CONFIG_ENV_VARS) | set(PLAN_ENV_VARS) | {"LAUNCH_TEST_POSTGRES_URL", "LLM_MODEL_NAME", "LLM_MODEL_QA",
                                                           "LLM_EFFORT_QA"}
@@ -2160,14 +2159,23 @@ def test_env_example_loads_as_development_settings():
         if match and not match.group(1):
             values[match.group(2)] = match.group(3)
     s = load_settings(values)
-    assert s.app_env == AppEnv.DEVELOPMENT and s.llm_provider == "fake" and s.brand_name == "Charterly"
+    assert s.app_env == AppEnv.DEVELOPMENT and s.llm_provider == "fake" and s.brand_name == "Keelstart"
+
+
+def test_env_example_brand_line_cites_adr0041():
+    lines = _env_example()
+    i = lines.index("BRAND_NAME=Keelstart")
+    assert lines[i - 1].startswith("#") and "ADR-0041" in lines[i - 1]
 
 
 # =========================================================================================
-# 16. Brand guard (ADR-0039)
+# 16. Brand guard (ADR-0041, superseding ADR-0039) and support wording (ADR-0042)
 # =========================================================================================
+OLD_BRAND = "Charter" + "ly"  # split so this file never spells the retired name in one piece
+
+
 def test_brand_name_is_spelled_out_only_in_domain_constants():
-    offenders = []
+    keelstart, old = [], []
     for path in PACKAGE_DIR.rglob("*"):
         if not path.is_file() or "__pycache__" in path.parts:
             continue
@@ -2175,11 +2183,75 @@ def test_brand_name_is_spelled_out_only_in_domain_constants():
             text = path.read_text(encoding="utf-8")
         except UnicodeDecodeError:
             continue
-        if "Charterly" in text and path.relative_to(PACKAGE_DIR).as_posix() != "domain/constants.py":
-            offenders.append(path.relative_to(REPO_ROOT).as_posix())
-    assert offenders == []
-    assert "Charterly" in (PACKAGE_DIR / "domain" / "constants.py").read_text(encoding="utf-8")
+        rel = path.relative_to(PACKAGE_DIR).as_posix()
+        if path.suffix == ".py" and "Keelstart" in text:
+            keelstart.append(rel)
+        if OLD_BRAND.lower() in text.lower():
+            old.append(rel)
+    assert keelstart == ["domain/constants.py"]
+    assert old == []
+    assert OLD_BRAND.lower() not in (REPO_ROOT / ".env.example").read_text(encoding="utf-8").lower()
     assert load_settings({"BRAND_NAME": "Other"}).brand_name == "Other"
+
+
+def test_brand_constant_is_keelstart_per_adr0041():
+    from launch_agents.domain import constants as c
+
+    assert c.BRAND_NAME == "Keelstart"
+    lines = (PACKAGE_DIR / "domain" / "constants.py").read_text(encoding="utf-8").splitlines()
+    i = lines.index('BRAND_NAME = "Keelstart"')
+    assert lines[i - 1].startswith("#") and "ADR-0041" in lines[i - 1]
+    assert load_settings({}).brand_name == "Keelstart"
+    assert load_settings({"BRAND_NAME": "Acme"}).brand_name == "Acme"
+
+
+def test_pdf_and_docx_default_brand_is_keelstart():
+    from launch_agents.pdf import render_docx, render_signed_pdf
+
+    for fn in (render_signed_pdf, render_docx):
+        param = inspect.signature(fn).parameters["brand_name"]
+        assert param.kind == inspect.Parameter.KEYWORD_ONLY and param.annotation in (str, "str")
+        assert param.default is BRAND_NAME and param.default == "Keelstart"
+        assert str(param.replace(annotation=inspect.Parameter.empty)) == "brand_name='Keelstart'"
+
+
+# ADR-0042: the phrases that would promise a reply time.
+REPLY_TIME_PHRASES = ("reply within", "respond within", "response time", "business day", "same day", "answered first")
+
+
+def test_support_labels_follow_adr0042():
+    expected = {PlanId.FREE: (SupportLevel.BASIC, "Email support"),
+                PlanId.LAUNCH: (SupportLevel.STANDARD, "Email support"),
+                PlanId.TEAM: (SupportLevel.PRIORITY, "Priority support")}
+    for plan_id, (support, label) in expected.items():
+        plan = PLANS[plan_id]
+        assert (plan.support, plan.support_label, plan.highlights[-1]) == (support, label, label)
+        assert plan.highlights.count(label) == 1
+
+
+@pytest.mark.parametrize("env", [
+    {},
+    {"BILLING_YEARLY_ENABLED": "0"},
+    {"PLAN_FREE_MAX_COMPANIES": "2", "PLAN_LAUNCH_AI_MESSAGES": "5000", "PLAN_TEAM_MAX_COMPANIES": "50",
+     "PLAN_TEAM_PRICE_MONTH_CENTS": "9900", "PLAN_TEAM_PRICE_YEAR_CENTS": "99000"},
+], ids=["defaults", "no-yearly", "overridden-amounts"])
+def test_no_plan_promises_a_reply_time(env):
+    from launch_agents.domain import build_plans
+
+    custom = {pid: a.model_copy(update={"max_companies": 7, "ai_messages_per_month": 123})
+              for pid, a in DEFAULT_PLAN_AMOUNTS.items()}
+    for plans in (load_settings(env).plans(), build_plans(custom), PLANS):
+        assert len(plans) == 3
+        for plan in plans.values():
+            for text in (plan.support_label, *plan.highlights):
+                hits = [phrase for phrase in REPLY_TIME_PHRASES if phrase in text.lower()]
+                assert hits == [], f"{plan.name}: {text!r} promises a reply time ({hits})"
+            assert plan.highlights[-1] == plan.support_label
+
+
+def test_billing_cites_adr0042_not_q009():
+    text = (PACKAGE_DIR / "domain" / "billing.py").read_text(encoding="utf-8")
+    assert "Support labels pending Q-009" not in text and "ADR-0042" in text
 
 
 # =========================================================================================
