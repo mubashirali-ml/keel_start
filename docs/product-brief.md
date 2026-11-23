@@ -165,18 +165,73 @@ agent works. Every agent must produce visible, tangible output, not just chat te
 - The reliable demo is a recorded feature run, so the merge gate runs it; its acceptance
   criteria require three passing runs in a row.
 
+## Sellable product (not a demo)
+
+The product is sold to founders, so v1 must be something a paying customer can trust.
+The demo video above is one feature of the product, not the product.
+
+1. **Accounts and access.**
+   - Founders sign up and log in (email + password, hashed with a modern algorithm,
+     secure httpOnly session cookies). They can reset a password by email, and sessions expire.
+   - A founder invites co-founders by email link. Each person has their own account,
+     sees only the companies they belong to, and can act only as themselves.
+   - Authorization is checked on every API endpoint. The "act as founder" switcher
+     exists only in demo mode.
+2. **Signatures that hold up.** Approving a document is an electronic signature: typed
+   full name, an explicit consent checkbox, and a record of timestamp, signer account, IP
+   address and a hash of the exact document version. This sits on top of the version-bound
+   sign-off rules. An executed document downloads as a PDF with a signature page.
+   Integration with an external e-signature provider is a later option, not v1.
+3. **Plans and billing.** Stripe Checkout and the customer portal. Test mode by default,
+   live keys by configuration. Paid features are gated by plan, and the pricing page,
+   receipts and cancellation work end to end. (The pricing model is a product owner decision.)
+4. **Email.** Transactional emails (verify email, invite co-founder, "your signature is
+   needed", "document executed", password reset, 83(b) deadline reminders at 14, 7 and 2
+   days). They go through an email-provider port with a fake for tests.
+5. **Data and deployment.**
+   - PostgreSQL in production and SQLite for development and tests, through SQLAlchemy
+     with versioned migrations.
+   - Docker images and a compose file. Health and readiness endpoints. All config from
+     environment variables, with no secrets in code or logs.
+   - CI configuration (GitHub Actions) that runs the same checks as the merge gate.
+6. **Security.** Input validation everywhere, rate limiting on auth and LLM endpoints,
+   CORS locked to the app's origin, security headers, CSRF protection for cookie auth,
+   and per-account LLM usage limits. Sensitive personal data (SSN, address) is never
+   stored. Documents keep placeholders, and founders fill those in only in the
+   downloaded file.
+7. **Trust and legal surface.** Public marketing pages: a landing page explaining the
+   agents, pricing, Terms of Service, Privacy Policy, and a clear "not legal advice; we're
+   not a law firm" disclaimer. Account settings let a customer export all their data and
+   delete their account.
+8. **Operations.**
+   - Structured logs with request IDs. Error reporting through a pluggable hook.
+   - A small admin area: customers, companies, plan, LLM usage, failed jobs.
+   - Backups documented. Long-running agent work (website build, deploy) runs as
+     tracked jobs with status and retry, never as a hung request.
+9. **Looks reliable.** A consistent brand (product name, logo mark, colors). A polished
+   onboarding flow (sign up → describe your company → meet your agents). Progress and
+   status are always visible. Errors are friendly and offer a recovery action. Empty
+   states guide the next step. Trust signals (security note, disclaimer, status of each
+   step) appear where founders make decisions. (The product name is a product owner
+   decision; the Name Agent can suggest options.)
+
 ## Scope limits
 
 - US only: `LLC` or `Delaware C-Corp`. Full registration guides for Delaware and Wyoming only.
 - The app guides and drafts; it does not file with the state or buy the domain itself.
 - Generated documents and guidance are not legal advice.
-- No real authentication or e-signature in the first release (state it as a limitation).
+- v1 signatures are the built-in electronic signature described above, not a third-party
+  e-signature provider.
 
 ## Definition of done for the product
 
-- The founder can go from a first chat message to: a verified name and domain choice,
-  executed founding documents, a cap table, a QA-passed live (or packaged) website, and a
-  registration checklist, all through the API and the UI.
+- A new customer can find the landing page, choose a plan and pay (Stripe test mode),
+  sign up, invite co-founders, and go from a first chat message to: a verified name and
+  domain choice, documents executed with electronic signatures, a cap table, a
+  QA-passed live (or packaged) website, and a registration checklist, all through the
+  API and the UI.
+- It deploys with Docker on PostgreSQL, and CI runs the same checks as the merge gate.
+- The demo video can be produced with one command, in reliable and live modes.
 - An automated test suite covers the deterministic rules, the agent routing, the QA
   loop and the API flows (LLM, RDAP and hosting faked).
 - Each merged change has a recorded feature run.
