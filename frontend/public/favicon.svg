@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <title>Keelstart</title>
+  <!-- The Keel mark (src/brand/LogoMark.tsx) in white on a primary tile, legible at 16 px. -->
+  <rect width="32" height="32" rx="7" fill="#1b3682"/>
+  <g fill="#ffffff" transform="translate(4 4) scale(0.75)">
+    <path d="M13 2.5C18.5 7 22.5 12.5 25.5 19.5H13Z"/>
+    <path d="M3 21.5H29L25 27H7Z"/>
+    <path d="M14.25 27H17.75L17 30.5H15Z"/>
+  </g>
+</svg>
