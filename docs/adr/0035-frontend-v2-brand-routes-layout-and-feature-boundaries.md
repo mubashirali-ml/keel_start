@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Accepted; Brand section superseded by [ADR-0039](0039-brand-charterly-everywhere-customers-look.md) |
+| **Status** | Accepted; Brand section superseded by ADR-0039, now by [ADR-0041](0041-brand-keelstart-everywhere-customers-look.md) |
 | **Date** | 2026-11-23 |
 | **Deciders** | Supervisor, product owner (product name: open question Q-007) |
 | **Tickets** | T-011 (implements the foundation), T-018..T-022, T-036, T-042..T-045 (feature screens), T-023, T-046 |

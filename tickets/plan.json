@@ -1,15 +1,15 @@
 {
-  "product": "Charterly: AI agents that launch your company (LLC formation, name, website, compliance)",
+  "product": "Keelstart: AI agents that launch your company (LLC formation, name, website, compliance)",
   "updated": "2026-11-23",
-  "owner_brief": "Where things stand after this delivery run.\n\nWhat you can see or use now: nothing new yet. Round 0, the groundwork that every other piece builds on, is finished and the reviewer approved it on the third review. It has not been added to the main product, so there is still nothing to open or click. Nothing in the work itself needs to change.\n\nWhy it is not in yet: the final merge step was not allowed to run automatically, and the review record needs a small bookkeeping fix before that step will accept it. Because round 1 builds directly on the groundwork, round 1 did not start in this run. None of its 20 pieces were touched and their plans are unchanged.\n\nWhat is waiting on you. 1) Ask someone on the technical side to run the merge step once (or to allow it to run automatically), after the builder makes the bookkeeping fix. This is the only thing holding up progress. 2) One open question: which support reply times the pricing page should promise. I suggest no promised time on Free, 2 business days on Launch and 1 business day on Team. 3) Before going live (not needed for building): four prices in Stripe (Launch and Team, monthly and yearly), a support email address, a check that the Charterly domain and trademark are free, your legal company name for the footer and legal pages, an Anthropic key, an email sending account, a Netlify token and an HTTPS web address.\n\nWhat comes next: round 1, as soon as the groundwork is merged. Twenty pieces get built side by side: the automatic rules for equity, vesting, 83(b) forms, the cap table and approvals; saving data; the five specialist agents; the AI connections; accounts and co-founder invites; email; Stripe billing for Free, Launch and Team; background jobs; signed PDFs; security; and the look and feel. After round 1 you can open the design gallery and see the Charterly brand in light and dark mode. The rest of the plan is unchanged: 46 pieces in 7 rounds, ending with the demo video.",
+  "owner_brief": "Thank you. Here is what changed.\n\nNew name: the product is now Keelstart everywhere customers look: the app, the landing page, page titles, every email, signed PDFs and Word copies, the data export file, the Manager's greeting and the demo video. It is still a single setting, so a later change is easy. The logo is a simple sailboat with a keel fin beside the word Keelstart, in deep navy, and it stays readable as a tiny browser icon. The look-and-feel piece in round 1 builds this brand. Because the groundwork was already finished with the old name inside it, I added one small round-1 piece that switches the built-in name to Keelstart and updates its checks. The internal code name does not change, and customers never see it.\n\nSupport: as you chose, no plan promises a reply time. Free and Launch say \"Email support\", Team says \"Priority support\". The pricing page, billing settings and the draft Terms say nothing about how fast you reply; the Terms say support is by email, Team requests are handled first, and there is no guaranteed response time. Automatic checks make sure no reply-time wording slips back in.\n\nProgress: the groundwork (round 0) is now merged into the product, with all 590 checks passing. From now on the merge step runs in the operator's session: approved pieces come back as \"approved\" and the operator merges them. That removes what held things up last time.\n\nWhat you'll see next: round 1 can start now, with 21 pieces built side by side (the 20 planned plus the small rename piece). After round 1 you can open the design gallery and see the Keelstart brand and logo in light and dark mode. The rest is unchanged: 47 pieces in 7 rounds, ending with the demo video.\n\nWhat I need from you. 1) One quick question: should the landing-page tagline stay \"Launch your company with a team of AI agents\", or take a keel-themed line? I suggest keeping it, because it says plainly what the product does. 2) Register keelstart.com soon (free names don't stay free) and run a trademark check for \"Keelstart\". 3) Before going live (not needed for building): four prices in Stripe (Launch and Team, monthly and yearly), a support email address, your legal company name for the footer and legal pages, an Anthropic key, an email sending account, a Netlify token and an HTTPS web address.",
   "waves": [
     {
       "wave": 0,
-      "goal": "Groundwork: the shared vocabulary of the product, the contracts for accounts, billing, email and background jobs, the database layout, and stand-ins for the AI and every outside service, so twenty pieces can be built at the same time next. Nothing to look at yet."
+      "goal": "Groundwork: the shared vocabulary of the product, the contracts for accounts, billing, email and background jobs, the database layout, and stand-ins for the AI and every outside service, so twenty-one pieces can be built at the same time next. Nothing to look at yet."
     },
     {
       "wave": 1,
-      "goal": "Twenty pieces built side by side: the automatic rules (equity, vesting, 83(b), cap table, approvals), saving to SQLite and PostgreSQL, the five specialist agents, the AI connections (your own Claude Code login on your machine, the Anthropic API for production), accounts and co-founder invites, email, Stripe billing for the Free, Launch and Team plans, background jobs, signed PDFs, security and logging, and the app's look and feel. You can open the design gallery and see the brand in light and dark mode."
+      "goal": "Twenty-one pieces built side by side: the automatic rules (equity, vesting, 83(b), cap table, approvals), saving to SQLite and PostgreSQL, the five specialist agents, the AI connections (your own Claude Code login on your machine, the Anthropic API for production), accounts and co-founder invites, email, Stripe billing for the Free, Launch and Team plans, background jobs, signed PDFs, security and logging, the app's look and feel, and the switch of the built-in name to Keelstart. You can open the design gallery and see the Keelstart brand and logo in light and dark mode."
     },
     {
       "wave": 2,
@@ -21,7 +21,7 @@
     },
     {
       "wave": 4,
-      "goal": "Every screen: the Charterly landing page and pricing with Free, Launch and Team, sign-up and onboarding, chat and overview, names and domains, legal e-signing, cap table, website, registration guide, settings with billing and team, and the admin area, each checked in a real browser; plus Docker with PostgreSQL and automatic checks on every change."
+      "goal": "Every screen: the Keelstart landing page and pricing with Free, Launch and Team, sign-up and onboarding, chat and overview, names and domains, legal e-signing, cap table, website, registration guide, settings with billing and team, and the admin area, each checked in a real browser; plus Docker with PostgreSQL and automatic checks on every change."
     },
     {
       "wave": 5,
@@ -205,7 +205,7 @@
       "number": "0029",
       "title": "Transactional email, notifications and 83(b) reminders",
       "file": "docs/adr/0029-transactional-email-notifications-and-83b-reminders.md",
-      "status": "Accepted (branding by 0039)"
+      "status": "Accepted (branding by 0041)"
     },
     {
       "number": "0030",
@@ -217,7 +217,7 @@
       "number": "0031",
       "title": "Electronic signatures and signed PDF / Word downloads",
       "file": "docs/adr/0031-electronic-signatures-and-signed-pdfs.md",
-      "status": "Accepted (branding by 0039)"
+      "status": "Accepted (branding by 0041)"
     },
     {
       "number": "0032",
@@ -241,7 +241,7 @@
       "number": "0035",
       "title": "Frontend v2: brand, routes, layouts and feature boundaries",
       "file": "docs/adr/0035-frontend-v2-brand-routes-layout-and-feature-boundaries.md",
-      "status": "Partly superseded by 0039"
+      "status": "Partly superseded by 0039, now 0041"
     },
     {
       "number": "0036",
@@ -259,12 +259,30 @@
       "number": "0038",
       "title": "Plans v2: Free, Launch and Team, with amounts as settings",
       "file": "docs/adr/0038-plans-v2-free-launch-team-and-plan-settings.md",
-      "status": "Accepted"
+      "status": "Accepted (support wording by 0042)"
     },
     {
       "number": "0039",
       "title": "Brand: \"Charterly\" everywhere customers look",
       "file": "docs/adr/0039-brand-charterly-everywhere-customers-look.md",
+      "status": "Superseded by 0041"
+    },
+    {
+      "number": "0040",
+      "title": "The merge gate runs in the operator's session",
+      "file": "docs/adr/0040-merge-gate-runs-in-the-operators-session.md",
+      "status": "Accepted"
+    },
+    {
+      "number": "0041",
+      "title": "Brand: \"Keelstart\" everywhere customers look",
+      "file": "docs/adr/0041-brand-keelstart-everywhere-customers-look.md",
+      "status": "Accepted"
+    },
+    {
+      "number": "0042",
+      "title": "Support wording: email support on every plan, priority on Team, no promised reply times",
+      "file": "docs/adr/0042-support-wording-no-promised-reply-times.md",
       "status": "Accepted"
     }
   ],
@@ -286,7 +304,7 @@
         "evidence/T-001/",
         "prs/T-001.md"
       ],
-      "status": "escalated",
+      "status": "merged",
       "summary_for_owner": "Lays the groundwork every other piece builds on: the product's shared vocabulary, the rules for who can do what, the database layout, and stand-ins for the AI, email, payments and other outside services."
     },
     {
@@ -468,7 +486,7 @@
         "prs/T-011.md"
       ],
       "status": "todo",
-      "summary_for_owner": "The app's look and feel: brand, colors, light and dark mode, every shared building block, all page layouts and the connection to the backend."
+      "summary_for_owner": "The app's look and feel: the Keelstart brand with its sailboat logo, colors, light and dark mode, every shared building block, all page layouts and the connection to the backend."
     },
     {
       "id": "T-024",
@@ -659,6 +677,25 @@
       "summary_for_owner": "Logging that lets you find any problem by a reference number, with secrets hidden, and a hook for an error-reporting service."
     },
     {
+      "id": "T-047",
+      "title": "Foundation follow-up: the Keelstart brand and support wording without reply times",
+      "wave": 1,
+      "depends_on": [
+        "T-001"
+      ],
+      "file": "tickets/T-047-keelstart-brand-and-support-wording-in-foundation.md",
+      "owns": [
+        "launch_agents/domain/constants.py",
+        "launch_agents/domain/billing.py",
+        ".env.example",
+        "tests/test_foundation.py",
+        "evidence/T-047/",
+        "prs/T-047.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "Switches the built-in product name from Charterly to Keelstart and changes the plans' support lines to \"Email support\" and \"Priority support\", with no promised reply time."
+    },
+    {
       "id": "T-012",
       "title": "Manager Agent and the LangGraph turn graph (routing, handoffs, fact gathering)",
       "wave": 2,
@@ -741,7 +778,8 @@
         "T-006",
         "T-026",
         "T-027",
-        "T-031"
+        "T-031",
+        "T-047"
       ],
       "file": "tickets/T-015-legal-service-cap-table-documents-signoff.md",
       "owns": [
@@ -785,7 +823,8 @@
         "T-026",
         "T-027",
         "T-029",
-        "T-031"
+        "T-031",
+        "T-047"
       ],
       "file": "tickets/T-037-privacy-data-export-and-account-deletion.md",
       "owns": [
@@ -842,7 +881,8 @@
         "T-033",
         "T-035",
         "T-037",
-        "T-038"
+        "T-038",
+        "T-047"
       ],
       "file": "tickets/T-016-api-core-composition-and-demo-seed.md",
       "owns": [
@@ -1134,7 +1174,7 @@
         "prs/T-043.md"
       ],
       "status": "todo",
-      "summary_for_owner": "The public Charterly pages: the landing page, pricing with the Free, Launch and Team plans side by side, and Terms, Privacy, disclaimer and security pages."
+      "summary_for_owner": "The public Keelstart pages: the landing page, pricing with the Free, Launch and Team plans side by side, and Terms, Privacy, disclaimer and security pages."
     },
     {
       "id": "T-044",
@@ -1417,6 +1457,29 @@
         }
       ],
       "recommended": "Best effort / 2 days / 1 day",
+      "status": "answered",
+      "answer": "No promised times"
+    },
+    {
+      "id": "Q-010",
+      "ticket": "T-043",
+      "question": "Should the landing-page tagline change now that the product is called Keelstart?",
+      "why_it_matters": "The tagline is the first line visitors read on the landing page, and it also appears in the link preview image and the demo video. It is one setting, so it is easy to change later.",
+      "options": [
+        {
+          "label": "Keep the current tagline",
+          "description": "\"Launch your company with a team of AI agents\": says plainly what the product does."
+        },
+        {
+          "label": "Keel-themed tagline",
+          "description": "\"Lay the keel of your company\": plays on the name, with the plain line underneath as a subtitle."
+        },
+        {
+          "label": "Short and solid",
+          "description": "\"Start your company on solid ground\": calm and trustworthy, but says less about the AI agents."
+        }
+      ],
+      "recommended": "Keep the current tagline",
       "status": "open",
       "answer": null
     }

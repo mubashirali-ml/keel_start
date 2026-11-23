@@ -33,15 +33,17 @@ New ADR: copy [0000-template.md](0000-template.md) to the next free number.
 | [0026](0026-accounts-sessions-request-context-and-authorization.md) | Accounts, sessions, the request context and authorization | Accepted |
 | [0027](0027-persistence-v2-postgresql-sqlite-migrations-and-data-model.md) | Persistence v2: PostgreSQL and SQLite, Alembic migrations, data model | Accepted |
 | [0028](0028-background-jobs-queue-worker-and-scheduler.md) | Background jobs: queue, worker and scheduler | Accepted |
-| [0029](0029-transactional-email-notifications-and-83b-reminders.md) | Transactional email, notifications and 83(b) reminders | Accepted (branding by 0039) |
+| [0029](0029-transactional-email-notifications-and-83b-reminders.md) | Transactional email, notifications and 83(b) reminders | Accepted (branding by 0041) |
 | [0030](0030-plans-billing-stripe-and-entitlements.md) | Plans, billing with Stripe, and entitlements | Partly superseded by [0038](0038-plans-v2-free-launch-team-and-plan-settings.md) |
-| [0031](0031-electronic-signatures-and-signed-pdfs.md) | Electronic signatures and signed PDF / Word downloads | Accepted (branding by 0039) |
+| [0031](0031-electronic-signatures-and-signed-pdfs.md) | Electronic signatures and signed PDF / Word downloads | Accepted (branding by 0041) |
 | [0032](0032-services-and-http-api-v2.md) | Application services and the HTTP API v2 (authenticated) | Accepted (billing routes changed by 0038) |
 | [0033](0033-security-hardening.md) | Security hardening | Accepted (allowance message by 0038) |
 | [0034](0034-deployment-operations-privacy-and-admin.md) | Deployment, operations, privacy controls and the admin area | Accepted (admin additions by 0038) |
-| [0035](0035-frontend-v2-brand-routes-layout-and-feature-boundaries.md) | Frontend v2: brand, routes, layouts and feature boundaries | Partly superseded by [0039](0039-brand-charterly-everywhere-customers-look.md) |
+| [0035](0035-frontend-v2-brand-routes-layout-and-feature-boundaries.md) | Frontend v2: brand, routes, layouts and feature boundaries | Partly superseded by [0039](0039-brand-charterly-everywhere-customers-look.md), now [0041](0041-brand-keelstart-everywhere-customers-look.md) |
 | [0036](0036-ui-recorded-runs-with-accounts-and-demo-seeding-v2.md) | UI recorded runs with accounts, demo mode and demo seeding v2 | Accepted |
 | [0037](0037-demo-video-scripted-recording-reliable-and-live-modes.md) | Demo video: scripted browser recording in reliable and live modes | Accepted |
-| [0038](0038-plans-v2-free-launch-team-and-plan-settings.md) | Plans v2: Free, Launch and Team, with amounts as settings | Accepted |
-| [0039](0039-brand-charterly-everywhere-customers-look.md) | Brand: "Charterly" everywhere customers look | Accepted |
+| [0038](0038-plans-v2-free-launch-team-and-plan-settings.md) | Plans v2: Free, Launch and Team, with amounts as settings | Accepted (support wording by [0042](0042-support-wording-no-promised-reply-times.md)) |
+| [0039](0039-brand-charterly-everywhere-customers-look.md) | Brand: "Charterly" everywhere customers look | Superseded by [0041](0041-brand-keelstart-everywhere-customers-look.md) |
 | [0040](0040-merge-gate-runs-in-the-operators-session.md) | The merge gate runs in the operator's session | Accepted |
+| [0041](0041-brand-keelstart-everywhere-customers-look.md) | Brand: "Keelstart" everywhere customers look | Accepted |
+| [0042](0042-support-wording-no-promised-reply-times.md) | Support wording: email support on every plan, priority on Team, no promised reply times | Accepted |

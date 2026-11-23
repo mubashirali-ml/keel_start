@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Wave** | 2 |
-| **Depends on** | T-001, T-002, T-003, T-004, T-005, T-006, T-026, T-027, T-031 |
-| **ADRs** | [ADR-0039](../docs/adr/0039-brand-charterly-everywhere-customers-look.md), [ADR-0031](../docs/adr/0031-electronic-signatures-and-signed-pdfs.md), [ADR-0032](../docs/adr/0032-services-and-http-api-v2.md), [ADR-0014](../docs/adr/0014-founding-documents-and-signoff-state-machine.md), [ADR-0026](../docs/adr/0026-accounts-sessions-request-context-and-authorization.md), [ADR-0030](../docs/adr/0030-plans-billing-stripe-and-entitlements.md), [ADR-0029](../docs/adr/0029-transactional-email-notifications-and-83b-reminders.md), [ADR-0013](../docs/adr/0013-case-validation-cap-table-and-vesting-rules.md), [ADR-0027](../docs/adr/0027-persistence-v2-postgresql-sqlite-migrations-and-data-model.md) |
+| **Depends on** | T-001, T-002, T-003, T-004, T-005, T-006, T-026, T-027, T-031, T-047 |
+| **ADRs** | [ADR-0041](../docs/adr/0041-brand-keelstart-everywhere-customers-look.md), [ADR-0031](../docs/adr/0031-electronic-signatures-and-signed-pdfs.md), [ADR-0032](../docs/adr/0032-services-and-http-api-v2.md), [ADR-0014](../docs/adr/0014-founding-documents-and-signoff-state-machine.md), [ADR-0026](../docs/adr/0026-accounts-sessions-request-context-and-authorization.md), [ADR-0030](../docs/adr/0030-plans-billing-stripe-and-entitlements.md), [ADR-0029](../docs/adr/0029-transactional-email-notifications-and-83b-reminders.md), [ADR-0013](../docs/adr/0013-case-validation-cap-table-and-vesting-rules.md), [ADR-0027](../docs/adr/0027-persistence-v2-postgresql-sqlite-migrations-and-data-model.md) |
 | **Status** | todo |
 
 ## Goal
@@ -25,7 +25,7 @@ documents download as signed PDFs, and every document as an editable Word copy.
 ## Contracts
 
 - **Provides:** `LegalService(repo, accounts, team, notifier, *, clock=utcnow)` implementing `LegalServicePort` (ADR-0032), including `regenerate_if_drafted`, `get_document`, `signed_pdf`, `docx`.
-- **Consumes:** `validate_facts` (T-002), `build_cap_table`, `cap_table_csv`, `cap_table_xlsx` (T-003), the T-004 machine with `SignatureEvidence`, `Repository` (T-005), `draft_documents` (T-006), `TeamRepository` (T-027) for signer accounts, `AccountsRepository` (T-026; tests may use an in-file fake for email-verified lookups), `render_signed_pdf`, `render_docx` (called with `brand_name=settings.brand_name`, ADR-0039), `SignerInfo` (T-031), `Notifier`/`RecordingNotifier`, `CaseAccess`, `SignRequest`, `EditRequest`, `names_match`, `ESIGN_CONSENT_VERSION` (T-001).
+- **Consumes:** `validate_facts` (T-002), `build_cap_table`, `cap_table_csv`, `cap_table_xlsx` (T-003), the T-004 machine with `SignatureEvidence`, `Repository` (T-005), `draft_documents` (T-006), `TeamRepository` (T-027) for signer accounts, `AccountsRepository` (T-026; tests may use an in-file fake for email-verified lookups), `render_signed_pdf`, `render_docx` (called with `brand_name=settings.brand_name`, ADR-0041), `SignerInfo` (T-031), `Notifier`/`RecordingNotifier`, `CaseAccess`, `SignRequest`, `EditRequest`, `names_match`, `ESIGN_CONSENT_VERSION` (T-001).
 
 ## Acceptance criteria
 

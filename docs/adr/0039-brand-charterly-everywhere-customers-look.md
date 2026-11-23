@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Accepted |
+| **Status** | Superseded by [ADR-0041](0041-brand-keelstart-everywhere-customers-look.md) |
 | **Date** | 2026-11-23 |
 | **Deciders** | Supervisor, product owner (Q-007: Charterly) |
 | **Tickets** | T-001 (constant, setting, greeting), T-011 (brand kit, titles), T-043 (landing, pricing, legal pages), T-028 (emails), T-031 (PDF and Word), T-015 (passes the brand), T-037 (export file name), T-046 (demo video), T-012 (Manager copy) |

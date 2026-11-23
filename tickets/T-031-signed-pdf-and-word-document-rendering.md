@@ -4,7 +4,7 @@
 |---|---|
 | **Wave** | 1 |
 | **Depends on** | T-001 |
-| **ADRs** | [ADR-0039](../docs/adr/0039-brand-charterly-everywhere-customers-look.md), [ADR-0031](../docs/adr/0031-electronic-signatures-and-signed-pdfs.md), [ADR-0014](../docs/adr/0014-founding-documents-and-signoff-state-machine.md), [ADR-0025](../docs/adr/0025-dependency-set-v2-python-and-npm.md), [ADR-0033](../docs/adr/0033-security-hardening.md) |
+| **ADRs** | [ADR-0041](../docs/adr/0041-brand-keelstart-everywhere-customers-look.md), [ADR-0031](../docs/adr/0031-electronic-signatures-and-signed-pdfs.md), [ADR-0014](../docs/adr/0014-founding-documents-and-signoff-state-machine.md), [ADR-0025](../docs/adr/0025-dependency-set-v2-python-and-npm.md), [ADR-0033](../docs/adr/0033-security-hardening.md) |
 | **Status** | todo |
 
 ## Goal
@@ -33,10 +33,10 @@ the placeholders themselves.
 3. The PDF contains (asserted on the flowables the renderer builds and, rendered with page compression off, on the PDF content streams): company, title, "Version n", the full body, one signature block per signer with typed name, founder name, account email, UTC timestamp, IP, consent version, the document SHA-256, "acted in demo mode" when applicable, the certificate of completion with this document's audit entries, and on every page the footer with document id, version, hash prefix, page x of y and `LEGAL_NOTICE`.
 4. Placeholders (`[ADDRESS]`, `[TAXPAYER ID]` ...) are kept verbatim; no other personal data is added.
 5. Determinism: same inputs -> byte-identical PDF (`invariant=1`), asserted by hashing two renders.
-6. `render_docx` returns a valid `.docx` (opens with python-docx) with the title, the ADR-0039 editable-copy note, the body, and every placeholder highlighted; works for any status.
+6. `render_docx` returns a valid `.docx` (opens with python-docx) with the title, the ADR-0041 editable-copy note, the body, and every placeholder highlighted; works for any status.
 7. Non-ASCII names (e.g. "José Núñez") render correctly using the Vera TrueType fonts bundled with reportlab (embedded; italic for the typed signature); no font files are downloaded.
 8. A 30-page document renders in under 2 s.
-9. Branding (ADR-0039): PDF metadata creator and producer are the brand name, title is the document title and author the company; the certificate is titled "Certificate of completion - Charterly e-signature record"; every page footer ends with "Signed with Charterly"; the Word copy's core properties creator is the brand and its first-page note reads "Editable copy from Charterly - not the signed record"; passing `brand_name="Acme Sign"` changes all of them; the document body never names the brand.
+9. Branding (ADR-0041): PDF metadata creator and producer are the brand name, title is the document title and author the company; the certificate is titled "Certificate of completion - Keelstart e-signature record"; every page footer ends with "Signed with Keelstart"; the Word copy's core properties creator is the brand and its first-page note reads "Editable copy from Keelstart - not the signed record"; passing `brand_name="Acme Sign"` changes all of them; the document body never names the brand. Tests compare against `BRAND_NAME` / `settings.brand_name` or pass the brand explicitly, never a typed-out default, so they pass before and after T-047 changes the default to "Keelstart" (ADR-0041).
 
 ## Feature run (`evidence/T-031/feature_run.py`)
 

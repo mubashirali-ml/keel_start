@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Accepted; email branding in [ADR-0039](0039-brand-charterly-everywhere-customers-look.md) |
+| **Status** | Accepted; email branding in [ADR-0041](0041-brand-keelstart-everywhere-customers-look.md) (was ADR-0039) |
 | **Date** | 2026-11-23 |
 | **Deciders** | Supervisor, product owner |
 | **Tickets** | T-001 (types, ports, fakes), T-028 (templates, outbox, SMTP), T-035 (notifier, reminder sweep), T-026/T-027/T-015 (senders) |

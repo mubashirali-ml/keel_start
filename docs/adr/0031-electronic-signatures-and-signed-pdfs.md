@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Accepted; PDF and Word branding in [ADR-0039](0039-brand-charterly-everywhere-customers-look.md) |
+| **Status** | Accepted; PDF and Word branding in [ADR-0041](0041-brand-keelstart-everywhere-customers-look.md) (was ADR-0039) |
 | **Date** | 2026-11-23 |
 | **Deciders** | Supervisor, product owner |
 | **Tickets** | T-001 (types, constants, hash helper), T-004 (machine), T-031 (PDF/DOCX), T-015 (service), T-017 (routes), T-020 (screens) |

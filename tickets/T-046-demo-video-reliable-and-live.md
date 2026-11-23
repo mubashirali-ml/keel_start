@@ -4,7 +4,7 @@
 |---|---|
 | **Wave** | 6 |
 | **Depends on** | T-023 |
-| **ADRs** | [ADR-0039](../docs/adr/0039-brand-charterly-everywhere-customers-look.md), [ADR-0037](../docs/adr/0037-demo-video-scripted-recording-reliable-and-live-modes.md), [ADR-0036](../docs/adr/0036-ui-recorded-runs-with-accounts-and-demo-seeding-v2.md), [ADR-0022](../docs/adr/0022-llm-providers-fake-claude-code-anthropic-deepseek-groq.md), [ADR-0035](../docs/adr/0035-frontend-v2-brand-routes-layout-and-feature-boundaries.md), [ADR-0025](../docs/adr/0025-dependency-set-v2-python-and-npm.md), [ADR-0003](../docs/adr/0003-merge-gate-tests-and-recorded-run.md) |
+| **ADRs** | [ADR-0041](../docs/adr/0041-brand-keelstart-everywhere-customers-look.md), [ADR-0037](../docs/adr/0037-demo-video-scripted-recording-reliable-and-live-modes.md), [ADR-0036](../docs/adr/0036-ui-recorded-runs-with-accounts-and-demo-seeding-v2.md), [ADR-0022](../docs/adr/0022-llm-providers-fake-claude-code-anthropic-deepseek-groq.md), [ADR-0035](../docs/adr/0035-frontend-v2-brand-routes-layout-and-feature-boundaries.md), [ADR-0025](../docs/adr/0025-dependency-set-v2-python-and-npm.md), [ADR-0003](../docs/adr/0003-merge-gate-tests-and-recorded-run.md) |
 | **Status** | todo |
 
 ## Goal
@@ -33,7 +33,7 @@ real AI, real domain checks and a real deploy in live mode.
 ## Acceptance criteria
 
 1. `bash scripts/py.sh demo/record_demo.py` (reliable, default) runs offline with fake LLM, RDAP, hosting, email and payments, `DEMO_MODE=1`, `LAUNCH_TODAY`, and writes `demo/output/<UTC timestamp>/` with `demo.webm`, `demo.mp4` (H.264, yuv420p, playable), `screenshots/NN-<step>.png` for each of the nine ADR-0037 steps, `artifacts/` (documents, `cap-table.csv`, `cap-table.xlsx`, signed PDFs, website files, `qa-report.json`, `checklist.json`, `names.json`, `emails.json`, `transcript.json`) and `summary.json`.
-2. Video is 1920x1080, 3–6 minutes at `--pace normal`; the video opens with a Charterly title card (word mark and tagline, ADR-0039) and ends with an end card; every step starts with a 1-second title card and shows a caption bar (agent name in its accent color + one-sentence caption) that is legible in the screenshots.
+2. Video is 1920x1080, 3–6 minutes at `--pace normal`; the video opens with a Keelstart title card (word mark and tagline, ADR-0041) and ends with an end card; every step starts with a 1-second title card and shows a caption bar (agent name in its accent color + one-sentence caption) that is legible in the screenshots.
 3. Each step asserts the visible, tangible output listed in ADR-0037 before continuing (Manager summary; Law answer and 2 + one-per-founder documents; 5 name cards with Taken and Available badges; Bob joined; cap table 10,000,000 with chart and a completed Excel download; invalidation message then Executed on all documents and a downloaded signed PDF; preview, QA round failed then passed, deploy URL or "Packaged"; ticked checklist with progress; Overview end state).
 4. Waits are conditions with timeouts (no fixed sleeps except the pacing holds); a failing step stops the run, keeps the partial video and screenshot, prints the step and reason, and exits non-zero.
 5. Reliable mode is deterministic: two runs produce byte-identical deterministic artifacts (Markdown documents, CSV, website files, QA report, checklist, names, transcript text), the XLSX and PDFs equal by extracted content, and `summary.json` hashes match.

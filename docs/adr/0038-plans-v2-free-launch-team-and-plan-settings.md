@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Accepted |
+| **Status** | Accepted; support wording superseded by [ADR-0042](0042-support-wording-no-promised-reply-times.md) |
 | **Date** | 2026-11-23 |
 | **Deciders** | Supervisor, product owner (Q-006: three tiers; support reply times: open question Q-009) |
 | **Tickets** | T-001 (types, settings, ports, fakes), T-029 (billing), T-032 (allowance message), T-014 (company limit), T-038 / T-045 (admin), T-040 (routes), T-016 (wiring), T-011 (`PlanGate`, support link), T-043 (pricing page), T-044 (billing settings), T-034 (Stripe setup guide), T-023 (journey) |

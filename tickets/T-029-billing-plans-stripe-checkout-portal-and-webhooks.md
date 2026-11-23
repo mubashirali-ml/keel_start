@@ -4,7 +4,7 @@
 |---|---|
 | **Wave** | 1 |
 | **Depends on** | T-001 |
-| **ADRs** | [ADR-0038](../docs/adr/0038-plans-v2-free-launch-team-and-plan-settings.md), [ADR-0030](../docs/adr/0030-plans-billing-stripe-and-entitlements.md), [ADR-0027](../docs/adr/0027-persistence-v2-postgresql-sqlite-migrations-and-data-model.md), [ADR-0023](../docs/adr/0023-reliability-timeouts-retries-and-failure-states.md), [ADR-0021](../docs/adr/0021-settings-environments-and-production-guards.md), [ADR-0025](../docs/adr/0025-dependency-set-v2-python-and-npm.md) |
+| **ADRs** | [ADR-0038](../docs/adr/0038-plans-v2-free-launch-team-and-plan-settings.md), [ADR-0042](../docs/adr/0042-support-wording-no-promised-reply-times.md), [ADR-0030](../docs/adr/0030-plans-billing-stripe-and-entitlements.md), [ADR-0027](../docs/adr/0027-persistence-v2-postgresql-sqlite-migrations-and-data-model.md), [ADR-0023](../docs/adr/0023-reliability-timeouts-retries-and-failure-states.md), [ADR-0021](../docs/adr/0021-settings-environments-and-production-guards.md), [ADR-0025](../docs/adr/0025-dependency-set-v2-python-and-npm.md) |
 | **Status** | todo |
 
 ## Goal
@@ -29,7 +29,7 @@ monthly and yearly, without a second subscription.
 ## Contracts
 
 - **Provides:** `BillingService` (every method of ADR-0030 with the ADR-0038 constructor, changes and additions: `plans`, `overview`, `start_checkout`, `change_plan`, `check_prices`), `DbEntitlements(billing, plans)` (implements `EntitlementsProvider`), `price_id_for`, `plan_for_price`, `StripePaymentGateway(settings, *, client=None)` (implements `PaymentGateway`), `BillingRepository`.
-- **Consumes:** `Plan`, `PLANS`, `PlanId`, `BillingInterval`, `Entitlements`, `Subscription`, `SubscriptionStatus`, `CheckoutSession`, `PaymentEvent`, `PaymentGateway`, `FakePaymentGateway`, `UsageCounter`, `UsageSummary`, `BillingOverview`, `PriceCheck`, `Settings.plans()`, `User`, errors (T-001); `AccountsRepository` through an in-file fake in tests; package `stripe`.
+- **Consumes:** `Plan`, `PLANS`, `PlanId`, `BillingInterval`, `Entitlements`, `Subscription`, `SubscriptionStatus`, `CheckoutSession`, `PaymentEvent`, `PaymentGateway`, `FakePaymentGateway`, `UsageCounter`, `UsageSummary`, `BillingOverview`, `PriceCheck`, `Settings.plans()`, `User`, errors (T-001); `AccountsRepository` through an in-file fake in tests; package `stripe`. Plan names, labels and highlights come from `Settings.plans()` / `PLANS`; tests never type out support labels (ADR-0042 changes them in T-047, which may merge before or after this ticket).
 
 ## Acceptance criteria
 

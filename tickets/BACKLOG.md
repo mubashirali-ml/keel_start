@@ -4,24 +4,25 @@ Plan for building [the product brief](../docs/product-brief.md). Architecture de
 Machine-readable twin: [plan.json](plan.json). Product decisions log: [product-decisions.md](../docs/product-decisions.md).
 
 Tickets in the same wave own disjoint paths and run in parallel; each depends only on earlier waves.
-46 tickets in 7 waves.
+47 tickets in 7 waves.
 
-**Delivery status (2026-11-23).** Run over waves 0 and 1 closed: T-001 escalated after 3 review
-rounds (approved in round 3, not yet on `main`: a PR-record heading fix by the Builder, then one
-human run of the merge gate). Wave 1 did not start because all its tickets depend on T-001; they
-stay `todo`. **Next wave: 1** (20 tickets), as soon as T-001 is `merged`.
+**Delivery status (2026-11-23).** T-001 is `merged` (operator ran the merge gate: all checks passed,
+590 tests, merge commit `7ad2082`). From now on the gate runs in the operator's session and approved
+tickets come back as `approved` for the operator to merge
+([ADR-0040](../docs/adr/0040-merge-gate-runs-in-the-operators-session.md)). **Next wave: 1** (21 tickets,
+including the new T-047 for the Keelstart rename and support wording).
 
 ## Wave 0
 
-Groundwork: the shared vocabulary of the product, the contracts for accounts, billing, email and background jobs, the database layout, and stand-ins for the AI and every outside service, so twenty pieces can be built at the same time next. Nothing to look at yet.
+Groundwork: the shared vocabulary of the product, the contracts for accounts, billing, email and background jobs, the database layout, and stand-ins for the AI and every outside service, so twenty-one pieces can be built at the same time next. Nothing to look at yet.
 
 | Ticket | Title | Depends on | Owns | Status |
 |---|---|---|---|---|
-| [T-001](T-001-foundation-skeleton-contracts-and-fakes.md) | Foundation: package skeleton, shared and cross-cutting contracts, schema, fakes and typed stubs | — | `launch_agents/`<br>`migrations/`<br>`alembic.ini`<br>`tests/conftest.py`<br>`tests/test_foundation.py`<br>`pytest.ini`<br>`.env.example`<br>`evidence/T-001/`<br>`prs/T-001.md` | escalated (approved in round 3, not merged at run close; two small steps remain, see the ticket's Escalation section) |
+| [T-001](T-001-foundation-skeleton-contracts-and-fakes.md) | Foundation: package skeleton, shared and cross-cutting contracts, schema, fakes and typed stubs | — | `launch_agents/`<br>`migrations/`<br>`alembic.ini`<br>`tests/conftest.py`<br>`tests/test_foundation.py`<br>`pytest.ini`<br>`.env.example`<br>`evidence/T-001/`<br>`prs/T-001.md` | merged |
 
 ## Wave 1
 
-Twenty pieces built side by side: the automatic rules (equity, vesting, 83(b), cap table, approvals), saving to SQLite and PostgreSQL, the five specialist agents, the AI connections (your own Claude Code login on your machine, the Anthropic API for production), accounts and co-founder invites, email, Stripe billing for the Free, Launch and Team plans, background jobs, signed PDFs, security and logging, and the app's look and feel. You can open the design gallery and see the brand in light and dark mode.
+Twenty-one pieces built side by side: the automatic rules (equity, vesting, 83(b), cap table, approvals), saving to SQLite and PostgreSQL, the five specialist agents, the AI connections (your own Claude Code login on your machine, the Anthropic API for production), accounts and co-founder invites, email, Stripe billing for the Free, Launch and Team plans, background jobs, signed PDFs, security and logging, the app's look and feel, and the switch of the built-in name to Keelstart. You can open the design gallery and see the Keelstart brand and logo in light and dark mode.
 
 | Ticket | Title | Depends on | Owns | Status |
 |---|---|---|---|---|
@@ -45,6 +46,7 @@ Twenty pieces built side by side: the automatic rules (equity, vesting, 83(b), c
 | [T-031](T-031-signed-pdf-and-word-document-rendering.md) | Signed PDF and editable Word rendering of founding documents | T-001 | `launch_agents/pdf/`<br>`tests/test_pdf.py`<br>`evidence/T-031/`<br>`prs/T-031.md` | todo |
 | [T-032](T-032-security-csrf-headers-rate-limits-usage-limits-and-pii.md) | Security: CSRF, security headers, rate limits, per-account AI usage limits and the sensitive-data scrubber | T-001 | `launch_agents/security/`<br>`launch_agents/persistence/limits.py`<br>`tests/test_security.py`<br>`tests/test_rate_limits.py`<br>`tests/test_metering.py`<br>`tests/test_pii.py`<br>`evidence/T-032/`<br>`prs/T-032.md` | todo |
 | [T-033](T-033-observability-structured-logs-request-ids-and-error-reporting.md) | Observability: structured logs, request ids, redaction and pluggable error reporting | T-001 | `launch_agents/observability/`<br>`tests/test_observability.py`<br>`evidence/T-033/`<br>`prs/T-033.md` | todo |
+| [T-047](T-047-keelstart-brand-and-support-wording-in-foundation.md) | Foundation follow-up: the Keelstart brand and support wording without reply times | T-001 | `launch_agents/domain/constants.py`<br>`launch_agents/domain/billing.py`<br>`.env.example`<br>`tests/test_foundation.py`<br>`evidence/T-047/`<br>`prs/T-047.md` | todo |
 
 ## Wave 2
 
@@ -55,9 +57,9 @@ The services that join it all up: the Manager conversation with hand-overs, the 
 | [T-012](T-012-manager-agent-and-turn-graph.md) | Manager Agent and the LangGraph turn graph (routing, handoffs, fact gathering) | T-001, T-002, T-006, T-007, T-008, T-010 | `launch_agents/agents/manager/`<br>`launch_agents/orchestrator/`<br>`tests/test_manager_agent.py`<br>`tests/test_orchestrator.py`<br>`evidence/T-012/`<br>`prs/T-012.md` | todo |
 | [T-013](T-013-website-pipeline-and-service.md) | Website pipeline and service: build, QA, automatic fixes and deploy gate, as tracked jobs | T-001, T-005, T-008, T-009, T-030 | `launch_agents/pipelines/`<br>`launch_agents/workflows/website.py`<br>`tests/test_website_pipeline.py`<br>`tests/test_website_service.py`<br>`evidence/T-013/`<br>`prs/T-013.md` | todo |
 | [T-014](T-014-case-service-conversation-and-progress.md) | Case service: companies per account, conversations, action execution, names, checklist and progress | T-001, T-002, T-005, T-007, T-010, T-027, T-032 | `launch_agents/workflows/case.py`<br>`tests/test_case_service.py`<br>`evidence/T-014/`<br>`prs/T-014.md` | todo |
-| [T-015](T-015-legal-service-cap-table-documents-signoff.md) | Legal service: cap table, document generation, electronic signatures, signed downloads and audit trail | T-001, T-002, T-003, T-004, T-005, T-006, T-026, T-027, T-031 | `launch_agents/workflows/legal.py`<br>`tests/test_legal_service.py`<br>`evidence/T-015/`<br>`prs/T-015.md` | todo |
+| [T-015](T-015-legal-service-cap-table-documents-signoff.md) | Legal service: cap table, document generation, electronic signatures, signed downloads and audit trail | T-001, T-002, T-003, T-004, T-005, T-006, T-026, T-027, T-031, T-047 | `launch_agents/workflows/legal.py`<br>`tests/test_legal_service.py`<br>`evidence/T-015/`<br>`prs/T-015.md` | todo |
 | [T-035](T-035-notifications-and-83b-deadline-reminders.md) | Notifications and 83(b) deadline reminders | T-005, T-026, T-027, T-028, T-030 | `launch_agents/notifications/`<br>`tests/test_notifications.py`<br>`tests/test_reminders.py`<br>`evidence/T-035/`<br>`prs/T-035.md` | todo |
-| [T-037](T-037-privacy-data-export-and-account-deletion.md) | Privacy: export all my data and delete my account | T-003, T-005, T-026, T-027, T-029, T-031 | `launch_agents/privacy/`<br>`launch_agents/persistence/privacy.py`<br>`tests/test_privacy.py`<br>`evidence/T-037/`<br>`prs/T-037.md` | todo |
+| [T-037](T-037-privacy-data-export-and-account-deletion.md) | Privacy: export all my data and delete my account | T-003, T-005, T-026, T-027, T-029, T-031, T-047 | `launch_agents/privacy/`<br>`launch_agents/persistence/privacy.py`<br>`tests/test_privacy.py`<br>`evidence/T-037/`<br>`prs/T-037.md` | todo |
 | [T-038](T-038-admin-service-and-admin-cli.md) | Admin service and CLI: customers, companies, plans, AI usage, failed jobs and emails | T-005, T-026, T-027, T-028, T-029, T-030, T-032 | `launch_agents/admin/`<br>`launch_agents/persistence/admin.py`<br>`tests/test_admin.py`<br>`evidence/T-038/`<br>`prs/T-038.md` | todo |
 
 ## Wave 3
@@ -66,7 +68,7 @@ The complete, secured backend: every endpoint checks who you are and what you ma
 
 | Ticket | Title | Depends on | Owns | Status |
 |---|---|---|---|---|
-| [T-016](T-016-api-core-composition-and-demo-seed.md) | Composition root, secured app factory, health and readiness, and demo seeding | T-012, T-013, T-014, T-015, T-024, T-025, T-026, T-027, T-028, T-029, T-030, T-032, T-033, T-035, T-037, T-038 | `launch_agents/composition.py`<br>`launch_agents/api/__init__.py`<br>`launch_agents/api/app.py`<br>`launch_agents/api/errors.py`<br>`launch_agents/api/deps.py`<br>`launch_agents/api/middleware.py`<br>`launch_agents/api/schemas.py`<br>`launch_agents/api/routes/__init__.py`<br>`launch_agents/demo/`<br>`tests/test_composition.py`<br>`tests/test_api_app.py`<br>`tests/test_api_routes_contract.py`<br>`tests/test_demo_seed.py`<br>`evidence/T-016/`<br>`prs/T-016.md` | todo |
+| [T-016](T-016-api-core-composition-and-demo-seed.md) | Composition root, secured app factory, health and readiness, and demo seeding | T-012, T-013, T-014, T-015, T-024, T-025, T-026, T-027, T-028, T-029, T-030, T-032, T-033, T-035, T-037, T-038, T-047 | `launch_agents/composition.py`<br>`launch_agents/api/__init__.py`<br>`launch_agents/api/app.py`<br>`launch_agents/api/errors.py`<br>`launch_agents/api/deps.py`<br>`launch_agents/api/middleware.py`<br>`launch_agents/api/schemas.py`<br>`launch_agents/api/routes/__init__.py`<br>`launch_agents/demo/`<br>`tests/test_composition.py`<br>`tests/test_api_app.py`<br>`tests/test_api_routes_contract.py`<br>`tests/test_demo_seed.py`<br>`evidence/T-016/`<br>`prs/T-016.md` | todo |
 | [T-017](T-017-api-legal-cap-table-and-website-routes.md) | HTTP API: cap table, documents and e-signatures, signed downloads, audit, and website jobs | T-005, T-013, T-015, T-027, T-031, T-032 | `launch_agents/api/routes/legal.py`<br>`launch_agents/api/routes/website.py`<br>`tests/test_api_legal.py`<br>`tests/test_api_website.py`<br>`evidence/T-017/`<br>`prs/T-017.md` | todo |
 | [T-039](T-039-api-auth-account-team-and-privacy-routes.md) | HTTP API: sign-up, login, sessions, account settings, data export and deletion, team and invites | T-026, T-027, T-032, T-037 | `launch_agents/api/routes/auth.py`<br>`launch_agents/api/routes/account.py`<br>`launch_agents/api/routes/team.py`<br>`tests/test_api_auth.py`<br>`tests/test_api_account.py`<br>`tests/test_api_team.py`<br>`evidence/T-039/`<br>`prs/T-039.md` | todo |
 | [T-040](T-040-api-billing-webhook-and-admin-routes.md) | HTTP API: plans, Stripe checkout and portal, webhook, test checkout, and the admin endpoints | T-029, T-030, T-032, T-038 | `launch_agents/api/routes/billing.py`<br>`launch_agents/api/routes/admin.py`<br>`tests/test_api_billing.py`<br>`tests/test_api_admin.py`<br>`evidence/T-040/`<br>`prs/T-040.md` | todo |
@@ -74,7 +76,7 @@ The complete, secured backend: every endpoint checks who you are and what you ma
 
 ## Wave 4
 
-Every screen: the Charterly landing page and pricing with Free, Launch and Team, sign-up and onboarding, chat and overview, names and domains, legal e-signing, cap table, website, registration guide, settings with billing and team, and the admin area, each checked in a real browser; plus Docker with PostgreSQL and automatic checks on every change.
+Every screen: the Keelstart landing page and pricing with Free, Launch and Team, sign-up and onboarding, chat and overview, names and domains, legal e-signing, cap table, website, registration guide, settings with billing and team, and the admin area, each checked in a real browser; plus Docker with PostgreSQL and automatic checks on every change.
 
 | Ticket | Title | Depends on | Owns | Status |
 |---|---|---|---|---|
@@ -112,7 +114,7 @@ Each has a default already applied in the plan; confirm or change it.
 
 | Id | Ticket | Question | Recommended |
 |---|---|---|---|
-| Q-009 | T-043 | What reply times do you promise on each plan? | Best effort / 2 days / 1 day |
+| Q-010 | T-043 | Should the landing-page tagline change now that the product is called Keelstart? | Keep the current tagline |
 
 ## Answered
 
@@ -124,5 +126,6 @@ Each has a default already applied in the plan; confirm or change it.
 | Q-004 | When does founder vesting start? | On the incorporation date |
 | Q-005 | Which pages should the website have when the founder doesn't say? | Home, About, Services, Contact |
 | Q-006 | How should founders pay for the product, and how much? | Three tiers: Free, Launch $29/month, Team $79/month ([ADR-0038](../docs/adr/0038-plans-v2-free-launch-team-and-plan-settings.md)) |
-| Q-007 | What should the product be called? | Charterly ([ADR-0039](../docs/adr/0039-brand-charterly-everywhere-customers-look.md)) |
+| Q-007 | What should the product be called? | Charterly ([ADR-0039](../docs/adr/0039-brand-charterly-everywhere-customers-look.md)); later renamed **Keelstart** by the owner ([ADR-0041](../docs/adr/0041-brand-keelstart-everywhere-customers-look.md)) |
 | Q-008 | When a founder deletes their account, what happens to a company they share with co-founders? | Company stays with co-founders |
+| Q-009 | What reply times should the pricing page promise for support on each plan? | No promised times: "Email support" on every plan, "Priority support" on Team ([ADR-0042](../docs/adr/0042-support-wording-no-promised-reply-times.md)) |
