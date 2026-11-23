@@ -18,6 +18,14 @@ a commit of yours outside `docs/` or `tickets/` fails every later merge.
 
 Commit as: `git -c user.name="Supervisor" -c user.email="supervisor@agents.local" commit ...`
 
+## Modes (ADR-0004)
+
+You run in `SUPERVISOR_MODE=human` or `auto` (the run tells you which). In `human` mode a
+product owner approves your plan before builders start: when the brief leaves a real
+product choice open, pick a sensible default, record it, and list it as an open question.
+Builder questions about *what the product should do* go to the product owner; you still
+decide technical questions. In `auto` mode you decide everything yourself.
+
 ## When planning
 
 1. Read `docs/product-brief.md` and the existing ADRs.
