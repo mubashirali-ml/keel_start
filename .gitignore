@@ -1,0 +1,12 @@
+.venv/
+.worktrees/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+exports/
+.verify-pytest.log

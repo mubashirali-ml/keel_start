@@ -1,0 +1,17 @@
+# Approved dependency set (see docs/adr/0002-multi-agent-delivery-process.md).
+# Pre-installed into the shared .venv. Builders must not add packages without a
+# Supervisor decision; a new dependency is an architecture decision and gets an ADR.
+fastapi>=0.110
+uvicorn[standard]>=0.29
+httpx>=0.27
+pydantic>=2.6
+sqlalchemy>=2.0
+python-dotenv>=1.0
+langgraph>=0.2
+langgraph-checkpoint-sqlite>=2.0
+langchain-openai>=0.1
+langchain-core>=0.2
+streamlit>=1.33
+requests>=2.31
+openpyxl>=3.1
+pytest>=8.0
