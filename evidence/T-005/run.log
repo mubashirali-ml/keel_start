@@ -1,9 +1,9 @@
 # Recorded feature run
 ticket:      T-005
 branch:      ticket/T-005
-commit:      b29b543067896479139f90a9f43219c5c0ea0807
+commit:      669708c6cfa099362063a0bd2e15ec7c7ce8e377
 uncommitted: 0 file(s) outside evidence/ and prs/
-recorded_at: 2026-11-23T11:50:07Z
+recorded_at: 2026-11-23T11:52:38Z
 python:      3.12.10
 command:     bash scripts/py.sh evidence/T-005/feature_run.py
 exit_code:   0
@@ -14,8 +14,8 @@ SQLite file: <tmp>/feature_run.db
   schema_is_current: True
   tables (21): admin_audit, audit_log, auth_tokens, billing_events, cases, checklist_items, document_versions, documents, email_outbox, invites, jobs, llm_usage, memberships, messages, rate_limits, sessions, signatures, site_builds, subscriptions, users, worker_heartbeats
 company
-  id: case_5fccba0fc779
-  created_by / billing_user_id: usr_4063c43a78e4 / usr_4063c43a78e4
+  id: case_8027c89b24ba
+  created_by / billing_user_id: usr_7ececcbd98e5 / usr_7ececcbd98e5
   equity: ['62.5', '37.5']
 messages
   seq 1: [founder/f1] We want to form a Wyoming LLC.
@@ -25,14 +25,14 @@ document v1 signed; evidence:
   founder_id: f1
   version: 1
   signed_at: 2026-11-23T10:05:00Z
-  user_id: usr_4063c43a78e4
+  user_id: usr_7ececcbd98e5
   typed_name: Alice Chen
   consent_version: esign-2026-11
   content_sha256: ad5ffabd4eb8d90b7ad4b33701531a9a0e4bb2f4c767f90c8ae4a4ab922e7d0f
   ip: 203.0.113.7
   user_agent: Mozilla/5.0 (feature run)
   acted_by_user_id: None
-  stale save (expected_version=1 while at v2): rejected: stale_version {'document_id': 'doc_b5cb10078790', 'current_version': 2, 'expected_version': 1}
+  stale save (expected_version=1 while at v2): rejected: stale_version {'document_id': 'doc_7fef74cca0f5', 'current_version': 2, 'expected_version': 1}
   document now: v2, signatures on current version: 0
 audit
   #1: facts_locked by system (None->None)
