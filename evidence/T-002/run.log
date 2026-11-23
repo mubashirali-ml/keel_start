@@ -1,0 +1,133 @@
+# Recorded feature run
+ticket:      T-002
+branch:      ticket/T-002
+commit:      2dc67fa16c07c9b30474a5ce5bb270f2e7f2f9f3
+uncommitted: 0 file(s) outside evidence/ and prs/
+recorded_at: 2026-11-23T12:24:46Z
+python:      3.12.10
+command:     bash scripts/py.sh evidence/T-002/feature_run.py
+exit_code:   0
+----------------------------------------------------------------------
+
+==============================================================================
+1. Sample two-founder Wyoming LLC (Bob has no vesting stated)
+==============================================================================
+  input:
+    business_description: 'bookkeeping software for small bakeries'
+    entity_type:          LLC
+    state:                'WY'
+    incorporation_date:   2026-12-01
+    founder f1: 'Alice Chen' <alice@example.com> 60% vesting=48 cliff=12
+    founder f2: 'Bob Diaz' <bob@example.com> 40% vesting=None cliff=None
+  output:
+    ok:      True
+    missing: []
+    notes:   ['No vesting was given for Bob Diaz, so I used the standard 48 months with a 12-month cliff.']
+    issues:  0
+    normalised f1: vesting=48 cliff=12
+    normalised f2: vesting=48 cliff=12
+  [ok] input facts were not mutated
+  [ok] ok is True
+  [ok] no issues, nothing missing
+  [ok] one default-vesting note naming Bob
+  [ok] Bob normalised to 48/12
+  [ok] caller's Bob still has no vesting (pure)
+  83(b) deadline: 2026-12-31 (38 days from 2026-11-23)
+  [ok] 83(b) deadline is incorporation date + 30 days = 2026-12-31
+  [ok] 38 days left on 2026-11-23
+
+==============================================================================
+2. Equity adds up to 90% (60 + 30)
+==============================================================================
+  input:
+    business_description: 'bookkeeping software for small bakeries'
+    entity_type:          LLC
+    state:                'WY'
+    incorporation_date:   2026-12-01
+    founder f1: 'Alice Chen' <alice@example.com> 60% vesting=48 cliff=12
+    founder f2: 'Bob Diaz' <bob@example.com> 30% vesting=None cliff=None
+  output:
+    ok:      False
+    missing: []
+    notes:   ['No vesting was given for Bob Diaz, so I used the standard 48 months with a 12-month cliff.']
+    issues:  1
+      - equity_total (field=founders, founder=None): Equity adds up to 90%; it must total exactly 100%.
+    normalised f1: vesting=48 cliff=12
+    normalised f2: vesting=48 cliff=12
+  [ok] input facts were not mutated
+  [ok] ok is False
+  [ok] exactly one issue: equity_total
+  [ok] message states the 90% total
+
+==============================================================================
+3. Bob's cliff (13 months) is longer than his vesting (12 months)
+==============================================================================
+  input:
+    business_description: 'bookkeeping software for small bakeries'
+    entity_type:          LLC
+    state:                'WY'
+    incorporation_date:   2026-12-01
+    founder f1: 'Alice Chen' <alice@example.com> 60% vesting=48 cliff=12
+    founder f2: 'Bob Diaz' <bob@example.com> 40% vesting=12 cliff=13
+  output:
+    ok:      False
+    missing: []
+    notes:   []
+    issues:  1
+      - cliff_exceeds_vesting (field=founders.cliff_months, founder=f2): Bob Diaz's cliff of 13 months is longer than their 12 months of vesting. The cliff can't be longer than the vesting period.
+    normalised f1: vesting=48 cliff=12
+    normalised f2: vesting=12 cliff=13
+  [ok] input facts were not mutated
+  [ok] ok is False
+  [ok] exactly one issue: cliff_exceeds_vesting for f2
+  [ok] message names Bob Diaz
+
+==============================================================================
+4. Delaware C-Corp with state WY
+==============================================================================
+  input:
+    business_description: 'bookkeeping software for small bakeries'
+    entity_type:          Delaware C-Corp
+    state:                'WY'
+    incorporation_date:   2026-12-01
+    founder f1: 'Alice Chen' <alice@example.com> 60% vesting=48 cliff=12
+    founder f2: 'Bob Diaz' <bob@example.com> 40% vesting=None cliff=None
+  output:
+    ok:      False
+    missing: []
+    notes:   ['No vesting was given for Bob Diaz, so I used the standard 48 months with a 12-month cliff.']
+    issues:  1
+      - entity_state_mismatch (field=state, founder=None): A Delaware C-Corp has to be formed in Delaware, but the state is Wyoming. Choose Delaware, or form an LLC instead.
+    normalised f1: vesting=48 cliff=12
+    normalised f2: vesting=48 cliff=12
+  [ok] input facts were not mutated
+  [ok] ok is False
+  [ok] exactly one issue: entity_state_mismatch
+
+==============================================================================
+5. Half-filled case (only a state and one founder so far)
+==============================================================================
+  input:
+    business_description: None
+    entity_type:          None
+    state:                'wy'
+    incorporation_date:   None
+    founder f1: 'Alice Chen' <alice@example.com> 100% vesting=None cliff=None
+  output:
+    ok:      False
+    missing: ['business_description', 'entity_type', 'incorporation_date']
+    notes:   ['No vesting was given for Alice Chen, so I used the standard 48 months with a 12-month cliff.']
+    issues:  0
+    normalised f1: vesting=48 cliff=12
+  [ok] input facts were not mutated
+  missing facts in ask order:
+    1. business_description
+    2. entity_type
+    3. incorporation_date
+  [ok] missing = business_description, entity_type, incorporation_date (ADR order)
+  [ok] missing_facts() agrees with validate_facts().missing
+  [ok] no issues: the given facts are valid
+  [ok] ok is False while facts are missing
+  [ok] state normalised to WY
+
+FEATURE RUN PASSED: all five scenarios behave as ADR-0013 specifies

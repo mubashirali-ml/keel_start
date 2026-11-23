@@ -1,0 +1,138 @@
+# Recorded feature run
+ticket:      T-004
+branch:      ticket/T-004
+commit:      18dbf6fb394fb137e4c0455461e68e04f41c376a
+uncommitted: 0 file(s) outside evidence/ and prs/
+recorded_at: 2026-11-23T12:28:04Z
+python:      3.12.10
+command:     bash scripts/py.sh evidence/T-004/feature_run.py
+exit_code:   0
+----------------------------------------------------------------------
+T-004 feature run: sign-off state machine with e-signature evidence
+  case=case_feature_t004  signers=['f_alice', 'f_bob']  consent_version=2026-11-23
+  sha256(v1)=5cd9c0934462faf0dda2739c3e8bb3d35c87652f0b9266f97c7173730206a1bc
+  sha256(v2)=9d7de18ad8694947688da01f6ed7d604ae84bc1b3584b291f8c521ecddacf371
+
+=== 1. create
+  call:        create_document(case, draft, now=T0)
+  ok:          True
+  error:       None
+  status:      awaiting_signatures
+  version:     1   content sha256: 5cd9c0934462faf0...
+  invalidated: []
+  signatures:
+    (none)
+  audit (this step):
+    - 2026-11-23T15:00:00+00:00 system   created                  vNone->v1 {'kind': 'ip_assignment', 'title': 'Founder IP Assignment Agreement', 'content_sha256': '5cd9c0934462faf0dda2739c3e8bb3d35c87652f0b9266f97c7173730206a1bc', 'required_signers': ['f_alice', 'f_bob']}
+    [ok] v1, awaiting
+    [ok] no signatures, one created entry
+
+=== 2. Alice signs v1
+  call:        sign(doc, alice, 1, evidence=<Alice, sha(v1)>)
+  ok:          True
+  error:       None
+  status:      awaiting_signatures
+  version:     1   content sha256: 5cd9c0934462faf0...
+  invalidated: []
+  signatures:
+    - f_alice v1 at 2026-11-23T15:01:00+00:00 user=u_alice name='Alice Chen' consent=2026-11-23 ip=203.0.113.10 ua=FeatureRun/1.0 sha256=5cd9c0934462faf0...
+  audit (this step):
+    - 2026-11-23T15:01:00+00:00 f_alice  signed                   v1->v1 {'user_id': 'u_alice', 'typed_name': 'Alice Chen', 'content_sha256': '5cd9c0934462faf0dda2739c3e8bb3d35c87652f0b9266f97c7173730206a1bc', 'ip': '203.0.113.10'}
+    [ok] still awaiting Bob
+    [ok] signature carries the evidence
+    [ok] signed entry detail
+
+=== 3. Bob edits v1 -> v2
+  call:        edit(doc, bob, 1, V2, evidence=<Bob, sha(v2)>)
+  ok:          True
+  error:       None
+  status:      awaiting_signatures
+  version:     2   content sha256: 9d7de18ad8694947...
+  invalidated: ['f_alice']
+  signatures:
+    - f_bob v2 at 2026-11-23T15:02:00+00:00 user=u_bob name='Bob Diaz' consent=2026-11-23 ip=198.51.100.20 ua=FeatureRun/1.0 sha256=9d7de18ad8694947...
+  audit (this step):
+    - 2026-11-23T15:02:00+00:00 f_bob    signatures_invalidated   v1->v2 {'founders': ['f_alice']}
+    - 2026-11-23T15:02:00+00:00 f_bob    edited                   v1->v2 {'user_id': 'u_bob', 'typed_name': 'Bob Diaz', 'content_sha256': '9d7de18ad8694947688da01f6ed7d604ae84bc1b3584b291f8c521ecddacf371', 'ip': '198.51.100.20'}
+    [ok] v2, awaiting
+    [ok] Alice's signature cancelled
+    [ok] only Bob's signature, on v2, bound to the new content
+    [ok] invalidated + edited 1->2
+
+=== 4. Alice signs v1 (stale version)
+  call:        sign(doc, alice, 1, evidence=<Alice, sha(v1)>)
+  ok:          False
+  error:       StaleVersionError: This document changed to version 2 while you were looking at it. Review the new version first.
+  status:      awaiting_signatures
+  version:     2   content sha256: 9d7de18ad8694947...
+  invalidated: []
+  signatures:
+    - f_bob v2 at 2026-11-23T15:02:00+00:00 user=u_bob name='Bob Diaz' consent=2026-11-23 ip=198.51.100.20 ua=FeatureRun/1.0 sha256=9d7de18ad8694947...
+  audit (this step):
+    - 2026-11-23T15:03:00+00:00 f_alice  rejected_stale           v2->v2 {'operation': 'sign', 'reason': 'version', 'requested_version': 1, 'current_version': 2}
+    [ok] StaleVersionError naming version 2
+    [ok] document unchanged, rejected_stale entry
+
+=== 5. Alice signs v2 with the v1 hash (stale content)
+  call:        sign(doc, alice, 2, evidence=<Alice, sha(v1)>)
+  ok:          False
+  error:       StaleVersionError: This document changed while you were reviewing it. Review version 2 and sign again.
+  status:      awaiting_signatures
+  version:     2   content sha256: 9d7de18ad8694947...
+  invalidated: []
+  signatures:
+    - f_bob v2 at 2026-11-23T15:02:00+00:00 user=u_bob name='Bob Diaz' consent=2026-11-23 ip=198.51.100.20 ua=FeatureRun/1.0 sha256=9d7de18ad8694947...
+  audit (this step):
+    - 2026-11-23T15:04:00+00:00 f_alice  rejected_stale           v2->v2 {'operation': 'sign', 'reason': 'content_sha256', 'content_sha256': '5cd9c0934462faf0dda2739c3e8bb3d35c87652f0b9266f97c7173730206a1bc', 'expected_sha256': '9d7de18ad8694947688da01f6ed7d604ae84bc1b3584b291f8c521ecddacf371', 'current_version': 2}
+    [ok] StaleVersionError on hash mismatch
+    [ok] document unchanged, rejected_stale entry
+
+=== 6. Alice signs v2
+  call:        sign(doc, alice, 2, evidence=<Alice, sha(v2)>)
+  ok:          True
+  error:       None
+  status:      executed
+  version:     2   content sha256: 9d7de18ad8694947...
+  invalidated: []
+  signatures:
+    - f_bob v2 at 2026-11-23T15:02:00+00:00 user=u_bob name='Bob Diaz' consent=2026-11-23 ip=198.51.100.20 ua=FeatureRun/1.0 sha256=9d7de18ad8694947...
+    - f_alice v2 at 2026-11-23T15:05:00+00:00 user=u_alice name='Alice Chen' consent=2026-11-23 ip=203.0.113.10 ua=FeatureRun/1.0 sha256=9d7de18ad8694947...
+  audit (this step):
+    - 2026-11-23T15:05:00+00:00 f_alice  signed                   v2->v2 {'user_id': 'u_alice', 'typed_name': 'Alice Chen', 'content_sha256': '9d7de18ad8694947688da01f6ed7d604ae84bc1b3584b291f8c521ecddacf371', 'ip': '203.0.113.10'}
+    - 2026-11-23T15:05:00+00:00 f_alice  executed                 v2->v2 {'signers': ['f_bob', 'f_alice']}
+    [ok] executed
+    [ok] signed + executed entries
+    [ok] both signatures on v2 with the v2 hash
+    [ok] is_legal_complete([doc]) is True
+
+=== 7. regenerate (facts changed)
+  call:        regenerate(doc, draft(V3), actor='law')
+  ok:          True
+  error:       None
+  status:      awaiting_signatures
+  version:     3   content sha256: 46d287bc2592df3d...
+  invalidated: ['f_bob', 'f_alice']
+  signatures:
+    (none)
+  audit (this step):
+    - 2026-11-23T15:06:00+00:00 law      reopened                 v2->v3 {'reason': 'regenerated'}
+    - 2026-11-23T15:06:00+00:00 law      regenerated              v2->v3 {'founders': ['f_bob', 'f_alice'], 'content_sha256': '46d287bc2592df3d745e622c5e1b1ebe970576dbe71a99cc5b37d75f65ea4bc6'}
+    [ok] v3, awaiting, no signatures
+    [ok] reopened + regenerated
+    [ok] all signatures cancelled
+    [ok] legal no longer complete; empty list is False
+
+=== full audit trail
+  2026-11-23T15:00:00+00:00 system   created                  vNone->v1
+  2026-11-23T15:01:00+00:00 f_alice  signed                   v1->v1
+  2026-11-23T15:02:00+00:00 f_bob    signatures_invalidated   v1->v2
+  2026-11-23T15:02:00+00:00 f_bob    edited                   v1->v2
+  2026-11-23T15:03:00+00:00 f_alice  rejected_stale           v2->v2
+  2026-11-23T15:04:00+00:00 f_alice  rejected_stale           v2->v2
+  2026-11-23T15:05:00+00:00 f_alice  signed                   v2->v2
+  2026-11-23T15:05:00+00:00 f_alice  executed                 v2->v2
+  2026-11-23T15:06:00+00:00 law      reopened                 v2->v3
+  2026-11-23T15:06:00+00:00 law      regenerated              v2->v3
+    [ok] 10 audit entries in order, rejections included
+
+FEATURE RUN PASSED
