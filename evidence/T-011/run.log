@@ -1,16 +1,16 @@
 # Recorded feature run
 ticket:      T-011
 branch:      ticket/T-011
-commit:      5345d91cbdd5d5f656d56bf55e69fad4b6847111
-uncommitted: 7 file(s) outside evidence/ and prs/
-recorded_at: 2026-11-23T12:45:50Z
+commit:      dfc81ab922f027e9afd87b8de82bb5c68f73cb7a
+uncommitted: 0 file(s) outside evidence/ and prs/
+recorded_at: 2026-11-23T12:53:04Z
 python:      3.12.10
 command:     bash scripts/py.sh evidence/T-011/feature_run.py
 exit_code:   0
 ----------------------------------------------------------------------
 == build ==
 frontend dist: frontend\dist
-app: http://127.0.0.1:62496 (fake services, demo mode, no seed)
+app: http://127.0.0.1:51540 (fake services, demo mode, no seed)
 
 == /design: every component section ==
 sections found (35): Logo, Colors, Typography, Button, IconButton, Input, Textarea, Select, Checkbox, Switch, RadioGroup, FormField, SegmentedControl, Card, Tabs, Badge, StatusBadge, Dialog, ConfirmDialog, Toast, Popover, Menu, Tooltip, Banner, TrustNote, PlanGate, EmptyState, ErrorState, Skeleton, Progress, Avatar, AgentAvatar, Table, Markdown, Countdown
