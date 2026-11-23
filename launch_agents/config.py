@@ -131,7 +131,40 @@ class Settings(BaseModel):
             if name and any(marker in name for marker in _SECRET_MARKERS):
                 yield name, ("***" if value else value)
             else:
-                yield name, value
+                yield name, _mask_url_passwords(value)
+
+
+def _mask_url_password(url: str) -> str:
+    """``url`` with the password of a ``scheme://user:password@host`` part replaced by ``***``
+    (e.g. ``LAUNCH_DB_URL``, ``LLM_BASE_URL``), for ``repr``/``str`` and log lines (ADR-0021).
+    The credentials end at the last ``@`` before any ``?`` or ``#``, so an unencoded ``@`` or
+    ``/`` in the password is masked too; anything without credentials is returned unchanged."""
+    scheme_end = url.find("://")
+    if scheme_end <= 0:
+        return url
+    start = scheme_end + 3
+    stop = len(url)
+    for sep in ("?", "#"):
+        pos = url.find(sep, start)
+        if pos != -1:
+            stop = min(stop, pos)
+    at = url.rfind("@", start, stop)
+    if at == -1:
+        return url
+    colon = url.find(":", start, at)
+    if colon == -1:
+        return url
+    return f"{url[:colon + 1]}***{url[at:]}"
+
+
+def _mask_url_passwords(value: Any) -> Any:
+    if isinstance(value, str):
+        return _mask_url_password(value)
+    if isinstance(value, list):
+        return [_mask_url_passwords(v) for v in value]
+    if isinstance(value, dict):
+        return {k: _mask_url_passwords(v) for k, v in value.items()}
+    return value
 
 
 # ---------------------------------------------------------------------------------------

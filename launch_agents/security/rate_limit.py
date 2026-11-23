@@ -2,6 +2,9 @@
 
 ``RATE_LIMITS`` is the ADR-0033 table: each rule's ``name`` is the key it counts by
 (``ip``, ``email`` or ``user``), so ``hit(cls, keys={"ip": ..., "email": ...})``.
+A class may hold two rules with the same ``name`` (``llm``: per minute and per day), so the
+``rate_limits`` row key must include the class and ``window_s`` as well as the rule name and
+its value (e.g. ``"llm:user:60:<user_id>"``); otherwise both windows share one row.
 """
 
 from __future__ import annotations

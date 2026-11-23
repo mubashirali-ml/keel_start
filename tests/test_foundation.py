@@ -972,12 +972,22 @@ def test_secrets_never_appear_in_repr():
         "SMTP_PASSWORD": "smtp-password-value", "STRIPE_SECRET_KEY": "stripe-secret-value",
         "STRIPE_WEBHOOK_SECRET": "webhook-secret-value",
     }
-    s = load_settings(secrets)
+    urls = {
+        "LAUNCH_DB_URL": "postgresql+psycopg://app:S3cretPw@db/launch",
+        "LLM_BASE_URL": "https://llm-user:Llm/Pa@ss@llm.example.com:8443/v1?x=1",
+    }
+    s = load_settings({**secrets, **urls})
     for text in (repr(s), str(s)):
-        for value in secrets.values():
+        for value in [*secrets.values(), "S3cretPw", "Llm/Pa", "Pa@ss"]:
             assert value not in text
+        assert "postgresql+psycopg://app:***@db/launch" in text
+        assert "https://llm-user:***@llm.example.com:8443/v1?x=1" in text
     assert "secret_key='***'" in repr(s) and "app_env=" in repr(s)
     assert s.anthropic_api_key == "anthropic-key-value"  # still usable by code
+    assert s.db_url == urls["LAUNCH_DB_URL"] and s.llm_base_url == urls["LLM_BASE_URL"]
+    plain = load_settings({"LAUNCH_DB_URL": "sqlite:///./x.db", "LLM_BASE_URL": "https://user@llm.example.com/v1"})
+    assert "db_url='sqlite:///./x.db'" in repr(plain)  # nothing to mask
+    assert "llm_base_url='https://user@llm.example.com/v1'" in repr(plain)
 
 
 def test_settings_are_frozen():
@@ -1259,6 +1269,9 @@ def test_fake_payment_gateway_checkout_and_webhooks(settings):
         gw.parse_webhook(payload, None)
     with pytest.raises(WebhookSignatureError):
         FakePaymentGateway(settings.model_copy(update={"stripe_webhook_secret": "whsec_other"})).parse_webhook(payload, header)
+    for bad_header in ("t=été,v1=abc", "t=1,v1=é"):  # non-ASCII is a bad signature, not a crash
+        with pytest.raises(WebhookSignatureError):
+            gw.parse_webhook(payload, bad_header)
     assert gw.create_portal_session(customer_id=customer, return_url="http://testserver/app/settings/billing").startswith(
         "http://testserver/app/settings/billing?portal=fake")
 
@@ -2133,9 +2146,10 @@ def test_brand_name_is_spelled_out_only_in_domain_constants():
 # =========================================================================================
 # 17. Test infrastructure: the ADR-0025 skip hook, postgres marker, fixtures
 # =========================================================================================
-def test_missing_package_detection():
+def test_missing_package_detection(monkeypatch):
     from conftest import adr0025_skip_reason, missing_adr0025_package
 
+    monkeypatch.setitem(sys.modules, "argon2", None)  # argon2 is not importable
     try:
         try:
             raise ModuleNotFoundError("No module named 'argon2'", name="argon2")
@@ -2143,9 +2157,48 @@ def test_missing_package_detection():
             raise RuntimeError("collect failed") from inner
     except RuntimeError as outer:
         assert missing_adr0025_package(outer) == "argon2-cffi"
-    assert missing_adr0025_package(ModuleNotFoundError("x", name="docx.shared")) == "python-docx"
+    # a missing submodule or a bad symbol is a real bug, never "not installed"
+    assert missing_adr0025_package(ModuleNotFoundError("x", name="argon2.no_such_module")) is None
+    assert missing_adr0025_package(ImportError("cannot import name 'Nope'", name="argon2")) is None
     assert missing_adr0025_package(ModuleNotFoundError("x", name="numpy")) is None
     assert adr0025_skip_reason("stripe") == "package stripe not installed (ADR-0025)"
+
+
+def test_missing_package_detection_ignores_installed_packages(monkeypatch):
+    from conftest import missing_adr0025_package
+
+    monkeypatch.setitem(sys.modules, "docx", importlib.import_module("json"))  # stands in for an installed package
+    assert missing_adr0025_package(ModuleNotFoundError("x", name="docx")) is None
+    monkeypatch.setitem(sys.modules, "docx", None)
+    assert missing_adr0025_package(ModuleNotFoundError("x", name="docx")) == "python-docx"
+
+
+def test_bad_imports_from_installed_adr0025_packages_fail_not_skip(tmp_path):
+    """A wrong symbol or submodule of an installed package must fail, at collection and in a test."""
+    (tmp_path / "conftest.py").write_text((REPO_ROOT / "tests" / "conftest.py").read_text(encoding="utf-8"),
+                                          encoding="utf-8")
+    (tmp_path / "pytest.ini").write_text("[pytest]\naddopts = -q\nmarkers =\n    postgres: pg\n", encoding="utf-8")
+    # stand-in for an installed ADR-0025 package, so the test needs none of them installed
+    pkg = tmp_path / "stripe"
+    pkg.mkdir()
+    (pkg / "__init__.py").write_text("REAL = 1\n", encoding="utf-8")
+    (tmp_path / "test_bad_symbol_at_collection.py").write_text(
+        "from stripe import ThisSymbolDoesNotExist\n\ndef test_a():\n    pass\n", encoding="utf-8")
+    (tmp_path / "test_bad_submodule_at_collection.py").write_text(
+        "import stripe.no_such_module\n\ndef test_b():\n    pass\n", encoding="utf-8")
+    (tmp_path / "test_bad_imports_in_tests.py").write_text(
+        "def test_c():\n    from stripe import ThisSymbolDoesNotExist\n\n"
+        "def test_d():\n    import stripe.no_such_module\n\n"
+        "def test_e():\n    from stripe import REAL\n    assert REAL == 1\n", encoding="utf-8")
+    env = {**os.environ, "LAUNCH_TEST_POSTGRES_URL": "", "PYTHONPATH": str(tmp_path)}
+    result = subprocess.run([sys.executable, "-m", "pytest", "-rs", "-p", "no:cacheprovider",
+                             "--continue-on-collection-errors", str(tmp_path)],
+                            cwd=tmp_path, capture_output=True, text=True, timeout=120, env=env)
+    output = result.stdout + result.stderr
+    assert result.returncode != 0, output
+    assert "not installed (ADR-0025)" not in output
+    assert "skipped" not in output
+    assert "2 failed, 1 passed, 2 errors" in output, output
 
 
 def test_collection_hook_skips_modules_needing_a_missing_package(tmp_path):

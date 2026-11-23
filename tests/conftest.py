@@ -3,14 +3,17 @@
 - Fixtures import ``launch_agents`` lazily, and fixtures that need a module another ticket
   still has to implement (``engine``, ``repo``) call ``pytest.skip`` instead of erroring.
 - A test module (or test) that fails because an ADR-0025 package is not installed is
-  skipped with the reason ``package X not installed (ADR-0025)``.
+  skipped with the reason ``package X not installed (ADR-0025)``. Only the package's own
+  top-level module being absent counts; a bad import from an installed package still fails.
 - Tests marked ``postgres`` run only when ``LAUNCH_TEST_POSTGRES_URL`` is set.
 - No fixture touches the network or reads the real environment.
 """
 
 from __future__ import annotations
 
+import importlib.util
 import os
+import sys
 from datetime import date
 from decimal import Decimal
 
@@ -42,16 +45,31 @@ TEST_ENV: dict[str, str] = {
 # ---------------------------------------------------------------------------------------
 # ADR-0025: skip, don't error, when a newly approved package is not installed yet
 # ---------------------------------------------------------------------------------------
+def adr0025_package_missing(root: str) -> bool:
+    """True when the top-level module ``root`` cannot be imported: it is blocked in
+    ``sys.modules`` (``None``) or no finder locates it. An installed package is never missing."""
+    if root in sys.modules:
+        return sys.modules[root] is None
+    try:
+        return importlib.util.find_spec(root) is None
+    except (ImportError, ValueError):
+        return False
+
+
 def missing_adr0025_package(exc: BaseException | None) -> str | None:
     """The pip name of the ADR-0025 package whose absence caused ``exc`` (following the
-    ``__cause__`` / ``__context__`` chain), else None."""
+    ``__cause__`` / ``__context__`` chain), else None.
+
+    Only a ``ModuleNotFoundError`` for exactly the package's top-level module counts, and only
+    while that module really cannot be imported. A bad name imported from an installed package
+    (plain ``ImportError``) or a missing submodule (``name="alembic.no_such_module"``) is a real
+    bug and stays a failure."""
     seen: set[int] = set()
     while exc is not None and id(exc) not in seen:
         seen.add(id(exc))
-        if isinstance(exc, ImportError):
-            root = (exc.name or "").split(".")[0]
-            if root in ADR0025_PACKAGES:
-                return ADR0025_PACKAGES[root]
+        if (isinstance(exc, ModuleNotFoundError) and exc.name in ADR0025_PACKAGES
+                and adr0025_package_missing(exc.name)):
+            return ADR0025_PACKAGES[exc.name]
         exc = exc.__cause__ or exc.__context__
     return None
 

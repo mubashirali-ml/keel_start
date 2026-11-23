@@ -98,6 +98,14 @@ assert load_settings(ENV_MAPS["deepseek"]).llm_provider == "deepseek"
 assert load_settings(ENV_MAPS["claude_code in development"]).llm_provider == "claude_code"
 redacted = repr(haiku)
 show("\nrepr(settings) shows", re.search(r"anthropic_api_key='[^']*'", redacted).group(0))
+with_urls = load_settings({"LAUNCH_DB_URL": "postgresql+psycopg://app:S3cretPw@db/launch",
+                           "LLM_BASE_URL": "https://llm-user:LlmPw99@llm.example.com/v1"})
+for text in (repr(with_urls), str(with_urls)):
+    assert "S3cretPw" not in text and "LlmPw99" not in text, "a URL password leaked into repr(settings)"
+show("repr(settings) db_url", re.search(r"db_url='[^']*'", repr(with_urls)).group(0))
+show("repr(settings) llm_base_url", re.search(r"llm_base_url='[^']*'", repr(with_urls)).group(0))
+assert "db_url='postgresql+psycopg://app:***@db/launch'" in repr(with_urls)
+assert with_urls.db_url.endswith("app:S3cretPw@db/launch")  # the real value is still usable
 
 PRODUCTION = {
     "APP_ENV": "production", "LLM_PROVIDER": "claude_code", "PAYMENTS_PROVIDER": "fake",

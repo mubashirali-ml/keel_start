@@ -218,7 +218,9 @@ class FakePaymentGateway:
             raise invalid
         parts = dict(item.split("=", 1) for item in signature_header.split(",") if "=" in item)
         timestamp, given = parts.get("t"), parts.get("v1")
-        if not timestamp or not given or not hmac.compare_digest(self._signature(timestamp, payload), given):
+        if not timestamp or not given or not (timestamp.isascii() and given.isascii()):
+            raise invalid
+        if not hmac.compare_digest(self._signature(timestamp, payload), given):
             raise invalid
         try:
             body = json.loads(payload)
