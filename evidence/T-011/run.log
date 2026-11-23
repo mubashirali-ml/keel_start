@@ -1,16 +1,16 @@
 # Recorded feature run
 ticket:      T-011
 branch:      ticket/T-011
-commit:      e351ded115c131506599953015b2b4e33c4051cc
-uncommitted: 0 file(s) outside evidence/ and prs/
-recorded_at: 2026-11-23T12:32:26Z
+commit:      5345d91cbdd5d5f656d56bf55e69fad4b6847111
+uncommitted: 7 file(s) outside evidence/ and prs/
+recorded_at: 2026-11-23T12:45:50Z
 python:      3.12.10
 command:     bash scripts/py.sh evidence/T-011/feature_run.py
 exit_code:   0
 ----------------------------------------------------------------------
 == build ==
 frontend dist: frontend\dist
-app: http://127.0.0.1:56109 (fake services, demo mode, no seed)
+app: http://127.0.0.1:62496 (fake services, demo mode, no seed)
 
 == /design: every component section ==
 sections found (35): Logo, Colors, Typography, Button, IconButton, Input, Textarea, Select, Checkbox, Switch, RadioGroup, FormField, SegmentedControl, Card, Tabs, Badge, StatusBadge, Dialog, ConfirmDialog, Toast, Popover, Menu, Tooltip, Banner, TrustNote, PlanGate, EmptyState, ErrorState, Skeleton, Progress, Avatar, AgentAvatar, Table, Markdown, Countdown
@@ -18,6 +18,9 @@ sections found (35): Logo, Colors, Typography, Button, IconButton, Input, Textar
   ok  logo mark shown at 40, 16, 32, 56 px in light, dark and one-colour variants
   ok  Dialog traps focus and closes on Escape
   ok  Toast is announced politely
+Markdown (light): {'body': ['rgb(15, 23, 42)', 'rgb(15, 23, 42)'], 'link': ['rgb(27, 54, 130)', 'rgb(27, 54, 130)'], 'quoteBorder': ['rgb(223, 228, 237)', 'rgb(223, 228, 237)'], 'preBackground': ['rgb(240, 243, 248)', 'rgb(240, 243, 248)'], 'preText': ['rgb(15, 23, 42)', 'rgb(15, 23, 42)']}
+Markdown (dark): {'body': ['rgb(241, 245, 249)', 'rgb(241, 245, 249)'], 'link': ['rgb(147, 180, 255)', 'rgb(147, 180, 255)'], 'quoteBorder': ['rgb(41, 52, 74)', 'rgb(41, 52, 74)'], 'preBackground': ['rgb(22, 30, 47)', 'rgb(22, 30, 47)'], 'preText': ['rgb(241, 245, 249)', 'rgb(241, 245, 249)']}
+  ok  Markdown uses token colors in light and dark (body, links, quote border, code block)
 
 == theme toggle persists across reloads ==
 after choosing Dark: html.class='dark', launch.theme='dark'
@@ -46,10 +49,10 @@ redirected to: /login?next=%2Fapp%2Fcases%2Funknown%2Foverview
   ok  390 px pages never scroll sideways and show no raw JSON
 
 == marketing first-load JS (gzip) ==
-  /assets/AgentAvatar-BUGe2RpZ.js             1.2 KB gzip
-  /assets/index-CMpYIVxU.js                 141.5 KB gzip
-  /assets/marketing-Cs5OLtGZ.js               1.7 KB gzip
-  /assets/shield-check-DoMlftnx.js            0.3 KB gzip
+  /assets/AgentAvatar-DrZXihaI.js             1.2 KB gzip
+  /assets/index-CV0Ydajy.js                 141.5 KB gzip
+  /assets/marketing-CYa3jnKE.js               1.7 KB gzip
+  /assets/shield-check-D0xUDij6.js            0.3 KB gzip
   /theme-init.js                              0.4 KB gzip
   total 145.2 KB (budget 250 KB)
   ok  landing loads only its own chunk; first-load JS is within the 250 KB budget
@@ -61,6 +64,8 @@ X-Act-As-Founder sent on company calls: ['f2']
   ok  demo mode: the founder switcher sends X-Act-As-Founder
   ok  account menu shows the plan badge and Log out
   ok  outside demo mode: no founder switcher, no X-Act-As-Founder
+company card focused: box-shadow='rgb(246, 248, 251) 0px 0px 0px 2px, rgb(37, 99, 235) 0px 0px 0px 4px, rgba(0, 0, 0, 0) 0px 0px 0px 0px'
+  ok  companies page: Tab reaches the company card and it shows the focus ring
   ok  unknown company: 'We couldn't find this company' with a way back, no raw JSON
   ok  shell at 390 px: Chat/Workspace switch, no sideways scroll
 
@@ -95,4 +100,4 @@ X-Act-As-Founder sent on company calls: ['f2']
   app-shell-stubbed-phone-dark.png           52.7 KB
   ok  28 screenshots saved to evidence/T-011/
 
-ALL CHECKS PASSED (18)
+ALL CHECKS PASSED (20)

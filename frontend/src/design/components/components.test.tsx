@@ -241,6 +241,18 @@ describe("focus-visible ring", () => {
     for (const el of focusables) expect(el.className, el.outerHTML).toMatch(/focus-visible:ring-2/);
     for (const el of focusables.slice(0, -1)) expect(el.className).toMatch(/focus-visible:ring-focus-ring/);
   });
+
+  it("no source removes the focus outline without putting a ring in its place", () => {
+    const sources = import.meta.glob("/src/**/*.tsx", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+    const offenders: string[] = [];
+    for (const [path, text] of Object.entries(sources)) {
+      if (/\.test\.tsx$/.test(path)) continue;
+      text.split("\n").forEach((line, i) => {
+        if (line.includes("focus-visible:outline-none") && !line.includes("focus-visible:ring-")) offenders.push(`${path}:${i + 1}`);
+      });
+    }
+    expect(offenders).toEqual([]);
+  });
 });
 
 describe("Badge, StatusBadge, ErrorState, Countdown", () => {

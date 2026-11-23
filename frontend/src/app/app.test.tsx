@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { makeCase, makeConfig, makeMe } from "@/test/fixtures";
+import { caseSummary, makeCase, makeConfig, makeMe } from "@/test/fixtures";
 import { setViewport } from "@/test/media";
 import { apiError, headerOf, json, mockApi, notFound, unauthorized } from "@/test/mockFetch";
 import { renderApp } from "@/test/renderWithProviders";
@@ -345,6 +345,18 @@ describe("placeholder states (ADR-0019)", () => {
     mockApi(loggedIn());
     renderApp("/app");
     expect(await screen.findByText("No companies yet")).toBeInTheDocument();
+  });
+
+  it("companies page: each company card is a link with the visible focus ring", async () => {
+    mockApi(loggedIn({ "GET /api/cases": [caseSummary] }));
+    renderApp("/app");
+    const card = await screen.findByRole("link", { name: /Acme Bakery Software/ });
+    expect(card).toHaveAttribute("href", `/app/cases/${caseSummary.id}/overview`);
+    expect(card.className).toContain("focus-visible:ring-2");
+    expect(card.className).toContain("focus-visible:ring-focus-ring");
+    // Skip link, header stops and "New company" come first; keep tabbing until the card has focus.
+    for (let i = 0; i < 15 && document.activeElement !== card; i++) await userEvent.tab();
+    expect(card).toHaveFocus();
   });
 
   it("companies page: friendly error with retry", async () => {

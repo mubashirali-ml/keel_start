@@ -688,7 +688,7 @@ export default function DesignGallery() {
 
         <Section name="Markdown">
           <Markdown>
-            {"**Next step:** review your documents.\n\n- IP assignment\n- Operating agreement summary\n\nRead the [Wyoming filing guide](https://sos.wyo.gov)."}
+            {"**Next step:** review your documents.\n\n- IP assignment\n- Operating agreement summary\n\nRead the [Wyoming filing guide](https://sos.wyo.gov).\n\n> Filing usually takes one to three business days.\n\nYour documents use `Acme Bakery Software LLC`:\n\n```\nArticles of Organization\nRegistered agent consent\n```"}
           </Markdown>
         </Section>
 

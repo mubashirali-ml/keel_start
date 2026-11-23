@@ -7,7 +7,8 @@ import { Link } from "react-router-dom";
 
 import { useCases } from "@/api/hooks";
 import { PageFrame, PlaceholderPage, QueryStates, companyLabel } from "@/app";
-import { Card, EmptyState, Progress, buttonVariants } from "@/design";
+import { Card, EmptyState, Progress, buttonVariants, focusRing } from "@/design";
+import { cn } from "@/lib/cn";
 import { formatDate } from "@/lib/format";
 
 export function CompaniesPage() {
@@ -37,8 +38,8 @@ export function CompaniesPage() {
           <ul className="grid gap-3 sm:grid-cols-2">
             {list.map((c) => (
               <li key={c.id}>
-                <Card className="p-4">
-                  <Link to={`/app/cases/${c.id}/overview`} className="grid gap-3 rounded-md focus-visible:outline-none">
+                <Card>
+                  <Link to={`/app/cases/${c.id}/overview`} className={cn("grid gap-3 rounded-lg p-4", focusRing)}>
                     <span className="text-base font-semibold text-text">{companyLabel(c.company_name)}</span>
                     <Progress value={c.percent} label={`${companyLabel(c.company_name)} progress`} showValue size="sm" />
                     <span className="text-xs text-text-muted">Updated {formatDate(c.updated_at)}</span>

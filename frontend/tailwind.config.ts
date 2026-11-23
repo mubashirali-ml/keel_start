@@ -4,6 +4,45 @@ import type { Config } from "tailwindcss";
 /** A color bound to a token of src/design/tokens.css (ADR-0019). */
 const token = (name: string) => `rgb(var(--color-${name}) / <alpha-value>)`;
 
+/**
+ * A plain token color for CSS variables. No `<alpha-value>`: Tailwind fills that placeholder only in
+ * color utilities, so it would leave an invalid color in the typography plugin's `--tw-prose-*` variables.
+ */
+const tokenColor = (name: string, alpha?: string) =>
+  alpha ? `rgb(var(--color-${name}) / ${alpha})` : `rgb(var(--color-${name}))`;
+
+/**
+ * Markdown (`prose`) colors, all tokens; they switch with `.dark` like every other token, so no
+ * `prose-invert` is needed. The `invert` set gets the same tokens so a stray `prose-invert` can never
+ * bring back the plugin's own gray palette.
+ */
+const proseRoles: Record<string, [token: string, alpha?: string]> = {
+  body: ["text"],
+  headings: ["text"],
+  lead: ["text-muted"],
+  links: ["primary"],
+  bold: ["text"],
+  counters: ["text-muted"],
+  bullets: ["border-strong"],
+  hr: ["border"],
+  quotes: ["text"],
+  "quote-borders": ["border"],
+  captions: ["text-muted"],
+  kbd: ["text"],
+  "kbd-shadows": ["text", "10%"],
+  code: ["text"],
+  "pre-code": ["text"],
+  "pre-bg": ["surface-muted"],
+  "th-borders": ["border-strong"],
+  "td-borders": ["border"],
+};
+const proseColors = Object.fromEntries(
+  Object.entries(proseRoles).flatMap(([role, [name, alpha]]) => [
+    [`--tw-prose-${role}`, tokenColor(name, alpha)],
+    [`--tw-prose-invert-${role}`, tokenColor(name, alpha)],
+  ]),
+);
+
 const tone = (name: string) => ({ DEFAULT: token(name), fg: token(`${name}-fg`), soft: token(`${name}-soft`) });
 
 // `theme.colors` is replaced, not extended: only tokens exist, so no component can use a raw palette color.
@@ -84,24 +123,7 @@ export default {
       },
       typography: {
         DEFAULT: {
-          css: {
-            "--tw-prose-body": token("text"),
-            "--tw-prose-headings": token("text"),
-            "--tw-prose-lead": token("text-muted"),
-            "--tw-prose-links": token("primary"),
-            "--tw-prose-bold": token("text"),
-            "--tw-prose-counters": token("text-muted"),
-            "--tw-prose-bullets": token("border-strong"),
-            "--tw-prose-hr": token("border"),
-            "--tw-prose-quotes": token("text"),
-            "--tw-prose-quote-borders": token("border"),
-            "--tw-prose-captions": token("text-muted"),
-            "--tw-prose-code": token("text"),
-            "--tw-prose-pre-code": token("text"),
-            "--tw-prose-pre-bg": token("surface-muted"),
-            "--tw-prose-th-borders": token("border-strong"),
-            "--tw-prose-td-borders": token("border"),
-          },
+          css: proseColors,
         },
       },
     },

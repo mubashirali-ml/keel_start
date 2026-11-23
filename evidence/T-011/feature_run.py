@@ -68,6 +68,31 @@ def focus_info(page: Page) -> dict:
     )
 
 
+def markdown_colors(page: Page) -> dict:
+    """Computed colors of the /design Markdown sample next to the token each should resolve to."""
+    return page.evaluate(
+        """() => {
+          const root = document.querySelector('[data-gallery-section="Markdown"] .prose');
+          const probe = document.createElement('span');
+          document.body.appendChild(probe);
+          const token = (name) => {
+            probe.style.color = `rgb(${getComputedStyle(root).getPropertyValue('--color-' + name).trim()})`;
+            return getComputedStyle(probe).color;
+          };
+          const style = (sel) => getComputedStyle(root.querySelector(sel));
+          const out = {
+            body: [style('p').color, token('text')],
+            link: [style('a').color, token('primary')],
+            quoteBorder: [style('blockquote').borderLeftColor, token('border')],
+            preBackground: [style('pre').backgroundColor, token('surface-muted')],
+            preText: [style('pre').color, token('text')],
+          };
+          probe.remove();
+          return out;
+        }"""
+    )
+
+
 # Demo data for the stubbed shell (ADR-0036 scenario: Alice Chen and Bob Diaz).
 CASE_ID = "case_0123456789ab"
 ME = {
@@ -178,6 +203,25 @@ def app_shell_checks(browser, base: str) -> list[Path]:
     ok("outside demo mode: no founder switcher, no X-Act-As-Founder")
     ctx.close()
 
+    # Companies page (/app, the first page after login): keyboard focus on a company card is visible.
+    ctx = browser.new_context(viewport=DEVICES["desktop"])
+    stub_api(ctx, demo_mode=False)
+    page = ctx.new_page()
+    page.goto(f"{base}/app")
+    card = page.locator("main").get_by_role("link", name=re.compile("Acme Bakery Software"))
+    card.wait_for()
+    for _ in range(20):
+        page.keyboard.press("Tab")
+        if card.evaluate("el => el === document.activeElement"):
+            break
+    assert card.evaluate("el => el === document.activeElement"), "Tab never reached the company card"
+    info = focus_info(page)
+    ring = info["boxShadow"] != "none" or not info["outline"].startswith("none")
+    print(f"company card focused: box-shadow={info['boxShadow']!r}")
+    assert ring, f"no visible focus ring on the company card: {info}"
+    ok("companies page: Tab reaches the company card and it shows the focus ring")
+    ctx.close()
+
     # Unknown company (logged in): friendly not-found page with a way back.
     ctx = browser.new_context(viewport=DEVICES["phone"])
     stub_api(ctx, demo_mode=False)
@@ -258,6 +302,14 @@ def main() -> int:
             ok("Toast is announced politely")
             assert inline_scripts(page) == 0
             assert_no_raw_json(page)
+            # Markdown renders in token colors in both themes (the tokens switch with .dark).
+            for theme in ("light", "dark"):
+                page.evaluate(f"() => document.documentElement.classList.toggle('dark', {str(theme == 'dark').lower()})")
+                colors = markdown_colors(page)
+                print(f"Markdown ({theme}): {colors}")
+                for key, (actual, expected) in colors.items():
+                    assert actual == expected, f"Markdown {key} in {theme}: {actual} != token {expected}"
+            ok("Markdown uses token colors in light and dark (body, links, quote border, code block)")
             ctx.close()
 
             # ---------------------------------------------------------------- theme toggle
