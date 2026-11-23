@@ -1,9 +1,9 @@
 # Recorded feature run
 ticket:      T-001
 branch:      ticket/T-001
-commit:      66dab8ef2659fb061a275a69a695589106f88bc0
+commit:      402c070e52ee513082c6715d3fd53071604c7429
 uncommitted: 0 file(s) outside evidence/ and prs/
-recorded_at: 2026-11-23T10:46:48Z
+recorded_at: 2026-11-23T11:04:33Z
 python:      3.12.10
 command:     bash scripts/py.sh evidence/T-001/feature_run.py
 exit_code:   0
@@ -43,6 +43,8 @@ SECRET_KEY is not set: using an insecure development key. Never use it in produc
   email / payments / worker / log  console / fake / True / text
 
 repr(settings) shows              anthropic_api_key='***'
+repr(settings) db_url              db_url='postgresql+psycopg://app:***@db/launch'
+repr(settings) llm_base_url        llm_base_url='https://llm-user:***@llm.example.com/v1'
 
 [production with every mistake] -> ConfigError:
   - LLM_PROVIDER=claude_code is not allowed in production: it uses a personal Claude Code login, which Anthropic's terms allow only for your own local development. Use LLM_PROVIDER=anthropic with ANTHROPIC_API_KEY.
