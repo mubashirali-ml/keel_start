@@ -16,10 +16,11 @@ MODE="$(val SUPERVISOR_MODE human)"
 case "$MODE" in human|auto) ;; *) die "SUPERVISOR_MODE must be human or auto (got '$MODE')" ;; esac
 WAVES="$(val WAVES 0,1)"
 MINP="$(val MIN_PARALLEL_BUILDERS 5)"
+ONLY="$(val TICKETS "")"
 
-"$VENV_PY" - "$REPO_ROOT" "$MODE" "$STAGE" "$WAVES" "$MINP" "$FEEDBACK" <<'PY'
+"$VENV_PY" - "$REPO_ROOT" "$MODE" "$STAGE" "$WAVES" "$MINP" "$FEEDBACK" "$ONLY" <<'PY'
 import json, sys
-repo, mode, stage, waves, minp, feedback = sys.argv[1:7]
+repo, mode, stage, waves, minp, feedback, only = sys.argv[1:8]
 print(json.dumps({
     "repo": repo.replace("\\", "/"),
     "mode": mode,
@@ -29,5 +30,6 @@ print(json.dumps({
     "feedback": feedback,
     "question_answers": {},
     "answers": {},
+    "only": [t.strip() for t in only.split(",") if t.strip()],
 }))
 PY

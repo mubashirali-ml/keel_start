@@ -21,6 +21,7 @@ const STAGE = args.stage || 'plan'
 const WAVES = args.waves || [0, 1]
 const MIN_PARALLEL = args.minParallel || 5
 const ANSWERS = args.answers || {}
+const ONLY = Array.isArray(args.only) && args.only.length ? args.only : null   // optional ticket subset for a deliver run
 const MAX_ROUNDS = 3          // ADR-0002; also enforced by scripts/merge_pr.sh
 const MAX_UNBLOCKS = 2
 const MAX_GATE_ATTEMPTS = 3
@@ -306,7 +307,9 @@ Read-only task: read tickets/plan.json (and tickets/BACKLOG.md if they disagree,
 const results = []
 const mergedBefore = plan.tickets.filter(t => t.status === 'merged').map(t => t.id)
 for (const w of WAVES) {
-  const ts = plan.tickets.filter(t => t.wave === w && t.status !== 'merged')
+  const inWave = plan.tickets.filter(t => t.wave === w && t.status !== 'merged')
+  const ts = ONLY ? inWave.filter(t => ONLY.includes(t.id)) : inWave
+  if (ONLY && inWave.length > ts.length) log(`Wave ${w}: ${inWave.length - ts.length} ticket(s) deferred to a later run (not in TICKETS): ${inWave.filter(t => !ts.includes(t)).map(t => t.id).join(', ')}`)
   if (!ts.length) continue
   const ph = `Wave ${w}`
   phase(ph)
