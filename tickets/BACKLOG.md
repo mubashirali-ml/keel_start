@@ -6,13 +6,18 @@ Machine-readable twin: [plan.json](plan.json). Product decisions log: [product-d
 Tickets in the same wave own disjoint paths and run in parallel; each depends only on earlier waves.
 46 tickets in 7 waves.
 
+**Delivery status (2026-11-23).** Run over waves 0 and 1 closed: T-001 escalated after 3 review
+rounds (approved in round 3, not yet on `main`: a PR-record heading fix by the Builder, then one
+human run of the merge gate). Wave 1 did not start because all its tickets depend on T-001; they
+stay `todo`. **Next wave: 1** (20 tickets), as soon as T-001 is `merged`.
+
 ## Wave 0
 
 Groundwork: the shared vocabulary of the product, the contracts for accounts, billing, email and background jobs, the database layout, and stand-ins for the AI and every outside service, so twenty pieces can be built at the same time next. Nothing to look at yet.
 
 | Ticket | Title | Depends on | Owns | Status |
 |---|---|---|---|---|
-| [T-001](T-001-foundation-skeleton-contracts-and-fakes.md) | Foundation: package skeleton, shared and cross-cutting contracts, schema, fakes and typed stubs | — | `launch_agents/`<br>`migrations/`<br>`alembic.ini`<br>`tests/conftest.py`<br>`tests/test_foundation.py`<br>`pytest.ini`<br>`.env.example`<br>`evidence/T-001/`<br>`prs/T-001.md` | todo |
+| [T-001](T-001-foundation-skeleton-contracts-and-fakes.md) | Foundation: package skeleton, shared and cross-cutting contracts, schema, fakes and typed stubs | — | `launch_agents/`<br>`migrations/`<br>`alembic.ini`<br>`tests/conftest.py`<br>`tests/test_foundation.py`<br>`pytest.ini`<br>`.env.example`<br>`evidence/T-001/`<br>`prs/T-001.md` | escalated (approved in round 3, not merged at run close; two small steps remain, see the ticket's Escalation section) |
 
 ## Wave 1
 
