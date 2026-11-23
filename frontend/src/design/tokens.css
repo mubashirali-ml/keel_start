@@ -1,0 +1,109 @@
+/*
+ * Design tokens (ADR-0019, kept by ADR-0035; primary per ADR-0041).
+ * Colors are "R G B" channel triplets so Tailwind can add alpha: rgb(var(--color-x) / <alpha>).
+ * Every text/background pair the components use is checked for WCAG AA by
+ * src/design/tokens.test.ts. Components never use raw colors: only these tokens.
+ * `.light` / `.dark` on any element force that theme for its subtree (e.g. the /design logo panels).
+ */
+:root,
+.light {
+  color-scheme: light;
+
+  --color-bg: 246 248 251;
+  --color-surface: 255 255 255;
+  --color-surface-raised: 255 255 255;
+  --color-surface-muted: 240 243 248;
+  --color-border: 223 228 237;
+  --color-border-strong: 100 113 135;
+  --color-text: 15 23 42;
+  --color-text-muted: 69 82 104;
+  --color-text-subtle: 87 99 121;
+
+  /* Brand primary: deep navy blue (ADR-0041). */
+  --color-primary: 27 54 130;
+  --color-primary-hover: 21 42 104;
+  --color-primary-fg: 255 255 255;
+  --color-primary-soft: 230 236 250;
+
+  --color-success: 22 101 52;
+  --color-success-fg: 255 255 255;
+  --color-success-soft: 222 247 231;
+  --color-warning: 146 64 14;
+  --color-warning-fg: 255 255 255;
+  --color-warning-soft: 254 243 199;
+  --color-danger: 185 28 28;
+  --color-danger-fg: 255 255 255;
+  --color-danger-soft: 254 226 226;
+  --color-info: 3 105 161;
+  --color-info-fg: 255 255 255;
+  --color-info-soft: 224 242 254;
+
+  --color-focus-ring: 37 99 235;
+
+  /* Agent accents (ADR-0019): icon backgrounds and agent name labels. */
+  --color-agent-manager: 67 56 202;
+  --color-agent-law: 109 40 217;
+  --color-agent-name: 4 120 87;
+  --color-agent-website: 3 105 161;
+  --color-agent-qa: 166 74 8;
+  --color-agent-guide: 190 18 60;
+  --color-agent-cap-table: 15 118 110;
+  --color-agent-signoff: 71 85 105;
+  --color-agent-fg: 255 255 255;
+
+  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.06), 0 1px 3px 0 rgb(15 23 42 / 0.08);
+  --shadow-md: 0 4px 8px -2px rgb(15 23 42 / 0.08), 0 2px 4px -2px rgb(15 23 42 / 0.06);
+  --shadow-lg: 0 16px 32px -8px rgb(15 23 42 / 0.16), 0 4px 8px -4px rgb(15 23 42 / 0.08);
+
+  --duration-fast: 150ms;
+  --duration-slow: 250ms;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --color-bg: 10 15 28;
+  --color-surface: 17 24 39;
+  --color-surface-raised: 26 34 52;
+  --color-surface-muted: 22 30 47;
+  --color-border: 41 52 74;
+  --color-border-strong: 110 124 148;
+  --color-text: 241 245 249;
+  --color-text-muted: 172 185 204;
+  --color-text-subtle: 142 156 178;
+
+  --color-primary: 147 180 255;
+  --color-primary-hover: 178 202 255;
+  --color-primary-fg: 10 24 60;
+  --color-primary-soft: 30 44 86;
+
+  --color-success: 74 222 128;
+  --color-success-fg: 5 46 22;
+  --color-success-soft: 18 52 36;
+  --color-warning: 251 191 36;
+  --color-warning-fg: 69 26 3;
+  --color-warning-soft: 58 40 12;
+  --color-danger: 252 129 129;
+  --color-danger-fg: 69 10 10;
+  --color-danger-soft: 64 22 28;
+  --color-info: 56 189 248;
+  --color-info-fg: 8 47 73;
+  --color-info-soft: 12 42 62;
+
+  --color-focus-ring: 125 166 255;
+
+  --color-agent-manager: 165 180 252;
+  --color-agent-law: 196 181 253;
+  --color-agent-name: 52 211 153;
+  --color-agent-website: 56 189 248;
+  --color-agent-qa: 251 191 36;
+  --color-agent-guide: 251 113 133;
+  --color-agent-cap-table: 45 212 191;
+  --color-agent-signoff: 148 163 184;
+  --color-agent-fg: 10 15 28;
+
+  /* Softer shadows in dark mode (ADR-0019). */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 10px -2px rgb(0 0 0 / 0.35);
+  --shadow-lg: 0 16px 36px -8px rgb(0 0 0 / 0.5);
+}

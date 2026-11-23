@@ -1,0 +1,103 @@
+# Recorded feature run
+ticket:      T-011
+branch:      ticket/T-011
+commit:      dfc81ab922f027e9afd87b8de82bb5c68f73cb7a
+uncommitted: 0 file(s) outside evidence/ and prs/
+recorded_at: 2026-11-23T12:53:04Z
+python:      3.12.10
+command:     bash scripts/py.sh evidence/T-011/feature_run.py
+exit_code:   0
+----------------------------------------------------------------------
+== build ==
+frontend dist: frontend\dist
+app: http://127.0.0.1:51540 (fake services, demo mode, no seed)
+
+== /design: every component section ==
+sections found (35): Logo, Colors, Typography, Button, IconButton, Input, Textarea, Select, Checkbox, Switch, RadioGroup, FormField, SegmentedControl, Card, Tabs, Badge, StatusBadge, Dialog, ConfirmDialog, Toast, Popover, Menu, Tooltip, Banner, TrustNote, PlanGate, EmptyState, ErrorState, Skeleton, Progress, Avatar, AgentAvatar, Table, Markdown, Countdown
+  ok  /design shows all 35 component sections
+  ok  logo mark shown at 40, 16, 32, 56 px in light, dark and one-colour variants
+  ok  Dialog traps focus and closes on Escape
+  ok  Toast is announced politely
+Markdown (light): {'body': ['rgb(15, 23, 42)', 'rgb(15, 23, 42)'], 'link': ['rgb(27, 54, 130)', 'rgb(27, 54, 130)'], 'quoteBorder': ['rgb(223, 228, 237)', 'rgb(223, 228, 237)'], 'preBackground': ['rgb(240, 243, 248)', 'rgb(240, 243, 248)'], 'preText': ['rgb(15, 23, 42)', 'rgb(15, 23, 42)']}
+Markdown (dark): {'body': ['rgb(241, 245, 249)', 'rgb(241, 245, 249)'], 'link': ['rgb(147, 180, 255)', 'rgb(147, 180, 255)'], 'quoteBorder': ['rgb(41, 52, 74)', 'rgb(41, 52, 74)'], 'preBackground': ['rgb(22, 30, 47)', 'rgb(22, 30, 47)'], 'preText': ['rgb(241, 245, 249)', 'rgb(241, 245, 249)']}
+  ok  Markdown uses token colors in light and dark (body, links, quote border, code block)
+
+== theme toggle persists across reloads ==
+after choosing Dark: html.class='dark', launch.theme='dark'
+  ok  dark theme chosen in the toggle is still applied after a reload (launch.theme=dark)
+
+== / (marketing layout): logo, brand, title, disclaimer, focus ring ==
+title: 'Keelstart · Launch your company with a team of AI agents'
+footer disclaimer: 'Not legal advice. Keelstart is not a law firm.'
+  ok  landing page shows the logo in header and footer, the brand name, the title and the disclaimer
+tab order: a 'Skip to content' ring=yes -> a 'Keelstart home' ring=yes -> a 'Pricing' ring=yes -> a 'Security' ring=yes -> button 'Theme: System. Change theme' ring=yes -> a 'Log in' ring=yes
+  ok  tabbing through the header shows a focus ring on all 6 stops, skip link first
+
+== /app/cases/unknown/overview while logged out ==
+redirected to: /login?next=%2Fapp%2Fcases%2Funknown%2Foverview
+  ok  /app/* without a session redirects to /login?next=... and shows the login form
+  ok  unknown paths show the friendly 404 page
+
+== 390 px: no horizontal scroll, no raw JSON, no inline scripts ==
+  /                                -> /: no sideways scroll, no raw JSON, 0 inline scripts
+  /pricing                         -> /pricing: no sideways scroll, no raw JSON, 0 inline scripts
+  /login                           -> /login: no sideways scroll, no raw JSON, 0 inline scripts
+  /signup                          -> /signup: no sideways scroll, no raw JSON, 0 inline scripts
+  /app/cases/unknown/overview      -> /login: no sideways scroll, no raw JSON, 0 inline scripts
+  /no-such-page                    -> /no-such-page: no sideways scroll, no raw JSON, 0 inline scripts
+  /design                          -> /design: no sideways scroll, no raw JSON, 0 inline scripts
+  ok  390 px pages never scroll sideways and show no raw JSON
+
+== marketing first-load JS (gzip) ==
+  /assets/AgentAvatar-DrZXihaI.js             1.2 KB gzip
+  /assets/index-CV0Ydajy.js                 141.5 KB gzip
+  /assets/marketing-CYa3jnKE.js               1.7 KB gzip
+  /assets/shield-check-D0xUDij6.js            0.3 KB gzip
+  /theme-init.js                              0.4 KB gzip
+  total 145.2 KB (budget 250 KB)
+  ok  landing loads only its own chunk; first-load JS is within the 250 KB budget
+
+== app shell with a stubbed API (the auth and case routes arrive in wave 3) ==
+tabs: ['Overview', 'Names', 'Legal', 'Cap table', 'Website', 'Guide', 'Team', 'Audit']
+  ok  shell: 8 workspace tabs (arrow keys move between them), 6-step strip, chat panel, banners, demo badge
+X-Act-As-Founder sent on company calls: ['f2']
+  ok  demo mode: the founder switcher sends X-Act-As-Founder
+  ok  account menu shows the plan badge and Log out
+  ok  outside demo mode: no founder switcher, no X-Act-As-Founder
+company card focused: box-shadow='rgb(246, 248, 251) 0px 0px 0px 2px, rgb(37, 99, 235) 0px 0px 0px 4px, rgba(0, 0, 0, 0) 0px 0px 0px 0px'
+  ok  companies page: Tab reaches the company card and it shows the focus ring
+  ok  unknown company: 'We couldn't find this company' with a way back, no raw JSON
+  ok  shell at 390 px: Chat/Workspace switch, no sideways scroll
+
+== screenshot matrices (1280/390 x light/dark) ==
+  design-desktop-light.png                   90.0 KB
+  design-desktop-dark.png                    90.7 KB
+  design-phone-light.png                     60.6 KB
+  design-phone-dark.png                      61.8 KB
+  design-controls-desktop-light.png          58.8 KB
+  design-controls-desktop-dark.png           57.7 KB
+  design-controls-phone-light.png            50.0 KB
+  design-controls-phone-dark.png             49.7 KB
+  design-feedback-desktop-light.png          57.9 KB
+  design-feedback-desktop-dark.png           57.9 KB
+  design-feedback-phone-light.png            47.4 KB
+  design-feedback-phone-dark.png             47.7 KB
+  landing-desktop-light.png                 138.3 KB
+  landing-desktop-dark.png                  139.0 KB
+  landing-phone-light.png                   132.4 KB
+  landing-phone-dark.png                    133.6 KB
+  login-desktop-light.png                    34.1 KB
+  login-desktop-dark.png                     34.2 KB
+  login-phone-light.png                      29.6 KB
+  login-phone-dark.png                       29.9 KB
+  app-redirect-desktop-light.png             34.1 KB
+  app-redirect-desktop-dark.png              34.2 KB
+  app-redirect-phone-light.png               29.6 KB
+  app-redirect-phone-dark.png                29.9 KB
+  app-shell-stubbed-desktop-light.png        80.0 KB
+  app-shell-stubbed-desktop-dark.png         82.2 KB
+  app-shell-stubbed-phone-light.png          51.2 KB
+  app-shell-stubbed-phone-dark.png           52.7 KB
+  ok  28 screenshots saved to evidence/T-011/
+
+ALL CHECKS PASSED (20)
