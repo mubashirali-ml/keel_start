@@ -5,7 +5,7 @@
 | **Wave** | 0 |
 | **Depends on** | — |
 | **ADRs** | [ADR-0038](../docs/adr/0038-plans-v2-free-launch-team-and-plan-settings.md), [ADR-0039](../docs/adr/0039-brand-charterly-everywhere-customers-look.md), [ADR-0024](../docs/adr/0024-stack-and-module-layout-v2.md), [ADR-0021](../docs/adr/0021-settings-environments-and-production-guards.md), [ADR-0022](../docs/adr/0022-llm-providers-fake-claude-code-anthropic-deepseek-groq.md), [ADR-0023](../docs/adr/0023-reliability-timeouts-retries-and-failure-states.md), [ADR-0025](../docs/adr/0025-dependency-set-v2-python-and-npm.md), [ADR-0026](../docs/adr/0026-accounts-sessions-request-context-and-authorization.md), [ADR-0027](../docs/adr/0027-persistence-v2-postgresql-sqlite-migrations-and-data-model.md), [ADR-0028](../docs/adr/0028-background-jobs-queue-worker-and-scheduler.md), [ADR-0029](../docs/adr/0029-transactional-email-notifications-and-83b-reminders.md), [ADR-0030](../docs/adr/0030-plans-billing-stripe-and-entitlements.md), [ADR-0031](../docs/adr/0031-electronic-signatures-and-signed-pdfs.md), [ADR-0032](../docs/adr/0032-services-and-http-api-v2.md), [ADR-0033](../docs/adr/0033-security-hardening.md), [ADR-0034](../docs/adr/0034-deployment-operations-privacy-and-admin.md), [ADR-0036](../docs/adr/0036-ui-recorded-runs-with-accounts-and-demo-seeding-v2.md), [ADR-0008](../docs/adr/0008-shared-domain-contracts.md), [ADR-0009](../docs/adr/0009-agent-message-and-handoff-protocol.md), [ADR-0010](../docs/adr/0010-llm-provider-abstraction-and-fake.md), [ADR-0011](../docs/adr/0011-external-service-ports-rdap-and-hosting.md), [ADR-0013](../docs/adr/0013-case-validation-cap-table-and-vesting-rules.md), [ADR-0014](../docs/adr/0014-founding-documents-and-signoff-state-machine.md), [ADR-0015](../docs/adr/0015-website-generation-qa-and-deploy-loop.md), [ADR-0016](../docs/adr/0016-registration-guide-data-and-checklist.md) |
-| **Status** | todo |
+| **Status** | escalated |
 
 ## Goal
 
@@ -82,3 +82,32 @@ the skip reason); `GET /api/health`; and the list of stubs with their signatures
 Implementing any stubbed behaviour (rules, sign-off, repositories, auth, team, email,
 billing, jobs, PDF, security, observability, agents, graph, services, real API routes,
 providers other than the fake, frontend).
+
+## Escalation (2026-11-23): keep the scope, finish the merge
+
+Decision: T-001 is **not** re-scoped, split or dropped. The Reviewer approved it in round 3
+with no blocking findings, and the changes after approval touch no T-001 code (a merge of the
+harness-only commit `71fd333`, a re-recorded `evidence/T-001/run.log`, a note in `prs/T-001.md`).
+The escalation came from the delivery loop, not from a defect: the gate agent was not allowed to
+run `bash scripts/merge_pr.sh T-001`, the gate-fix step then cleared the approval, and the three
+review rounds were already used.
+
+Two things stand between the approved branch and `main`:
+
+1. **Round count in `prs/T-001.md`.** The gate counts every `### Round N` heading in the file,
+   and the "Builder response" section uses `### Round 1` / `### Round 2` too, so the gate sees
+   5 rounds and refuses ("5 review rounds > 3"). The Builder renames its own two headings to a
+   form that does not start with `### Round` (for example `#### Reply to review round 1`),
+   changes nothing else, and commits `T-001: rename builder reply headings for the gate`. That
+   is a PR-record change only; no new review round is needed or allowed (a fourth `### Round`
+   would fail the gate again). Later builders follow the same rule: the `### Round N` heading
+   belongs only to the Reviewer, under "## Review".
+2. **Permission to run the gate.** A human runs `bash scripts/merge_pr.sh T-001` once from the
+   main checkout, or allows that command for the gate agent. Re-running the whole delivery loop
+   for T-001 does not help: it would start a fourth review round.
+
+After the merge, T-001's status becomes `merged` and wave 1 starts as planned.
+
+Raised during review, not blocking T-001 and handled separately in a later Supervisor pass:
+ADR-0008 says founder ids are never reused, but `apply_patch` can only guarantee that within one
+patch (`CaseFacts` keeps no high-water mark).

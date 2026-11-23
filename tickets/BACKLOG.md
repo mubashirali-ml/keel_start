@@ -12,7 +12,7 @@ Groundwork: the shared vocabulary of the product, the contracts for accounts, bi
 
 | Ticket | Title | Depends on | Owns | Status |
 |---|---|---|---|---|
-| [T-001](T-001-foundation-skeleton-contracts-and-fakes.md) | Foundation: package skeleton, shared and cross-cutting contracts, schema, fakes and typed stubs | — | `launch_agents/`<br>`migrations/`<br>`alembic.ini`<br>`tests/conftest.py`<br>`tests/test_foundation.py`<br>`pytest.ini`<br>`.env.example`<br>`evidence/T-001/`<br>`prs/T-001.md` | todo |
+| [T-001](T-001-foundation-skeleton-contracts-and-fakes.md) | Foundation: package skeleton, shared and cross-cutting contracts, schema, fakes and typed stubs | — | `launch_agents/`<br>`migrations/`<br>`alembic.ini`<br>`tests/conftest.py`<br>`tests/test_foundation.py`<br>`pytest.ini`<br>`.env.example`<br>`evidence/T-001/`<br>`prs/T-001.md` | escalated (approved in round 3; waiting on the merge gate, see the ticket's Escalation section) |
 
 ## Wave 1
 
