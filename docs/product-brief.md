@@ -99,10 +99,27 @@ Founder <──chat──> Manager Agent ──routes questions / hands over─�
 ## Platform
 
 - **Backend:** FastAPI with a SQLite database.
-- **UI:** Streamlit, with: a chat that labels which agent is speaking; a founder switcher;
-  an 83(b) deadline countdown; Names & Domains; Legal documents with review and sign-off;
-  Cap Table with downloads; Website (preview, QA report, deploy status and live URL);
-  Registration Guide checklist; Audit trail.
+- **Frontend: a polished web app, not a demo UI.** React + TypeScript + Vite +
+  Tailwind CSS, talking to the FastAPI backend over a typed API client. It must look and
+  feel like a modern SaaS product a founder would trust with their company:
+  - **Design system first:** one set of design tokens (color, type scale, spacing, radius,
+    shadow) and shared components (buttons, inputs, cards, tabs, badges, dialogs, toasts,
+    empty states, skeleton loaders). No ad-hoc styling per page.
+  - **Chat as the centerpiece:** a clean conversation view where each agent has its own
+    name, avatar/icon and accent color; handovers between agents are shown inline
+    ("Manager brought in the Law Agent"); streaming or typing indicators; suggested replies.
+  - **Workspace views** next to the chat: Overview (case progress across all steps and
+    the 83(b) countdown), Names & Domains (name cards with live availability badges),
+    Legal (documents with version, status badges, per-founder signatures, approve/edit,
+    clear invalidation messages), Cap Table (table + ownership chart + vesting timeline,
+    CSV/Excel download), Website (live preview frame, QA report with pass/fail per check,
+    deploy status and live URL), Registration Guide (checklist with progress), Audit trail.
+  - A **founder switcher** in the header (approvals and edits are made as that founder).
+  - **Quality bar:** responsive down to phone width; light and dark mode; keyboard
+    accessible with visible focus; WCAG AA contrast; loading, empty and error states on
+    every view; no layout shift; friendly copy, no raw JSON or stack traces shown to users.
+  - UI work is verified in a real browser: each UI ticket's recorded run drives the app
+    with Playwright and saves screenshots (light and dark, desktop and phone width).
 - **LLM provider:** OpenAI-compatible providers (DeepSeek primary, Groq for now), chosen
   by configuration with no code change.
 - **External services** (RDAP, hosting provider) sit behind interfaces with fakes, so tests

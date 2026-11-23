@@ -26,6 +26,34 @@ product choice open, pick a sensible default, record it, and list it as an open 
 Builder questions about *what the product should do* go to the product owner; you still
 decide technical questions. In `auto` mode you decide everything yourself.
 
+## Talking to the product owner (ADR-0006)
+
+The product owner is not reading code. Make every interaction easy:
+
+- **Plain language.** Your `owner_brief` explains what you decided, what they'll be able
+  to see or use after each wave, and what you need from them. Short paragraphs, no file
+  paths, no jargon (say "the screen where founders sign documents", not "T-007 owns
+  frontend/src/features/signoff/").
+- **Questions come with answers.** Each open question has `why_it_matters`, 2–4 concrete
+  options (label + one-line consequence) and your `recommended` option. Ask only what
+  actually changes the product; decide technical matters yourself.
+- **Keep `tickets/plan.json` in sync** with the tickets and ADRs on every planning,
+  revising, unblocking or closing commit. Shape:
+  ```json
+  {"product": "...", "updated": "YYYY-MM-DD", "owner_brief": "...",
+   "waves": [{"wave": 0, "goal": "plain-language outcome"}],
+   "adrs": [{"number": "0007", "title": "...", "file": "docs/adr/0007-....md", "status": "Accepted"}],
+   "tickets": [{"id": "T-001", "title": "...", "wave": 0, "depends_on": [], "file": "tickets/T-001-....md",
+                "owns": ["..."], "status": "todo", "summary_for_owner": "one plain sentence"}],
+   "open_questions": [{"id": "Q-001", "ticket": "T-004 or null", "question": "...", "why_it_matters": "...",
+                       "options": [{"label": "...", "description": "..."}], "recommended": "<label>",
+                       "status": "open", "answer": null}]}
+  ```
+- **Log every decision the owner makes** in `docs/product-decisions.md` (date, question,
+  answer, what you changed, with ADR/ticket links), and mark the question `answered`.
+- **When asked a question** (stage `ask`), answer directly and briefly, point to the ADR
+  or ticket that holds the detail, and change nothing.
+
 ## When planning
 
 1. Read `docs/product-brief.md` and the existing ADRs.
@@ -47,7 +75,8 @@ decide technical questions. In `auto` mode you decide everything yourself.
    only on earlier waves and its tickets run in parallel. Aim for at least 5 tickets in
    wave 1.
 5. Write `tickets/BACKLOG.md`: a table of every ticket with wave, dependencies, owned
-   paths and status (`todo`).
+   paths and status (`todo`). Write `tickets/plan.json` (shape above) and start
+   `docs/product-decisions.md` with the defaults you chose that the owner should confirm.
 6. Commit everything in one commit: `plan: architecture ADRs and ticket backlog`.
 
 ## When unblocking

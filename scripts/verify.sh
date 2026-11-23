@@ -46,6 +46,25 @@ else
 fi
 rm -f "$TOPLEVEL/.verify-pytest.log"
 
+# 4b. Frontend (ADR-0005): if this checkout has a frontend, it must install, build and pass its tests.
+if [ -f frontend/package.json ]; then
+  # (Re)install when node_modules is missing or older than the lockfile (e.g. main added a package).
+  if [ ! -d frontend/node_modules ] || [ frontend/package-lock.json -nt frontend/node_modules/.package-lock.json ]; then
+    if [ -f frontend/package-lock.json ]; then (cd frontend && npm ci --no-audit --no-fund --loglevel=error) >/dev/null 2>&1
+    else (cd frontend && npm install --no-audit --no-fund --loglevel=error) >/dev/null 2>&1; fi \
+      || fail "frontend: npm install failed"
+  fi
+  if (cd frontend && npm run -s build) >"$TOPLEVEL/.verify-fe.log" 2>&1; then pass "frontend: build"
+  else fail "frontend: build failed:"; tail -30 "$TOPLEVEL/.verify-fe.log"; fi
+  if grep -q '"test"[[:space:]]*:' frontend/package.json; then
+    if (cd frontend && npm test --silent) >"$TOPLEVEL/.verify-fe.log" 2>&1; then pass "frontend: tests"
+    else fail "frontend: tests failed:"; tail -30 "$TOPLEVEL/.verify-fe.log"; fi
+  else
+    fail "frontend: package.json has no \"test\" script (ADR-0005)"
+  fi
+  rm -f "$TOPLEVEL/.verify-fe.log"
+fi
+
 # 5. Recorded feature run
 if bash "$REPO_ROOT/scripts/record_run.sh" "$T" >/dev/null 2>&1; then
   pass "recorded feature run exits 0 (evidence/$T/run.log)"

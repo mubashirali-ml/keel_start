@@ -10,3 +10,7 @@ __pycache__/
 *.db-journal
 exports/
 .verify-pytest.log
+node_modules/
+frontend/dist/
+test-results/
+harness/desk.html

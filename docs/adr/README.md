@@ -9,3 +9,5 @@ New ADR: copy [0000-template.md](0000-template.md) to the next free number.
 | [0002](0002-multi-agent-delivery-process.md) | Multi-agent delivery process (Supervisor, Builders, Reviewer) | Accepted |
 | [0003](0003-merge-gate-tests-and-recorded-run.md) | Merge gate: tests plus a recorded feature run | Accepted |
 | [0004](0004-supervisor-modes-human-and-auto.md) | Supervisor modes: human-in-the-loop and autonomous | Accepted |
+| [0005](0005-frontend-verification-and-browser-recordings.md) | Frontend verification and browser-recorded runs | Accepted |
+| [0006](0006-product-owner-supervisor-interaction.md) | Product owner ↔ Supervisor interaction | Accepted |

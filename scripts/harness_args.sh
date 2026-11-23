@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Print the JSON `args` for harness/delivery.workflow.js from harness/harness.env
 # (environment variables override the file).
-# Usage: bash scripts/harness_args.sh plan|revise|deliver ["feedback text"]
+# Usage: bash scripts/harness_args.sh plan|ask|revise|deliver ["question or feedback text"]
 . "$(dirname "$0")/lib.sh"
 STAGE="${1:-plan}"; FEEDBACK="${2:-}"
-case "$STAGE" in plan|revise|deliver) ;; *) die "stage must be plan, revise or deliver" ;; esac
+case "$STAGE" in plan|ask|revise|deliver) ;; *) die "stage must be plan, ask, revise or deliver" ;; esac
 
 val() {  # env var wins, else harness.env, else default
   local name="$1" def="$2" v
@@ -27,6 +27,7 @@ print(json.dumps({
     "waves": [int(w) for w in waves.split(",") if w.strip()],
     "minParallel": int(minp),
     "feedback": feedback,
+    "question_answers": {},
     "answers": {},
 }))
 PY

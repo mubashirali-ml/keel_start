@@ -12,8 +12,9 @@ export const meta = {
 }
 
 // args (see scripts/harness_args.sh):
-//   repo, mode: 'human'|'auto', stage: 'plan'|'revise'|'deliver', waves: [0,1],
-//   minParallel: 5, feedback: '<human feedback for revise>', answers: {"T-005": "<human answer>"}
+//   repo, mode: 'human'|'auto', stage: 'plan'|'ask'|'revise'|'deliver', waves: [0,1],
+//   minParallel: 5, feedback: '<owner question (ask) or change request (revise)>',
+//   question_answers: {"Q-001": "<chosen option>"} (revise), answers: {"T-005": "<owner answer to a needs_human ticket>"} (deliver)
 const REPO = args.repo
 const MODE = args.mode || 'human'
 const STAGE = args.stage || 'plan'
@@ -35,11 +36,18 @@ const TICKET = { type: 'object', properties: {
   owns: { type: 'array', items: { type: 'string' }, description: 'owned paths exactly as listed under ## Owns' },
   status: { type: 'string', description: 'todo / in_progress / in_review / merged / escalated / blocked' } },
   required: ['id', 'title', 'wave', 'depends_on', 'file', 'owns', 'status'] }
+const QUESTION = { type: 'object', properties: {
+  id: { type: 'string', description: 'Q-NNN' }, ticket: { type: 'string', description: 'T-NNN or empty' },
+  question: { type: 'string', description: 'Plain language, no jargon' }, why_it_matters: { type: 'string' },
+  options: { type: 'array', minItems: 2, maxItems: 4, items: { type: 'object', properties: { label: { type: 'string', description: '1-5 words' }, description: { type: 'string', description: 'one-line consequence' } }, required: ['label', 'description'] } },
+  recommended: { type: 'string', description: 'label of the recommended option' } },
+  required: ['id', 'ticket', 'question', 'why_it_matters', 'options', 'recommended'] }
 const PLAN_SCHEMA = { type: 'object', properties: {
+  owner_brief: { type: 'string', description: 'Plain-language brief for the product owner (ADR-0006): what you decided, what they get after each wave, what you need from them' },
   adrs: { type: 'array', items: { type: 'object', properties: { number: { type: 'string' }, title: { type: 'string' } }, required: ['number', 'title'] } },
   tickets: { type: 'array', items: TICKET },
-  open_questions: { type: 'array', items: { type: 'string' }, description: 'Product questions the human product owner should answer (human mode); empty in auto mode' },
-  commit: { type: 'string' } }, required: ['adrs', 'tickets', 'open_questions', 'commit'] }
+  open_questions: { type: 'array', items: QUESTION, description: 'Open product questions for the owner (human mode); empty in auto mode' },
+  commit: { type: 'string' } }, required: ['owner_brief', 'adrs', 'tickets', 'open_questions', 'commit'] }
 const BUILD_SCHEMA = { type: 'object', properties: {
   status: { type: 'string', enum: ['READY_FOR_REVIEW', 'BLOCKED'] },
   head_commit: { type: 'string' }, verify_passed: { type: 'boolean' },
@@ -53,16 +61,22 @@ const REVIEW_SCHEMA = { type: 'object', properties: {
 const UNBLOCK_SCHEMA = { type: 'object', properties: {
   needs_human: { type: 'boolean', description: 'true only in human mode, for a question about WHAT the product should do' },
   decision: { type: 'string', description: 'The decision (empty if needs_human)' },
-  question_for_human: { type: 'string', description: 'Rephrased product question for the human (empty unless needs_human)' },
+  question_for_human: { anyOf: [QUESTION, { type: 'null' }], description: 'Structured question for the owner if needs_human, else null' },
   adr_path: { type: 'string' }, ticket_updated: { type: 'boolean' }, commit: { type: 'string' } },
   required: ['needs_human', 'decision', 'question_for_human', 'adr_path', 'ticket_updated', 'commit'] }
+const ASK_SCHEMA = { type: 'object', properties: {
+  answer: { type: 'string', description: 'Direct, plain-language answer' },
+  references: { type: 'array', items: { type: 'string' }, description: 'ADR / ticket files that hold the detail' },
+  suggested_change: { type: 'string', description: 'If the question implies a plan change, the revise feedback you would suggest; else empty' } },
+  required: ['answer', 'references', 'suggested_change'] }
 const GATE_SCHEMA = { type: 'object', properties: { exit_code: { type: 'integer' }, output_tail: { type: 'string' } }, required: ['exit_code', 'output_tail'] }
 
 const PRE = (role) => `Repository: ${REPO} (the main checkout; it is your working directory). Shell: Git Bash on Windows (use the Bash tool for scripts).
 Your role is ${role}. Read CLAUDE.md and .claude/agents/${role.toLowerCase()}.md first and follow them exactly.`
-const MODE_NOTE = MODE === 'human'
-  ? 'SUPERVISOR_MODE=human: a human product owner reviews your plan before any builder starts. Where the brief leaves a real product choice open, make a sensible default decision in the ADR/ticket AND list it in open_questions so the human can confirm or change it.'
-  : 'SUPERVISOR_MODE=auto: nobody reviews your plan before builders start. Decide every open point yourself and record it in ADRs; return open_questions empty.'
+const MODE_NOTE = (MODE === 'human'
+  ? 'SUPERVISOR_MODE=human: a human product owner reviews your plan before any builder starts. Where the brief leaves a real product choice open, make a sensible default decision in the ADR/ticket AND list it in open_questions (structured, with options and your recommendation) so the owner can confirm or change it in one click. Only ask what changes the product; decide technical matters yourself.'
+  : 'SUPERVISOR_MODE=auto: nobody reviews your plan before builders start. Decide every open point yourself and record it in ADRs; return open_questions empty.')
+  + ' Follow "Talking to the product owner" in your role file: write owner_brief in plain language and keep tickets/plan.json, tickets/BACKLOG.md and docs/product-decisions.md in sync with what you commit.'
 
 // ---------------- Plan helpers ----------------
 const norm = p => p.replace(/^\.\//, '')
@@ -116,15 +130,16 @@ TASK: plan the from-scratch build of the product in docs/product-brief.md. Follo
 Constraints you must respect:
 - Read docs/adr/0001..0003 (process ADRs) first. Your architecture ADRs start at the next free number.
 - requirements.txt is fixed and pre-installed (read it); design within it. Network calls (RDAP, hosting provider) use what is already installed (httpx/requests).
-- Harness files are owned by no ticket: scripts/, harness/, .claude/, CLAUDE.md, README.md, requirements.txt, .gitignore, .gitattributes, docs/adr/0001-0003.
+- Frontend: React + TypeScript + Vite + Tailwind in frontend/ (see the brief's quality bar and docs/adr/0005). Decide the exact npm package set (component primitives, icons, charts, test runner) in an ADR. Plan a design-system ticket (tokens, light/dark theme, shared components, app shell with agent-aware chat layout) before feature screens, and make each UI ticket's acceptance criteria include the quality bar (responsive, dark mode, accessible, loading/empty/error states) and Playwright screenshots. Only one ticket per wave may own frontend/package.json and frontend config files.
+- Harness files are owned by no ticket: scripts/, harness/, .claude/, CLAUDE.md, README.md, requirements.txt, .gitignore, .gitattributes, docs/adr/0001-0006.
 - Ticket files follow tickets/TEMPLATE.md exactly. "## Owns" is machine-parsed by scripts/verify.sh: one bullet per path, each path in backticks, directories end with "/". Every ticket also lists \`evidence/T-NNN/\` and \`prs/T-NNN.md\` (its own id). Tickets in the same wave own disjoint paths (no path may be a prefix of another same-wave ticket's path). Tests live in files the ticket owns (e.g. tests/test_<area>.py); shared test config (conftest.py, pytest config) is owned by the wave 0 ticket only.
 - Wave 0 = exactly ONE foundation ticket (T-001): package skeleton, pytest config, shared domain types and constants, the agent message/handoff contract (how the Manager routes to specialists and how each message records which agent spoke), the LLM provider abstraction (DeepSeek/Groq via config + a deterministic fake), interfaces + fakes for external services (RDAP domain lookup, website hosting/deploy), and typed stubs (exact signatures + docstrings, raising NotImplementedError) for every function one ticket calls in another, so every wave-1 ticket can be built and tested independently in parallel.
 - Wave 1 must contain AT LEAST ${MIN_PARALLEL} tickets that depend only on T-001 and run fully in parallel (each specialist agent or deterministic engine is a natural ticket). Plan later waves too (Manager orchestration graph wiring, API, UI, end-to-end recorded demo) so the backlog covers the whole brief.
 - Each ticket is one PR for one builder session, with concrete acceptance criteria and a concrete description of what evidence/T-NNN/feature_run.py must demonstrate (using fakes, no network).
 - Write the ADRs before the tickets and link the relevant ADRs from every ticket. Put contracts (signatures, types, table schemas, state transitions, agent handoff protocol) in ADRs so builders and reviewers share one source of truth.
-- Write tickets/BACKLOG.md. Commit once as Supervisor, message "plan: architecture ADRs and ticket backlog", with the Co-Authored-By trailer from CLAUDE.md.
+- Write tickets/BACKLOG.md, tickets/plan.json (shape in your role file) and docs/product-decisions.md. Commit once as Supervisor, message "plan: architecture ADRs and ticket backlog", with the Co-Authored-By trailer from CLAUDE.md.
 
-Return the ADRs you wrote, every ticket (status todo), open_questions, and the commit sha.`
+Return owner_brief, the ADRs you wrote, every ticket (status todo), open_questions (same as in plan.json), and the commit sha.`
 
 // ---------------- Delivery per ticket ----------------
 const builderStart = (t, others, merged) => `${PRE('Builder')}
@@ -184,11 +199,11 @@ Builder ${t.id} (ticket ${t.file}) is BLOCKED and asks:
 ${q}
 Builder's context: ${rep.summary}
 Follow "When unblocking" in your role file. ${MODE === 'human'
-  ? 'SUPERVISOR_MODE=human: if this is a question about WHAT the product should do (a product/business choice the brief and ADRs do not settle), do NOT decide: set needs_human=true and phrase question_for_human clearly with your recommended answer. Technical questions you decide yourself.'
+  ? 'SUPERVISOR_MODE=human: if this is a question about WHAT the product should do (a product/business choice the brief and ADRs do not settle), do NOT decide: set needs_human=true, write question_for_human in plain language with 2-4 options and your recommendation (ADR-0006), add it to open_questions in tickets/plan.json with this ticket id, and commit. Technical questions you decide yourself.'
   : 'SUPERVISOR_MODE=auto: decide everything yourself; needs_human is always false.'}
 Write/commit an ADR or ticket update on main only if needed (docs/ and tickets/ only; never code).`, { label: `supervisor:unblock ${t.id}`, phase: ph, schema: UNBLOCK_SCHEMA }))
     if (!ans) return { rep }
-    if (ans.needs_human && MODE === 'human') return { rep, human: ans.question_for_human || q }
+    if (ans.needs_human && MODE === 'human') return { rep, human: ans.question_for_human || { id: '', ticket: t.id, question: q, why_it_matters: '', options: [], recommended: '' } }
     rep = await build(t, builderResume(t, q, ans.decision, ans.commit), ph, 'resume')
   }
   return { rep }
@@ -245,31 +260,44 @@ async function deliver(t, waveTickets, ph, merged) {
 }
 
 // ---------------- Stages ----------------
+const qText = q => (q && typeof q === 'object') ? q.question : q
+
+// ask: the owner asks the Supervisor anything; read-only.
+if (STAGE === 'ask') {
+  phase('Plan')
+  const a = await agent(`${PRE('Supervisor')}
+
+The product owner asks you: ${args.feedback}
+
+Follow "When asked a question" in your role file: answer directly in plain language from the plan (tickets/plan.json, tickets/, docs/adr/, docs/product-decisions.md) and the repo state (git log, prs/, evidence/). Change NOTHING and commit nothing. If the question implies the plan should change, put the revise feedback you'd suggest in suggested_change.`, { label: 'supervisor:ask', phase: 'Plan', schema: ASK_SCHEMA })
+  return { stage: STAGE, mode: MODE, question: args.feedback, ...a }
+}
+
 let plan = null
 if (STAGE === 'plan' || STAGE === 'revise') {
   phase('Plan')
   if (STAGE === 'plan') {
     plan = await onMain(() => agent(planPrompt, { label: 'supervisor:plan', phase: 'Plan', schema: PLAN_SCHEMA }))
   } else {
+    const answered = Object.entries(args.question_answers || {})
     plan = await onMain(() => agent(`${PRE('Supervisor')}
 
-The human product owner reviewed your plan (tickets/, docs/adr/) and asks for these changes:
-${args.feedback}
-
-Revise the ADRs (supersede accepted ADRs with new ones rather than editing them, per ADR-0001) and the tickets/BACKLOG accordingly, keeping every planning constraint from your role file (wave 0 = one foundation ticket, wave 1 >= ${MIN_PARALLEL} parallel tickets with disjoint Owns). Commit as Supervisor ("plan: revise per product owner feedback"). Return the full current plan. ${MODE_NOTE}`, { label: 'supervisor:revise', phase: 'Plan', schema: PLAN_SCHEMA }))
+The product owner reviewed your plan.
+${answered.length ? `Answers to your open questions:\n${answered.map(([id, a]) => `- ${id}: ${a}`).join('\n')}\n` : ''}${args.feedback ? `Requested changes, in their words:\n${args.feedback}\n` : ''}
+Apply them: log each decision in docs/product-decisions.md and mark answered questions in tickets/plan.json; revise ADRs (supersede accepted ADRs with new ones rather than editing them, per ADR-0001), tickets, BACKLOG.md and plan.json accordingly, keeping every planning constraint (wave 0 = one foundation ticket, wave 1 >= ${MIN_PARALLEL} parallel tickets with disjoint Owns). Commit as Supervisor ("plan: revise per product owner feedback"). In owner_brief, say briefly what you changed. Return the full current plan with only the questions still open. ${MODE_NOTE}`, { label: 'supervisor:revise', phase: 'Plan', schema: PLAN_SCHEMA }))
   }
   if (!plan) throw new Error('Supervisor planning failed')
   plan = await checkedPlan(plan)
   log(`Plan: ${plan.adrs.length} ADRs, ${plan.tickets.length} tickets; wave 1 has ${plan.tickets.filter(t => t.wave === 1).length} parallel tickets; ${plan.open_questions.length} open question(s)`)
   if (MODE === 'human') {
-    return { stage: STAGE, mode: MODE, awaiting: 'product owner approval', adrs: plan.adrs, tickets: plan.tickets, open_questions: plan.open_questions, commit: plan.commit }
+    return { stage: STAGE, mode: MODE, awaiting: 'product owner approval', owner_brief: plan.owner_brief, adrs: plan.adrs, tickets: plan.tickets, open_questions: plan.open_questions, commit: plan.commit }
   }
 }
 
 if (!plan) {
   phase('Plan')
   plan = await agent(`${PRE('Supervisor')}
-Read-only task: read tickets/BACKLOG.md and every tickets/T-*.md and return the current plan exactly as written (ids, titles, waves, depends_on, ticket file paths, owned paths, statuses). Do not change or commit anything. open_questions: []. commit: current main HEAD sha.`, { label: 'supervisor:read-plan', phase: 'Plan', schema: PLAN_SCHEMA, effort: 'low' })
+Read-only task: read tickets/plan.json (and tickets/BACKLOG.md if they disagree, plan.json wins) and return the current plan exactly as written (ids, titles, waves, depends_on, ticket file paths, owned paths, statuses, still-open questions, owner_brief). Do not change or commit anything. commit: current main HEAD sha.`, { label: 'supervisor:read-plan', phase: 'Plan', schema: PLAN_SCHEMA, effort: 'low' })
   if (!plan) throw new Error('Could not read the plan')
   const probs = planProblems(plan)
   if (probs.length) throw new Error('Plan on main fails checks: ' + probs.join('; '))
@@ -295,7 +323,7 @@ phase('Close')
 const closing = await onMain(() => agent(`${PRE('Supervisor')}
 
 Delivery run finished (waves ${WAVES.join(',')}, mode ${MODE}). Outcomes per ticket:
-${results.map(r => `- ${r.id} ${r.title}: ${r.outcome}${r.rounds != null ? `, ${r.rounds} review round(s)` : ''}${r.unblocks ? `, ${r.unblocks} unblock(s)` : ''}${r.question ? ` — waiting on: ${r.question}` : ''}`).join('\n')}
-Update tickets/BACKLOG.md statuses (merged / escalated / blocked / needs_human / todo) and each executed ticket file's Status row, make sure docs/adr/README.md lists every ADR now on main (including ones builders proposed and reviewers accepted), and note in BACKLOG.md what the next wave is. Commit as Supervisor ("plan: close delivery run"). Docs/tickets only. Return a short status summary.`, { label: 'supervisor:close', phase: 'Close' }))
+${results.map(r => `- ${r.id} ${r.title}: ${r.outcome}${r.rounds != null ? `, ${r.rounds} review round(s)` : ''}${r.unblocks ? `, ${r.unblocks} unblock(s)` : ''}${r.question ? ` — waiting on: ${qText(r.question)}` : ''}`).join('\n')}
+Update tickets/BACKLOG.md and tickets/plan.json statuses (merged / escalated / blocked / needs_human / todo) and each executed ticket file's Status row, make sure docs/adr/README.md and plan.json list every ADR now on main (including ones builders proposed and reviewers accepted), and note what the next wave is. Rewrite owner_brief in plan.json for the owner: what they can now see or use, what is waiting on them, what comes next. Commit as Supervisor ("plan: close delivery run"). Docs/tickets only. Return that owner brief as your answer.`, { label: 'supervisor:close', phase: 'Close' }))
 
-return { stage: STAGE, mode: MODE, results, needs_human: results.filter(r => r.outcome === 'needs_human').map(r => ({ id: r.id, question: r.question })), closing }
+return { stage: STAGE, mode: MODE, results, needs_human: results.filter(r => r.outcome === 'needs_human').map(r => ({ id: r.id, question: r.question })), owner_brief: closing }

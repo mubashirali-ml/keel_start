@@ -47,7 +47,7 @@ There are two groups of agents here, and they are different things:
 | 5+ parallel builders, one ticket = one PR, isolated branches | [.claude/agents/builder.md](.claude/agents/builder.md), [scripts/start_ticket.sh](scripts/start_ticket.sh) (worktree `.worktrees/T-NNN`, branch `ticket/T-NNN`), PR records in [prs/](prs/), file ownership per ticket |
 | Reviewer with a review-fix loop of at most 3 rounds | [.claude/agents/reviewer.md](.claude/agents/reviewer.md); the gate counts `### Round N` in the PR record |
 | Tests + recorded feature run before merging | [scripts/verify.sh](scripts/verify.sh), [scripts/record_run.sh](scripts/record_run.sh), [scripts/merge_pr.sh](scripts/merge_pr.sh); logs in [evidence/](evidence/) |
-| ADRs throughout | [docs/adr/](docs/adr/): process ADRs 0001–0004, architecture ADRs by the Supervisor, `Proposed` ADRs by builders accepted at review |
+| ADRs throughout | [docs/adr/](docs/adr/): process ADRs 0001–0006, architecture ADRs by the Supervisor, `Proposed` ADRs by builders accepted at review |
 
 Every role commits under its own git identity, so `git log --format='%an %s'` shows who
 did what, and `git log --merges --first-parent main` lists one merge per ticket.
@@ -69,15 +69,39 @@ environment variable.
   (stage `deliver`). Builder questions about what the product should do come to you.
 - `auto`: plan and build run straight through, and the Supervisor decides everything.
 
+How a conversation with the Supervisor goes (ADR-0006):
+
+1. **Plan.** The Supervisor sends a plain-language brief: what it will build in each
+   wave and what you'll be able to see after it. Questions arrive with 2–4 options
+   and a recommended one, so most answers are one click.
+2. **Ask.** Ask it anything, e.g. *"why is the website agent separate from QA?"*. It
+   answers from the plan and the repo and changes nothing.
+3. **Revise.** Answer its questions or describe changes in your own words. It updates
+   the ADRs and tickets and logs each decision in `docs/product-decisions.md`.
+4. **Deliver.** When you're happy, builders start. Product questions that come up
+   during the build come back to you in the same format.
+
 ```bash
 bash scripts/harness_args.sh plan                         # args for the planning run
+bash scripts/harness_args.sh ask "why two law tickets?"   # args for asking the Supervisor
 bash scripts/harness_args.sh revise "split T-004 in two"  # args for a plan revision
 bash scripts/harness_args.sh deliver                      # args for building the waves in WAVES
 SUPERVISOR_MODE=auto bash scripts/harness_args.sh plan    # one-off autonomous run
 ```
 
-In Claude Code, ask: *"run harness/delivery.workflow.js with the args from
-`bash scripts/harness_args.sh plan`"*.
+In Claude Code you just talk: *"plan it"*, *"ask the Supervisor why…"*, *"change X"*,
+*"start building"*. Claude runs `harness/delivery.workflow.js` with these args.
+
+### Supervisor Desk
+
+```bash
+bash scripts/py.sh scripts/supervisor_desk.py   # writes harness/desk.html, open it in a browser
+```
+
+A one-page dashboard built from `tickets/plan.json` and live git state: the Supervisor's
+brief, questions waiting on you (recommended answer highlighted), every wave and ticket
+with its status, review rounds used, review verdict, recorded-run result and UI
+screenshots, the ADR log and recent activity by role. Light and dark mode, works on a phone.
 
 ### Scripts each role uses
 
