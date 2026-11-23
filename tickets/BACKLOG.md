@@ -7,12 +7,11 @@ Tickets in the same wave own disjoint paths and run in parallel; each depends on
 47 tickets in 7 waves.
 
 **Delivery status (2026-11-23).** T-001 is `merged` (merge commit `7ad2082`). The first wave-1 delivery
-run finished: T-002, T-003, T-004, T-005, T-006 and T-047 are `merged` (the operator ran the merge gate
-on each; last merge commit `b3ca69e`), and T-011 is `approved` (Reviewer approved in round 2) and waits for
-the operator to run `bash scripts/merge_pr.sh T-011`
-([ADR-0040](../docs/adr/0040-merge-gate-runs-in-the-operators-session.md)). No ticket was escalated,
-blocked or sent to the product owner, and no PR proposed an ADR. **Next: the rest of wave 1**: the 14 `todo`
-tickets T-007, T-008, T-009, T-010, T-024, T-025, T-026, T-027, T-028, T-029, T-030, T-031, T-032, T-033.
+run is complete: T-002, T-003, T-004, T-005, T-006, T-011 and T-047 are `merged` (the operator ran the merge gate
+on each, [ADR-0040](../docs/adr/0040-merge-gate-runs-in-the-operators-session.md); `main` is at merge commit `87340d9`,
+922 Python tests pass, and the frontend build and tests pass). No ticket was escalated, blocked or sent to the
+product owner, and no PR proposed an ADR. **Next: the rest of wave 1**: the 14 `todo` tickets T-007, T-008, T-009,
+T-010, T-024, T-025, T-026, T-027, T-028, T-029, T-030, T-031, T-032, T-033.
 Wave 2 starts only when all of wave 1 is merged (every wave-2 ticket depends on at least one of those 14).
 
 ## Wave 0
@@ -38,7 +37,7 @@ Twenty-one pieces built side by side: the automatic rules (equity, vesting, 83(b
 | [T-008](T-008-website-agent-renderer-and-netlify.md) | Website Agent: site content, static renderer and Netlify deploy adapter | T-001 | `launch_agents/agents/website/`<br>`launch_agents/adapters/netlify.py`<br>`tests/test_website_agent.py`<br>`tests/test_site_renderer.py`<br>`tests/test_netlify.py`<br>`evidence/T-008/`<br>`prs/T-008.md` | todo |
 | [T-009](T-009-qa-agent-site-checks.md) | QA Agent: requirement and quality checks for generated websites | T-001 | `launch_agents/agents/qa/`<br>`tests/test_qa_agent.py`<br>`evidence/T-009/`<br>`prs/T-009.md` | todo |
 | [T-010](T-010-registration-guide-agent.md) | Registration Guide Agent with curated Delaware and Wyoming data | T-001 | `launch_agents/agents/guide/`<br>`tests/test_guide_agent.py`<br>`evidence/T-010/`<br>`prs/T-010.md` | todo |
-| [T-011](T-011-frontend-design-system-and-app-shell.md) | Frontend foundation: brand, design system, themes, app shell and layouts, typed API client with auth, UI-run helper | T-001 | `frontend/`<br>`launch_agents/devtools/`<br>`tests/test_devtools.py`<br>`evidence/T-011/`<br>`prs/T-011.md` | approved |
+| [T-011](T-011-frontend-design-system-and-app-shell.md) | Frontend foundation: brand, design system, themes, app shell and layouts, typed API client with auth, UI-run helper | T-001 | `frontend/`<br>`launch_agents/devtools/`<br>`tests/test_devtools.py`<br>`evidence/T-011/`<br>`prs/T-011.md` | merged |
 | [T-024](T-024-llm-provider-claude-code-cli.md) | LLM provider `claude_code`: the Claude Code CLI in print mode for local development and live demos | T-001 | `launch_agents/llm/claude_code.py`<br>`tests/test_llm_claude_code.py`<br>`evidence/T-024/`<br>`prs/T-024.md` | todo |
 | [T-025](T-025-llm-providers-anthropic-and-openai-compatible.md) | LLM providers for production: `anthropic` (official SDK) and `deepseek` / `groq` (OpenAI-compatible) | T-001 | `launch_agents/llm/anthropic_provider.py`<br>`launch_agents/llm/openai_compat.py`<br>`tests/test_llm_anthropic.py`<br>`tests/test_llm_openai_compat.py`<br>`evidence/T-025/`<br>`prs/T-025.md` | todo |
 | [T-026](T-026-accounts-signup-login-sessions-and-password-reset.md) | Accounts: sign-up, login, sessions, email verification and password reset | T-001 | `launch_agents/accounts/`<br>`launch_agents/persistence/accounts.py`<br>`tests/test_auth.py`<br>`tests/test_accounts_repository.py`<br>`evidence/T-026/`<br>`prs/T-026.md` | todo |
@@ -113,11 +112,7 @@ The demo video: one command records every agent at work, in reliable mode (ident
 
 ## Open questions for the product owner
 
-Each has a default already applied in the plan; confirm or change it.
-
-| Id | Ticket | Question | Recommended |
-|---|---|---|---|
-| Q-010 | T-043 | Should the landing-page tagline change now that the product is called Keelstart? | Keep the current tagline |
+None open.
 
 ## Answered
 
@@ -132,3 +127,4 @@ Each has a default already applied in the plan; confirm or change it.
 | Q-007 | What should the product be called? | Charterly ([ADR-0039](../docs/adr/0039-brand-charterly-everywhere-customers-look.md)); later renamed **Keelstart** by the owner ([ADR-0041](../docs/adr/0041-brand-keelstart-everywhere-customers-look.md)) |
 | Q-008 | When a founder deletes their account, what happens to a company they share with co-founders? | Company stays with co-founders |
 | Q-009 | What reply times should the pricing page promise for support on each plan? | No promised times: "Email support" on every plan, "Priority support" on Team ([ADR-0042](../docs/adr/0042-support-wording-no-promised-reply-times.md)) |
+| Q-010 | Should the landing-page tagline change now that the product is called Keelstart? | Keep it plain: "Launch your company with a team of AI agents"; the keel idea lives in the logo |

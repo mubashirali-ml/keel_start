@@ -1,7 +1,7 @@
 {
   "product": "Keelstart: AI agents that launch your company (LLC formation, name, website, compliance)",
   "updated": "2026-11-23",
-  "owner_brief": "The first part of round 1 is done. Seven of the 21 round-1 pieces were built and passed review. Six are already merged into the product, and one is waiting for the merge step. Nothing was blocked, and no piece needed your decision during this run.\n\nWhat now works inside the product. There are no new screens yet: these are the engine parts the screens will use, and each one has a recorded run that shows it working.\n- Company checks: founder equity must add up to 100%, vesting terms must make sense, each founder's 83(b) tax-election deadline is worked out, and missing facts are listed in plain words.\n- The cap table: shares split between the founders, each founder's vesting schedule month by month, and downloads as CSV and Excel spreadsheets.\n- Founder approvals: each founder signs the founding documents electronically, an edit after signing asks everyone to sign again (as you chose), and every step is written to the audit trail.\n- Saving: companies and everything about them are stored, in SQLite on a single machine or PostgreSQL in production.\n- The Law Agent: answers legal questions with a \"not legal advice\" notice, spots issues, and drafts the founding documents with share numbers that match the cap table.\n- The built-in name is now Keelstart, and no plan promises a support reply time.\n\nWaiting on the merge step: the look and feel of the app. That is the Keelstart logo and brand, light and dark mode, the design gallery, and the app frame with the login redirect. It passed review on its second round. Once the operator merges it, you can open the design gallery and see the Keelstart brand in light and dark mode, on desktop and on a phone.\n\nWhat comes next: the other 14 round-1 pieces. They are the Name Agent with live domain checks, the Website Agent with Netlify publishing, the QA Agent, the Registration Guide Agent, the AI connections (your Claude Code login on your machine, the Anthropic API for production, plus DeepSeek and Groq), accounts and sign-in, co-founder invites and permissions, email, Stripe billing, background jobs, signed PDFs, security, and logging. Round 2, the services that join everything up, starts when round 1 is complete.\n\nWhat I need from you. 1) The tagline question is still open: keep \"Launch your company with a team of AI agents\" (my recommendation, because it says plainly what the product does) or use a keel-themed line? The app uses the current tagline until you decide, and changing it later is a one-line change. 2) Same as last time: register keelstart.com and run a trademark check for \"Keelstart\". 3) Only needed before going live: four prices in Stripe, a support email address, your legal company name, an Anthropic key, an email sending account, a Netlify token and an HTTPS web address.",
+  "owner_brief": "The first part of round 1 is complete. All seven pieces from this run passed review and are now merged into the product: the company checks, the cap table, founder approvals, saving, the Law Agent, the Keelstart name, and the app's look and feel. Every automatic check passes, both for the engine and for the screens. Nothing was blocked, and no piece needed your decision during the run.\n\nWhat you can see now. Open the design gallery to see the Keelstart brand: the sailboat logo with the Keelstart name, the colours, and every button, form and panel the screens will use. It works in light mode and dark mode, on a desktop and on a phone. A first landing page is also up: the Keelstart logo, the headline \"Launch your company with a team of AI agents\", what the agents deliver, the three steps from questions to launch, and the \"not legal advice\" note, again in light and dark mode. Pricing and the full agents section are added in round 4, when the screens are built.\n\nWhat I changed after your answer. You chose to keep the tagline plain, with the keel idea living in the logo. That was already the default, so nothing in the product changes. I logged your decision and marked the seven merged pieces as done in the plan.\n\nWhat comes next: the other 14 round-1 pieces. They are the Name Agent with live domain checks, the Website Agent with Netlify publishing, the QA Agent, the Registration Guide Agent, the AI connections (your Claude Code login on your machine, the Anthropic API for production, plus DeepSeek and Groq), accounts and sign-in, co-founder invites and permissions, email, Stripe billing, background jobs, signed PDFs, security, and logging. Round 2, the services that join everything up, starts when round 1 is complete.\n\nWhat I need from you. No questions are open. 1) As before: register keelstart.com and run a trademark check for \"Keelstart\". 2) Only needed before going live: four prices in Stripe, a support email address, your legal company name, an Anthropic key, an email sending account, a Netlify token and an HTTPS web address.",
   "waves": [
     {
       "wave": 0,
@@ -485,7 +485,7 @@
         "evidence/T-011/",
         "prs/T-011.md"
       ],
-      "status": "approved",
+      "status": "merged",
       "summary_for_owner": "The app's look and feel: the Keelstart brand with its sailboat logo, colors, light and dark mode, every shared building block, all page layouts and the connection to the backend."
     },
     {
@@ -1480,8 +1480,8 @@
         }
       ],
       "recommended": "Keep the current tagline",
-      "status": "open",
-      "answer": null
+      "status": "answered",
+      "answer": "Keep the current tagline"
     }
   ]
 }
