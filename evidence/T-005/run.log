@@ -1,9 +1,9 @@
 # Recorded feature run
 ticket:      T-005
 branch:      ticket/T-005
-commit:      d2eff9b55bf0c598988ad2a9169dcd00c87bf689
+commit:      3392ad713e5a0446be59f8feac8fc23f276b028b
 uncommitted: 0 file(s) outside evidence/ and prs/
-recorded_at: 2026-11-23T12:13:22Z
+recorded_at: 2026-11-23T12:26:03Z
 python:      3.12.10
 command:     bash scripts/py.sh evidence/T-005/feature_run.py
 exit_code:   0
@@ -14,8 +14,8 @@ SQLite file: <tmp>/feature_run.db
   schema_is_current: True
   tables (21): admin_audit, audit_log, auth_tokens, billing_events, cases, checklist_items, document_versions, documents, email_outbox, invites, jobs, llm_usage, memberships, messages, rate_limits, sessions, signatures, site_builds, subscriptions, users, worker_heartbeats
 company
-  id: case_f1bac4c6adae
-  created_by / billing_user_id: usr_f9de818663ad / usr_f9de818663ad
+  id: case_df0c7fe51755
+  created_by / billing_user_id: usr_4bfbf2f69987 / usr_4bfbf2f69987
   equity: ['62.5', '37.5']
 messages
   seq 1: [founder/f1] We want to form a Wyoming LLC.
@@ -25,14 +25,14 @@ document v1 signed; evidence:
   founder_id: f1
   version: 1
   signed_at: 2026-11-23T10:05:00Z
-  user_id: usr_f9de818663ad
+  user_id: usr_4bfbf2f69987
   typed_name: Alice Chen
   consent_version: 2026-11-23
   content_sha256: ad5ffabd4eb8d90b7ad4b33701531a9a0e4bb2f4c767f90c8ae4a4ab922e7d0f
   ip: 203.0.113.7
   user_agent: Mozilla/5.0 (feature run)
   acted_by_user_id: None
-  stale save (expected_version=1 while at v2): rejected: stale_version {'document_id': 'doc_5aa316ccb009', 'current_version': 2, 'expected_version': 1}
+  stale save (expected_version=1 while at v2): rejected: stale_version {'document_id': 'doc_252695c4d6c8', 'current_version': 2, 'expected_version': 1}
   document now: v2, signatures on current version: 0
 audit
   #1: facts_locked by system (None->None)
@@ -42,8 +42,8 @@ audit
   checklist: {'file_articles': True, 'get_ein': False}
   site build: v1 qa_passed, 1 file(s)
 conflicts inside one transaction
-  second company-wide summary: rejected: conflict {'case_id': 'case_f1bac4c6adae', 'kind': 'operating_agreement_summary', 'founder_id': None}
-  site build v1 again: rejected: conflict {'case_id': 'case_f1bac4c6adae', 'version': 1}
+  second company-wide summary: rejected: conflict {'case_id': 'case_df0c7fe51755', 'kind': 'operating_agreement_summary', 'founder_id': None}
+  site build v1 again: rejected: conflict {'case_id': 'case_df0c7fe51755', 'version': 1}
   committed: documents=['ip_assignment', 'operating_agreement_summary'], builds=[1], open_bank_account=True
 read back through a new engine
   company: Crumb Ledger LLC, founders [('f1', '62.5'), ('f2', '37.5')], active agent law
@@ -64,59 +64,5 @@ after delete_case
   checklist_items: 0
   site_builds: 0
 === SQLite: OK ===
-=== PostgreSQL ===
-  migration head: 0001_initial
-  schema_is_current: True
-  tables (21): admin_audit, audit_log, auth_tokens, billing_events, cases, checklist_items, document_versions, documents, email_outbox, invites, jobs, llm_usage, memberships, messages, rate_limits, sessions, signatures, site_builds, subscriptions, users, worker_heartbeats
-company
-  id: case_7318d69248e4
-  created_by / billing_user_id: usr_513981c464cb / usr_513981c464cb
-  equity: ['62.5', '37.5']
-messages
-  seq 1: [founder/f1] We want to form a Wyoming LLC.
-  seq 2: [agent/manager] Manager brought in the Law Agent
-  seq 3: [agent/law] I drafted your IP assignment.
-document v1 signed; evidence:
-  founder_id: f1
-  version: 1
-  signed_at: 2026-11-23T10:05:00Z
-  user_id: usr_513981c464cb
-  typed_name: Alice Chen
-  consent_version: 2026-11-23
-  content_sha256: ad5ffabd4eb8d90b7ad4b33701531a9a0e4bb2f4c767f90c8ae4a4ab922e7d0f
-  ip: 203.0.113.7
-  user_agent: Mozilla/5.0 (feature run)
-  acted_by_user_id: None
-  stale save (expected_version=1 while at v2): rejected: stale_version {'document_id': 'doc_31edb9a9b145', 'current_version': 2, 'expected_version': 1}
-  document now: v2, signatures on current version: 0
-audit
-  #8: facts_locked by system (None->None)
-  #9: created by law (None->1)
-  #10: signed by f1 (1->1)
-  #11: edited by f1 (1->2)
-  checklist: {'file_articles': True, 'get_ein': False}
-  site build: v1 qa_passed, 1 file(s)
-conflicts inside one transaction
-  second company-wide summary: rejected: conflict {'case_id': 'case_7318d69248e4', 'kind': 'operating_agreement_summary', 'founder_id': None}
-  site build v1 again: rejected: conflict {'case_id': 'case_7318d69248e4', 'version': 1}
-  committed: documents=['ip_assignment', 'operating_agreement_summary'], builds=[1], open_bank_account=True
-read back through a new engine
-  company: Crumb Ledger LLC, founders [('f1', '62.5'), ('f2', '37.5')], active agent law
-  messages: [1, 2, 3]
-  document: v2 awaiting_signatures
-  audit: ['facts_locked', 'created', 'signed', 'edited']
-  checklist: {'file_articles': True, 'get_ein': False, 'open_bank_account': True}
-  site build: v1 files=['index.html']
-  equal to what was stored: True
-  document_versions rows: [1, 2]
-  signature history rows (version, typed name): [(1, 'Alice Chen')]
-after delete_case
-  messages: 0
-  documents: 0
-  document_versions: 0
-  signatures: 0
-  audit_log: 0
-  checklist_items: 0
-  site_builds: 0
-=== PostgreSQL: OK ===
+PostgreSQL part skipped: LAUNCH_TEST_POSTGRES_URL is not set
 FEATURE RUN T-005: OK
