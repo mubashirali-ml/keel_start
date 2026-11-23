@@ -199,6 +199,25 @@ def main() -> int:
             check(rows[-1][0] == "Total" and rows[-1][3] == 10_000_000, f"{name} total row = 10,000,000")
             check(len(vest_rows) - 1 == sum(len(r.schedule) for r in c.rows), f"{name} vesting sheet lists every event")
 
+    section("Review round 1: formula-like founder text stays literal in the workbook")
+    tricky = [
+        Founder(id="f1", name="=1+2", email="=HYPERLINK(\"http://x\")@example.com", equity_percent=Decimal("50"),
+                vesting_months=0, cliff_months=0),
+        Founder(id="f2", name="+SUM(A1)", email="@evil@example.com", equity_percent=Decimal("50"),
+                vesting_months=0, cliff_months=0),
+    ]
+    tricky_facts = CaseFacts(business_description="x", founders=tricky, entity_type=EntityType.C_CORP, state="DE",
+                             incorporation_date=date(2027, 1, 1))
+    wb = load_workbook(io.BytesIO(cap_table_xlsx(build_cap_table(tricky_facts))))
+    for sheet in ("Cap table", "Vesting"):
+        ws = wb[sheet]
+        for r in range(2, 4):
+            cells = [ws.cell(row=r, column=col) for col in ((1, 2) if sheet == "Cap table" else (1,))]
+            print(f"  {sheet} row {r}: " + ", ".join(f"{c.value!r} (data_type {c.data_type!r})" for c in cells))
+        text_cells = [cell for cells in ws.iter_rows() for cell in cells if isinstance(cell.value, str)]
+        check(all(cell.data_type == "s" for cell in text_cells), f"every text cell in '{sheet}' is a literal string")
+    check(wb["Cap table"]["A2"].value == "=1+2", "founder named '=1+2' keeps the literal name")
+
     print()
     print("FEATURE RUN T-003: PASS")
     return 0

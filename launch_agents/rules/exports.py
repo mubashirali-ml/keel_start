@@ -41,6 +41,19 @@ def _percent(value: Decimal) -> str:
     return text.rstrip("0").rstrip(".") if "." in text else text
 
 
+def _literal_text(ws) -> None:
+    """Mark every string cell as a literal string.
+
+    openpyxl treats any string starting with ``=`` as a formula. Founder names and emails are
+    free text, so a name like ``=1+2`` would otherwise become a computed formula cell
+    (spreadsheet formula injection) instead of the founder's real name.
+    """
+    for cells in ws.iter_rows():
+        for cell in cells:
+            if isinstance(cell.value, str):
+                cell.data_type = "s"
+
+
 def cap_table_csv(cap: CapTable) -> str:
     """Header ``Founder,Email,Equity %,Shares|Units,Vesting months,Cliff months,Fully vested on``;
     ``\n`` line endings, plain integers (T-003)."""
@@ -90,6 +103,7 @@ def cap_table_xlsx(cap: CapTable) -> bytes:
     for col, width in zip("ABCDEFG", (24, 30, 10, 14, 15, 13, 16)):
         ws.column_dimensions[col].width = width
     ws.freeze_panes = "A2"
+    _literal_text(ws)
 
     vs = wb.create_sheet(VESTING_SHEET)
     vs.append(list(VESTING_HEADER))
@@ -102,6 +116,7 @@ def cap_table_xlsx(cap: CapTable) -> bytes:
     for col, width in zip("ABCDE", (24, 8, 12, 14, 18)):
         vs.column_dimensions[col].width = width
     vs.freeze_panes = "A2"
+    _literal_text(vs)
 
     out = io.BytesIO()
     wb.save(out)

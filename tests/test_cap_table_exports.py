@@ -139,3 +139,32 @@ def test_xlsx_is_deterministic(llc_cap):
     b = load_workbook(io.BytesIO(cap_table_xlsx(llc_cap)))
     for name in a.sheetnames:
         assert _sheet_rows(a[name]) == _sheet_rows(b[name])
+
+
+@pytest.mark.parametrize("prefix", ["=", "+", "-", "@"])
+def test_xlsx_formula_like_text_is_stored_literally(prefix):
+    name = f"{prefix}1+2"
+    email = f"{prefix}HYPERLINK(\"http://x\")@example.com"
+    founders = [
+        Founder(id="f1", name=name, email=email, equity_percent=D("60"), vesting_months=12, cliff_months=0),
+        Founder(id="f2", name="Plain Name", email="plain@example.com", equity_percent=D("40"),
+                vesting_months=0, cliff_months=0),
+    ]
+    facts = CaseFacts(business_description="x", founders=founders, entity_type=EntityType.C_CORP, state="DE",
+                      incorporation_date=date(2027, 1, 1))
+    wb = load_workbook(io.BytesIO(cap_table_xlsx(build_cap_table(facts))))
+
+    cap_ws = wb["Cap table"]
+    assert cap_ws["A2"].value == name and cap_ws["A2"].data_type == "s"
+    assert cap_ws["B2"].value == email and cap_ws["B2"].data_type == "s"
+    assert cap_ws.cell(row=cap_ws.max_row, column=1).value == "Total"
+    vest_ws = wb["Vesting"]
+    founder_cells = [r[0] for r in vest_ws.iter_rows(min_row=2) if r[0].value == name]
+    assert len(founder_cells) == 12
+    # Every text cell in both sheets (headers, names, emails, "Total") is a literal string.
+    for ws in (cap_ws, vest_ws):
+        for cells in ws.iter_rows():
+            for cell in cells:
+                if isinstance(cell.value, str):
+                    assert cell.data_type == "s", (ws.title, cell.coordinate, cell.value)
+                assert cell.data_type != "f", (ws.title, cell.coordinate)

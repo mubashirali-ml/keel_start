@@ -1,9 +1,9 @@
 # Recorded feature run
 ticket:      T-003
 branch:      ticket/T-003
-commit:      d758672172a511f44578263adda0dc09421b03b2
-uncommitted: 0 file(s) outside evidence/ and prs/
-recorded_at: 2026-11-23T11:45:55Z
+commit:      c417edafc7e6a916783fa74ddea2a94672863635
+uncommitted: 2 file(s) outside evidence/ and prs/
+recorded_at: 2026-11-23T11:51:29Z
 python:      3.12.10
 command:     bash scripts/py.sh evidence/T-003/feature_run.py
 exit_code:   0
@@ -110,7 +110,7 @@ exit_code:   0
 ==============================================================================
 6. CSV and XLSX exports, written to a temp dir and read back
 ==============================================================================
-  wrote cap_table_llc.csv (183 bytes) and cap_table_llc.xlsx (7883 bytes)
+  wrote cap_table_llc.csv (183 bytes) and cap_table_llc.xlsx (7882 bytes)
   CSV:
     Founder,Email,Equity %,Units,Vesting months,Cliff months,Fully vested on
     Alice Chen,alice@example.com,60,6000000,48,12,2030-12-01
@@ -137,5 +137,16 @@ exit_code:   0
   ok  corp workbook has 'Cap table' and 'Vesting'
   ok  corp total row = 10,000,000
   ok  corp vesting sheet lists every event
+
+==============================================================================
+Review round 1: formula-like founder text stays literal in the workbook
+==============================================================================
+  Cap table row 2: '=1+2' (data_type 's'), '=HYPERLINK("http://x")@example.com' (data_type 's')
+  Cap table row 3: '+SUM(A1)' (data_type 's'), '@evil@example.com' (data_type 's')
+  ok  every text cell in 'Cap table' is a literal string
+  Vesting row 2: '=1+2' (data_type 's')
+  Vesting row 3: '+SUM(A1)' (data_type 's')
+  ok  every text cell in 'Vesting' is a literal string
+  ok  founder named '=1+2' keeps the literal name
 
 FEATURE RUN T-003: PASS
