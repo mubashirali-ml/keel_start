@@ -173,7 +173,13 @@ def render(plan: dict | None) -> str:
             </article>""")
         waves_html.append(f'<section class="wave"><h2 class="sec">Wave {w}<span>{e(goals.get(w, ""))}</span></h2><div class="tgrid">{"".join(cards)}</div></section>')
 
-    adr_rows = "".join(f'<li><a href="{e(a["uri"])}"><span class="num">ADR-{e(a["num"])}</span>{e(a["title"])}</a><span class="pill {"ok" if a["status"].startswith("Accepted") else "muted"}">{e(a["status"])}</span></li>' for a in adr_list)
+    def adr_badge(status: str) -> tuple[str, str]:
+        short = status.split("(")[0].strip() or status
+        if "superseded" in status.lower() and short.lower().startswith("accepted"):
+            short = "Partly superseded"
+        return short, "ok" if short.startswith("Accepted") else "muted"
+    adr_rows = "".join(f'<li title="{e(a["status"])}"><a href="{e(a["uri"])}"><span class="num">ADR-{e(a["num"])}</span>{e(a["title"])}</a>'
+                       f'<span class="pill {adr_badge(a["status"])[1]}">{e(adr_badge(a["status"])[0])}</span></li>' for a in adr_list)
     act_rows = "".join(f'<li><span class="who {ROLE_CLASS.get(r[0].split()[0], "bld" if r[0].startswith("Builder") else "op")}">{e(r[0])}</span><span class="what">{e(r[2])}</span><span class="when">{e(r[1])}</span></li>' for r in activity())
     side = f'<aside><section class="card"><h2>Decisions (ADRs)</h2><ul class="adrs">{adr_rows}</ul></section><section class="card"><h2>Recent activity</h2><ul class="act">{act_rows}</ul></section></aside>'
 
@@ -198,7 +204,7 @@ a{{color:inherit}}.top{{position:sticky;top:0;z-index:2;background:color-mix(in 
 .stat{{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh)}}
 .stat .n{{display:block;font-size:28px;font-weight:700;letter-spacing:-.02em}}.stat small{{font-size:15px;color:var(--sub);font-weight:500}}.stat .l{{color:var(--sub);font-size:13px}}
 .stat.attn{{border-color:var(--warn);background:var(--warn-soft)}}.bar{{height:6px;background:var(--muted-soft);border-radius:9px;margin-top:8px;overflow:hidden}}.bar i{{display:block;height:100%;background:var(--ok);border-radius:9px}}
-.layout{{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start}}
+.layout{{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,360px);gap:18px;align-items:start}}
 .card{{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;box-shadow:var(--sh);margin-bottom:18px}}
 .card h2,.sec{{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--sub);margin:0 0 10px}}
 .sec{{margin:22px 0 10px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}}.sec span{{text-transform:none;letter-spacing:0;font-size:14px;color:var(--ink);font-weight:500}}
@@ -216,7 +222,7 @@ footer{{display:flex;justify-content:space-between;align-items:center;margin-top
 .deps{{font-size:12px;color:var(--sub)}}.checks{{display:flex;flex-wrap:wrap;gap:6px}}.ck{{font-size:12px;border-radius:8px;padding:2px 8px}}
 .shots{{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}}.shots img{{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:8px;border:1px solid var(--line)}}
 .adrs,.act{{list-style:none;margin:0;padding:0;display:grid;gap:2px}}.adrs li{{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:13.5px}}
-.adrs a{{text-decoration:none}}.adrs a:hover{{color:var(--accent)}}.num{{font:600 12px ui-monospace,Consolas,monospace;color:var(--sub);margin-right:8px}}
+.adrs a{{text-decoration:none;flex:1;min-width:0}}.adrs .pill{{flex:none;max-width:150px;overflow:hidden;text-overflow:ellipsis}}.adrs a:hover{{color:var(--accent)}}.num{{font:600 12px ui-monospace,Consolas,monospace;color:var(--sub);margin-right:8px}}
 .act li{{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px}}.act .what{{grid-column:1/-1;color:var(--ink)}}.act .when{{grid-row:1;grid-column:2;color:var(--sub);text-align:right}}
 .who{{font-size:12px;font-weight:600;border-radius:6px;padding:1px 7px;width:max-content}}.who.sup{{color:var(--accent);background:var(--accent-soft)}}.who.rev{{color:var(--warn);background:var(--warn-soft)}}.who.gate{{color:var(--ok);background:var(--ok-soft)}}.who.bld{{color:var(--info);background:var(--info-soft)}}.who.op{{color:var(--muted);background:var(--muted-soft)}}
 .empty{{text-align:center;padding:48px}}code{{font:13px ui-monospace,Consolas,monospace;background:var(--muted-soft);padding:1px 5px;border-radius:5px}}
