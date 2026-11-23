@@ -19,8 +19,11 @@ cd "$WT"
 # 4. Review: last verdict APPROVED, at most 3 rounds. (Checked first: a refused PR leaves no gate commits.)
 PR="prs/$T.md"
 [ -f "$PR" ] || { echo "GATE $T: FAIL (missing $PR)"; exit 1; }
-ROUNDS="$(grep -cE '^### Round [0-9]+' "$PR" || true)"
-LAST="$(grep -E '^Verdict:' "$PR" | tail -1 | sed -E 's/^Verdict:[[:space:]]*//; s/[[:space:]]*$//')"
+# Only the Reviewer's section counts: rounds and verdicts under "## Review" (up to the next "## " heading).
+# Builder replies elsewhere in the record (e.g. "## Builder response" / "### Round 1") are ignored.
+REVIEW="$(awk '/^## Review[[:space:]]*$/{on=1; next} /^## /{on=0} on' "$PR")"
+ROUNDS="$(grep -cE '^### Round [0-9]+' <<<"$REVIEW" || true)"
+LAST="$(grep -E '^Verdict:' <<<"$REVIEW" | tail -1 | sed -E 's/^Verdict:[[:space:]]*//; s/[[:space:]]*$//')"
 [ "$ROUNDS" -ge 1 ] || { echo "GATE $T: FAIL (no review rounds in $PR)"; exit 1; }
 [ "$ROUNDS" -le 3 ] || { echo "GATE $T: FAIL ($ROUNDS review rounds > 3; escalate to Supervisor)"; exit 1; }
 [ "$LAST" = "APPROVED" ] || { echo "GATE $T: FAIL (last verdict is '$LAST', not APPROVED)"; exit 1; }
