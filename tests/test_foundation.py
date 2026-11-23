@@ -983,11 +983,50 @@ def test_secrets_never_appear_in_repr():
         assert "postgresql+psycopg://app:***@db/launch" in text
         assert "https://llm-user:***@llm.example.com:8443/v1?x=1" in text
     assert "secret_key='***'" in repr(s) and "app_env=" in repr(s)
+    for db_url in ("postgresql+psycopg://app:pa?ss@db/launch", "postgresql+psycopg://app:pa#ss@db/launch"):
+        masked = load_settings({"LAUNCH_DB_URL": db_url})  # round-2 finding: '?' / '#' in the password
+        for text in (repr(masked), str(masked)):
+            assert "pa?ss" not in text and "pa#ss" not in text
+            assert "db_url='postgresql+psycopg://app:***@db/launch'" in text
     assert s.anthropic_api_key == "anthropic-key-value"  # still usable by code
     assert s.db_url == urls["LAUNCH_DB_URL"] and s.llm_base_url == urls["LLM_BASE_URL"]
     plain = load_settings({"LAUNCH_DB_URL": "sqlite:///./x.db", "LLM_BASE_URL": "https://user@llm.example.com/v1"})
     assert "db_url='sqlite:///./x.db'" in repr(plain)  # nothing to mask
     assert "llm_base_url='https://user@llm.example.com/v1'" in repr(plain)
+    port_only = load_settings({"LLM_BASE_URL": "https://user@llm.example.com:8443/v1?mode=fast"})
+    assert "llm_base_url='https://user@llm.example.com:8443/v1?mode=fast'" in repr(port_only)
+
+
+@pytest.mark.parametrize("password", [
+    "pa?ss", "pa#ss", "p?a#s", "pa:ss", "pa/ss", "pa@ss", "?lead", "#lead", "trail?", "trail#",
+    "x?y=1&z#w@v", "S3cret!$*()[]{};,'~",
+])
+def test_db_url_password_never_appears_in_repr(password):
+    """Whatever characters the password holds, SQLAlchemy (which consumes ``db_url``) parses it
+    as the password and connects with it, so ``repr``/``str`` must never show it (AC 5, ADR-0021)."""
+    from sqlalchemy.engine import make_url
+
+    url = f"postgresql+psycopg://app:{password}@db:5432/launch?sslmode=require"
+    if "@" not in password:  # a real credential: SQLAlchemy connects with exactly this password
+        assert make_url(url).password == password and make_url(url).host == "db"
+    else:  # SQLAlchemy splits at the first "@"; the whole value must still be hidden
+        assert password.startswith(make_url(url).password)
+    s = load_settings({"LAUNCH_DB_URL": url, "LLM_BASE_URL": f"https://llm-user:{password}@llm.example.com/v1"})
+    for text in (repr(s), str(s)):
+        assert password not in text
+        assert "postgresql+psycopg://app:***@db:5432/launch?sslmode=require" in text
+        assert "https://llm-user:***@llm.example.com/v1" in text
+    assert s.db_url == url  # the real value is still usable by code
+
+
+def test_db_url_query_password_never_appears_in_repr():
+    """psycopg also takes the password as a query parameter; secret-named parameters are masked."""
+    url = "postgresql+psycopg://app@db/launch?sslmode=require&password=Qw?e#rt%26y&application_name=launch"
+    s = load_settings({"LAUNCH_DB_URL": url, "LLM_BASE_URL": "https://llm.example.com/v1?API_KEY=k3y-value"})
+    for text in (repr(s), str(s)):
+        assert "Qw?e#rt" not in text and "k3y-value" not in text
+        assert "postgresql+psycopg://app@db/launch?sslmode=require&password=***&application_name=launch" in text
+        assert "https://llm.example.com/v1?API_KEY=***" in text
 
 
 def test_settings_are_frozen():

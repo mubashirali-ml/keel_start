@@ -106,6 +106,13 @@ show("repr(settings) db_url", re.search(r"db_url='[^']*'", repr(with_urls)).grou
 show("repr(settings) llm_base_url", re.search(r"llm_base_url='[^']*'", repr(with_urls)).group(0))
 assert "db_url='postgresql+psycopg://app:***@db/launch'" in repr(with_urls)
 assert with_urls.db_url.endswith("app:S3cretPw@db/launch")  # the real value is still usable
+for odd_url in ("postgresql+psycopg://app:pa?ss@db/launch", "postgresql+psycopg://app:pa#ss@db/launch",
+                "postgresql+psycopg://app@db/launch?sslmode=require&password=Qw?e#rt"):
+    odd = load_settings({"LAUNCH_DB_URL": odd_url})
+    shown = re.search(r"db_url='[^']*'", repr(odd)).group(0)
+    show("repr(settings) ?/# password", shown)
+    for text in (repr(odd), str(odd)):
+        assert "pa?ss" not in text and "pa#ss" not in text and "Qw?e#rt" not in text, "a URL password leaked"
 
 PRODUCTION = {
     "APP_ENV": "production", "LLM_PROVIDER": "claude_code", "PAYMENTS_PROVIDER": "fake",

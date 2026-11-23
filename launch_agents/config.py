@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 from datetime import date
 from enum import Enum
 from typing import Any, Literal, Mapping
@@ -134,27 +135,30 @@ class Settings(BaseModel):
                 yield name, _mask_url_passwords(value)
 
 
+_SECRET_QUERY_PARAM = re.compile(
+    r"([?&][^=&]*(?:" + "|".join(_SECRET_MARKERS) + r")[^=&]*=)[^&]*", re.IGNORECASE
+)
+
+
 def _mask_url_password(url: str) -> str:
-    """``url`` with the password of a ``scheme://user:password@host`` part replaced by ``***``
-    (e.g. ``LAUNCH_DB_URL``, ``LLM_BASE_URL``), for ``repr``/``str`` and log lines (ADR-0021).
-    The credentials end at the last ``@`` before any ``?`` or ``#``, so an unencoded ``@`` or
-    ``/`` in the password is masked too; anything without credentials is returned unchanged."""
+    """``url`` with its credentials replaced by ``***``, for ``repr``/``str`` and log lines
+    (ADR-0021), e.g. ``LAUNCH_DB_URL`` or ``LLM_BASE_URL``.
+
+    In a ``scheme://user:password@host`` value everything from the first ``:`` after ``://``
+    up to the **last** ``@`` of the whole value is masked, so a password is hidden whatever
+    characters it holds (``@ / ? # :`` included). Over-masking is accepted: a value without
+    credentials but with an ``@`` after a ``:`` (``https://host:8443/p@x``) is shown as
+    ``https://host:***@x``. Query parameters whose name holds key/secret/token/password
+    (``?password=...``, which psycopg also accepts) have their value masked too. A value
+    without ``://`` is returned unchanged."""
     scheme_end = url.find("://")
     if scheme_end <= 0:
         return url
-    start = scheme_end + 3
-    stop = len(url)
-    for sep in ("?", "#"):
-        pos = url.find(sep, start)
-        if pos != -1:
-            stop = min(stop, pos)
-    at = url.rfind("@", start, stop)
-    if at == -1:
-        return url
-    colon = url.find(":", start, at)
-    if colon == -1:
-        return url
-    return f"{url[:colon + 1]}***{url[at:]}"
+    colon = url.find(":", scheme_end + 3)
+    at = url.rfind("@")
+    if colon != -1 and at > colon:
+        url = f"{url[:colon + 1]}***{url[at:]}"
+    return _SECRET_QUERY_PARAM.sub(r"\1***", url)
 
 
 def _mask_url_passwords(value: Any) -> Any:
