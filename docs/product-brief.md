@@ -120,11 +120,50 @@ Founder <──chat──> Manager Agent ──routes questions / hands over─�
     every view; no layout shift; friendly copy, no raw JSON or stack traces shown to users.
   - UI work is verified in a real browser: each UI ticket's recorded run drives the app
     with Playwright and saves screenshots (light and dark, desktop and phone width).
-- **LLM provider:** OpenAI-compatible providers (DeepSeek primary, Groq for now), chosen
-  by configuration with no code change.
+- **LLM providers:** one setting (`LLM_PROVIDER`) chooses the backend, with no code change:
+  | Provider | For | Credential |
+  |---|---|---|
+  | `fake` | Tests, recorded runs, the reliable demo | None |
+  | `claude_code` | Development and live demos on the owner's own machine | The owner's Claude Code (VS Code extension) login, via the bundled CLI in print mode; no API key |
+  | `anthropic` | Production (the app served to founders) | `ANTHROPIC_API_KEY`, official `anthropic` SDK; default model `claude-opus-5-5`, cheaper model configurable per agent |
+  | `deepseek`, `groq` | Lower-cost alternatives | Their API keys (OpenAI-compatible) |
+
+  Anthropic's terms allow a subscription login only for the owner's own use, never for
+  serving other users, so `claude_code` warns at startup and refuses to run when
+  `APP_ENV=production`. This is meant to grow into a complete product, so production
+  always uses an API key.
+- **Reliability:** every LLM and external call has a timeout, retries on transient
+  errors, and a friendly error state in the UI. Nothing hangs, and no raw errors reach users.
 - **External services** (RDAP, hosting provider) sit behind interfaces with fakes, so tests
   and recorded runs need no network and no paid keys. Live calls are only used when
   configured.
+
+## Demo video (required, used to present the product)
+
+The product ships a scripted, reliable demo that **records a video** showing how each
+agent works. Every agent must produce visible, tangible output, not just chat text:
+
+| Step | What the video shows |
+|---|---|
+| Manager | The founder's first message, follow-up questions, the case summary |
+| Law Agent | A legal answer in the chat, then the three drafted documents |
+| Name Agent | Name cards with live domain availability badges; the founder picks one |
+| Cap Table | Table, ownership chart, vesting timeline, Excel download |
+| Sign-off | Founder A approves, Founder B edits (A's signature invalidated), both re-sign: Executed |
+| Website + QA | Generated site preview, QA report (a failed check fixed automatically), deploy URL or "packaged" |
+| Registration Guide | The state checklist, with items ticked off |
+
+- Playwright drives the real UI through these steps at a readable pace, at 1920×1080,
+  with an on-screen caption naming the agent and what it is doing.
+- Each run writes `demo/output/<timestamp>/`: `demo.webm` and `demo.mp4` (converted with
+  `imageio-ffmpeg`), a screenshot per step, and every artifact the agents produced
+  (documents, cap table CSV/XLSX, website files, QA report, checklist, chat transcript).
+- **Two modes:** `reliable` (default: fake LLM, fake RDAP and hosting, seeded data; the same
+  result every run, works offline) and `live` (`claude_code` or `anthropic` provider, real
+  RDAP, real deploy when a hosting token is set).
+- One command starts it, and the README documents it.
+- The reliable demo is a recorded feature run, so the merge gate runs it; its acceptance
+  criteria require three passing runs in a row.
 
 ## Scope limits
 

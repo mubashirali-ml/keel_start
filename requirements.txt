@@ -16,3 +16,7 @@ openpyxl>=3.1
 pytest>=8.0
 # UI verification: browser-driven recorded runs (screenshots + video) of the React frontend (ADR-0005).
 playwright>=1.44
+# Production LLM provider (ADR to be written by the Supervisor; product brief "LLM providers").
+anthropic>=0.40
+# Demo video: convert Playwright WebM recordings to MP4 (product brief "Demo video").
+imageio-ffmpeg>=0.5
