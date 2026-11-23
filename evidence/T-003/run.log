@@ -1,9 +1,9 @@
 # Recorded feature run
 ticket:      T-003
 branch:      ticket/T-003
-commit:      f08a0ec27e497085b5e404310fcc1a586cb35c6d
+commit:      094adacbf932488302e639b27451e9a2cd530119
 uncommitted: 0 file(s) outside evidence/ and prs/
-recorded_at: 2026-11-23T11:53:17Z
+recorded_at: 2026-11-23T12:25:18Z
 python:      3.12.10
 command:     bash scripts/py.sh evidence/T-003/feature_run.py
 exit_code:   0
