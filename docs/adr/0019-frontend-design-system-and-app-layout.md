@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Accepted |
+| **Status** | Superseded by ADR-0035 |
 | **Date** | 2026-11-23 |
 | **Deciders** | Supervisor |
 | **Tickets** | T-011 (implements), T-018..T-022 (feature screens), T-023 (end to end) |

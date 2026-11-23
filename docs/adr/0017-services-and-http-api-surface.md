@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Accepted |
+| **Status** | Superseded by ADR-0032 |
 | **Date** | 2026-11-23 |
 | **Deciders** | Supervisor |
 | **Tickets** | T-001 (views, ports, app skeleton), T-013/T-014/T-015 (services), T-016/T-017 (API), T-011 + wave 4 (client) |

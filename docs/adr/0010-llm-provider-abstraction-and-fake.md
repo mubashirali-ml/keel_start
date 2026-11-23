@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Accepted |
+| **Status** | Partly superseded by ADR-0021 (settings) and ADR-0022 (providers); interface, fake and task catalog still Accepted |
 | **Date** | 2026-11-23 |
 | **Deciders** | Supervisor |
 | **Tickets** | T-001 (implements), all agent tickets (consume and register fake handlers) |

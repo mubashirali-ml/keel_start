@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Wave** | 4 |
-| **Depends on** | T-011, T-016, T-017 |
-| **ADRs** | [ADR-0019](../docs/adr/0019-frontend-design-system-and-app-layout.md), [ADR-0011](../docs/adr/0011-external-service-ports-rdap-and-hosting.md), [ADR-0016](../docs/adr/0016-registration-guide-data-and-checklist.md), [ADR-0017](../docs/adr/0017-services-and-http-api-surface.md), [ADR-0020](../docs/adr/0020-ui-recorded-runs-and-demo-seeding.md), [ADR-0005](../docs/adr/0005-frontend-verification-and-browser-recordings.md) |
+| **Depends on** | T-011, T-016, T-039, T-041 |
+| **ADRs** | [ADR-0035](../docs/adr/0035-frontend-v2-brand-routes-layout-and-feature-boundaries.md), [ADR-0011](../docs/adr/0011-external-service-ports-rdap-and-hosting.md), [ADR-0016](../docs/adr/0016-registration-guide-data-and-checklist.md), [ADR-0032](../docs/adr/0032-services-and-http-api-v2.md), [ADR-0036](../docs/adr/0036-ui-recorded-runs-with-accounts-and-demo-seeding-v2.md), [ADR-0005](../docs/adr/0005-frontend-verification-and-browser-recordings.md) |
 | **Status** | todo |
 
 ## Goal
@@ -23,7 +23,7 @@ state-specific registration checklist they can tick off, with progress saved.
 ## Contracts
 
 - **Provides:** the Names & Domains page and the Registration Guide page (default exports).
-- **Consumes:** `@/design`, `@/api` (`useNames`, `useChooseName`, `useGuide`, `useSetGuideItem`, `useCase`), `ActingFounderContext` (T-011); endpoints from T-016.
+- **Consumes:** `@/design`, `@/api` (`useNames`, `useChooseName`, `useGuide`, `useSetGuideItem`, `useCase`), `useMe` (T-011); endpoints from T-041.
 
 ## Acceptance criteria
 
@@ -38,7 +38,7 @@ state-specific registration checklist they can tick off, with progress saved.
 
 ## Feature run (`evidence/T-019/feature_run.py`)
 
-With `running_app(seed_stage="facts")`: opens Names (empty state), triggers suggestions
+With `running_app(seed_stage="facts")`, logged in as Alice through the login page: opens Names (empty state), triggers suggestions
 through the chat, asserts five cards with three badges each, asks in the chat "is Acme
 free?" and asserts the Acme card shows `.com` as Taken (fake checker), chooses a name
 and asserts the highlight and the header company name. With `seed_stage="website"`:

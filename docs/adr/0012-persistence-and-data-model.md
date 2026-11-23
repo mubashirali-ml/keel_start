@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Accepted |
+| **Status** | Superseded by ADR-0027 |
 | **Date** | 2026-11-23 |
 | **Deciders** | Supervisor |
 | **Tickets** | T-005 (implements), T-013, T-014, T-015, T-016 (consume) |

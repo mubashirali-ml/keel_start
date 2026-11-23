@@ -4,7 +4,7 @@
 |---|---|
 | **Wave** | 1 |
 | **Depends on** | T-001 |
-| **ADRs** | [ADR-0009](../docs/adr/0009-agent-message-and-handoff-protocol.md), [ADR-0010](../docs/adr/0010-llm-provider-abstraction-and-fake.md), [ADR-0011](../docs/adr/0011-external-service-ports-rdap-and-hosting.md), [ADR-0008](../docs/adr/0008-shared-domain-contracts.md) |
+| **ADRs** | [ADR-0009](../docs/adr/0009-agent-message-and-handoff-protocol.md), [ADR-0010](../docs/adr/0010-llm-provider-abstraction-and-fake.md), [ADR-0011](../docs/adr/0011-external-service-ports-rdap-and-hosting.md), [ADR-0008](../docs/adr/0008-shared-domain-contracts.md), [ADR-0023](../docs/adr/0023-reliability-timeouts-retries-and-failure-states.md) |
 | **Status** | todo |
 
 ## Goal
@@ -36,7 +36,8 @@ USPTO trademark link marked "check manually", and can pick one in the chat.
 4. "check" a founder-supplied name ("is Loaf Labs free?") -> checks it and adds it as a candidate.
 5. `RdapDomainChecker` (tests use `httpx.MockTransport`, no network): bootstrap lookup by TLD and caching (fetched once); 200 -> taken; 404 -> available; 429/500/timeout/connection error -> unknown with a detail; rdap.org fallback for unknown TLDs; correct `Accept` header.
 6. `LLMOutputError` or a checker returning unknown never crashes the agent.
-7. Fake `name.suggest` is deterministic and derived from the business description and preferences (e.g. keywords combined with a fixed suffix list), never repeats `exclude`; fake `name.intent` is keyword/number based.
+7. Reliability (ADR-0023): each lookup has a 5 s timeout and one retry on connection errors / 5xx (never on 404 or 429); the 15 lookups of one suggestion round run in a 6-thread pool under a 12 s `Deadline`, and anything unfinished is `unknown` with detail "registry did not answer in time" (tested with a slow `MockTransport` and an injected clock).
+8. Fake `name.suggest` is deterministic and derived from the business description and preferences (e.g. keywords combined with a fixed suffix list), never repeats `exclude`; fake `name.intent` is keyword/number based.
 
 ## Feature run (`evidence/T-007/feature_run.py`)
 

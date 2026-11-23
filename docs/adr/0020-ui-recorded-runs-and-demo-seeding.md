@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Accepted |
+| **Status** | Superseded by ADR-0036 |
 | **Date** | 2026-11-23 |
 | **Deciders** | Supervisor |
 | **Tickets** | T-011 (devtools helper), T-016 (demo seeding), T-018..T-023 (use both) |

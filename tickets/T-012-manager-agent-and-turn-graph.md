@@ -4,7 +4,7 @@
 |---|---|
 | **Wave** | 2 |
 | **Depends on** | T-001, T-002, T-006, T-007, T-008, T-010 |
-| **ADRs** | [ADR-0009](../docs/adr/0009-agent-message-and-handoff-protocol.md), [ADR-0010](../docs/adr/0010-llm-provider-abstraction-and-fake.md), [ADR-0013](../docs/adr/0013-case-validation-cap-table-and-vesting-rules.md), [ADR-0008](../docs/adr/0008-shared-domain-contracts.md), [ADR-0007](../docs/adr/0007-stack-and-module-layout.md) |
+| **ADRs** | [ADR-0009](../docs/adr/0009-agent-message-and-handoff-protocol.md), [ADR-0010](../docs/adr/0010-llm-provider-abstraction-and-fake.md), [ADR-0013](../docs/adr/0013-case-validation-cap-table-and-vesting-rules.md), [ADR-0008](../docs/adr/0008-shared-domain-contracts.md), [ADR-0033](../docs/adr/0033-security-hardening.md), [ADR-0024](../docs/adr/0024-stack-and-module-layout-v2.md) |
 | **Status** | todo |
 
 ## Goal
@@ -37,7 +37,7 @@ founder confirms the summary.
 4. Confirmation: with complete valid facts the Manager shows `facts_summary` and asks to confirm (suggested replies "Yes, that's right" / "I need to change something"); a confirmation returns `LockFacts`; a fact change after locking unlocks and says documents will be refreshed after re-confirmation.
 5. Specialist `hand_back=True` produces a return handoff and `active_agent = manager`; every agent message has the correct `agent`.
 6. Memory across turns: a six-turn conversation test builds facts incrementally from `TurnInput.history`/`facts` and never asks again for a fact already given.
-7. Any `LLMOutputError` gives a friendly Manager message and leaves facts unchanged; `handle_turn` never raises for LLM failures.
+7. Any `LLMOutputError` gives a friendly Manager message and leaves facts unchanged; `handle_turn` never raises for LLM failures. A `UsageLimitError` from the (metered) LLM is **not** caught: it propagates to the caller (ADR-0033), tested with a scripted provider that raises it.
 8. Fake handlers are deterministic and documented in `fake.py`: `manager.extract` parses entity ("LLC", "C-Corp"/"corporation"), state names or codes, founders written as `Name <email> 60%` or `Name (email) 60%`, "N months vesting" / "N-month cliff" per founder, ISO dates for incorporation, "we are building …"/"our business …" for the description, "call it …"/"names like …" for preferences, website asks ("a Pricing page", "include testimonials", contact email/phone); `manager.route` is keyword-based with the active agent as tie-breaker.
 
 ## Feature run (`evidence/T-012/feature_run.py`)

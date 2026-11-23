@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Accepted |
+| **Status** | Superseded by ADR-0024 |
 | **Date** | 2026-11-23 |
 | **Deciders** | Supervisor |
 | **Tickets** | all (T-001 creates the layout) |

@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Wave** | 4 |
-| **Depends on** | T-011, T-016, T-017 |
-| **ADRs** | [ADR-0019](../docs/adr/0019-frontend-design-system-and-app-layout.md), [ADR-0013](../docs/adr/0013-case-validation-cap-table-and-vesting-rules.md), [ADR-0017](../docs/adr/0017-services-and-http-api-surface.md), [ADR-0018](../docs/adr/0018-frontend-stack-and-npm-package-set.md), [ADR-0020](../docs/adr/0020-ui-recorded-runs-and-demo-seeding.md), [ADR-0005](../docs/adr/0005-frontend-verification-and-browser-recordings.md) |
+| **Depends on** | T-011, T-016, T-017, T-039 |
+| **ADRs** | [ADR-0035](../docs/adr/0035-frontend-v2-brand-routes-layout-and-feature-boundaries.md), [ADR-0013](../docs/adr/0013-case-validation-cap-table-and-vesting-rules.md), [ADR-0032](../docs/adr/0032-services-and-http-api-v2.md), [ADR-0025](../docs/adr/0025-dependency-set-v2-python-and-npm.md), [ADR-0036](../docs/adr/0036-ui-recorded-runs-with-accounts-and-demo-seeding-v2.md), [ADR-0005](../docs/adr/0005-frontend-verification-and-browser-recordings.md) |
 | **Status** | todo |
 
 ## Goal
@@ -36,7 +36,7 @@ founder's vesting timeline with the cliff, and CSV / Excel downloads.
 
 ## Feature run (`evidence/T-021/feature_run.py`)
 
-With `running_app(seed_stage="new")`: opens Cap Table and asserts the friendly not-ready
+With `running_app(seed_stage="new")`, logged in as Alice through the login page: opens Cap Table and asserts the friendly not-ready
 state. With `seed_stage="facts"`: asserts Alice 6,000,000 and Bob 4,000,000 units, total
 10,000,000, the cliff marker text, switches the vesting founder; clicks both downloads
 (Playwright `expect_download`) and checks the CSV header and the XLSX file signature.

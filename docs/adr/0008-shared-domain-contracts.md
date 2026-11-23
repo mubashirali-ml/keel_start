@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Accepted |
+| **Status** | Accepted (partly superseded: `CaseRecord` by ADR-0027, errors extended by ADR-0026) |
 | **Date** | 2026-11-23 |
 | **Deciders** | Supervisor |
 | **Tickets** | T-001 (implements), every other ticket (consumes) |

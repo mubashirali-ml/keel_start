@@ -4,7 +4,7 @@
 |---|---|
 | **Wave** | 1 |
 | **Depends on** | T-001 |
-| **ADRs** | [ADR-0015](../docs/adr/0015-website-generation-qa-and-deploy-loop.md), [ADR-0009](../docs/adr/0009-agent-message-and-handoff-protocol.md), [ADR-0010](../docs/adr/0010-llm-provider-abstraction-and-fake.md), [ADR-0011](../docs/adr/0011-external-service-ports-rdap-and-hosting.md), [ADR-0008](../docs/adr/0008-shared-domain-contracts.md) |
+| **ADRs** | [ADR-0015](../docs/adr/0015-website-generation-qa-and-deploy-loop.md), [ADR-0009](../docs/adr/0009-agent-message-and-handoff-protocol.md), [ADR-0010](../docs/adr/0010-llm-provider-abstraction-and-fake.md), [ADR-0011](../docs/adr/0011-external-service-ports-rdap-and-hosting.md), [ADR-0008](../docs/adr/0008-shared-domain-contracts.md), [ADR-0023](../docs/adr/0023-reliability-timeouts-retries-and-failure-states.md) |
 | **Status** | todo |
 
 ## Goal
@@ -36,7 +36,8 @@ and publish it to Netlify when a token is configured.
 3. `WebsiteAgent.handle`: build/change requests return `BuildWebsite(change_request)` + `OpenView("website")` and a short message saying QA will check it; requirements in the message (e.g. "add a Pricing page") come back as `facts_patch.website`; without a company name it asks the founder to pick a name first (no action); "deploy" returns `DeployWebsite(override_qa=False)`; only an explicit "deploy anyway"/"I accept the QA issues" sets `override_qa=True`; questions use `website.reply`. Task done (deploy requested) -> `hand_back=True`.
 4. Fake handlers are deterministic: `website.generate` builds content from the context (all required pages, services, founders, contact) but **deliberately leaves out `extra_content` items** on the first draft (documented in `fake.py`) so the demo shows a QA fix round; `website.fix` adds a section for each missing page/content/contact issue; `website.revise` handles "add a X page" and otherwise adds a section to the home page.
 5. `NetlifySiteHost` (tests with `httpx.MockTransport`): finds or creates the site, uploads the zip with `Content-Type: application/zip`, polls until ready, returns the `ssl_url`; a name clash retries with a suffix; HTTP errors, timeouts and `error` state return `status="failed"` with a friendly message; the bearer token is never logged or put in messages.
-6. `LLMOutputError` in generate/revise/fix surfaces as `LLMOutputError` to the caller (the pipeline handles it); in `handle` it becomes a friendly message.
+6. Reliability (ADR-0023): every Netlify request has a 30 s timeout and up to 2 retries on 429/5xx via `call_with_retry`; the deploy poll stops after 60 s; a failure that survives the retries returns `status="failed"` with a friendly message (ADR-0011: `deploy` never raises), and the founder can retry from the Website screen.
+7. `LLMOutputError` in generate/revise/fix surfaces as `LLMOutputError` to the caller (the pipeline handles it); in `handle` it becomes a friendly message.
 
 ## Feature run (`evidence/T-008/feature_run.py`)
 

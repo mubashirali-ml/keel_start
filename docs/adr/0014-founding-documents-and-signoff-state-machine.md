@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Accepted |
+| **Status** | Partly superseded by ADR-0031 (Signature type, sign and edit signatures, e-signature rule); state machine rules still Accepted |
 | **Date** | 2026-11-23 |
 | **Deciders** | Supervisor |
 | **Tickets** | T-001 (types), T-004 (state machine), T-006 (drafting), T-015 (service), T-017 (API), T-020 (UI) |
