@@ -6,11 +6,14 @@ Machine-readable twin: [plan.json](plan.json). Product decisions log: [product-d
 Tickets in the same wave own disjoint paths and run in parallel; each depends only on earlier waves.
 47 tickets in 7 waves.
 
-**Delivery status (2026-11-23).** T-001 is `merged` (operator ran the merge gate: all checks passed,
-590 tests, merge commit `7ad2082`). From now on the gate runs in the operator's session and approved
-tickets come back as `approved` for the operator to merge
-([ADR-0040](../docs/adr/0040-merge-gate-runs-in-the-operators-session.md)). **Next wave: 1** (21 tickets,
-including the new T-047 for the Keelstart rename and support wording).
+**Delivery status (2026-11-23).** T-001 is `merged` (merge commit `7ad2082`). The first wave-1 delivery
+run finished: T-002, T-003, T-004, T-005, T-006 and T-047 are `merged` (the operator ran the merge gate
+on each; last merge commit `b3ca69e`), and T-011 is `approved` (Reviewer approved in round 2) and waits for
+the operator to run `bash scripts/merge_pr.sh T-011`
+([ADR-0040](../docs/adr/0040-merge-gate-runs-in-the-operators-session.md)). No ticket was escalated,
+blocked or sent to the product owner, and no PR proposed an ADR. **Next: the rest of wave 1**: the 14 `todo`
+tickets T-007, T-008, T-009, T-010, T-024, T-025, T-026, T-027, T-028, T-029, T-030, T-031, T-032, T-033.
+Wave 2 starts only when all of wave 1 is merged (every wave-2 ticket depends on at least one of those 14).
 
 ## Wave 0
 
@@ -26,16 +29,16 @@ Twenty-one pieces built side by side: the automatic rules (equity, vesting, 83(b
 
 | Ticket | Title | Depends on | Owns | Status |
 |---|---|---|---|---|
-| [T-002](T-002-case-validation-rules.md) | Case validation rules (equity, vesting, 83(b), missing facts) | T-001 | `launch_agents/rules/validation.py`<br>`tests/test_validation.py`<br>`evidence/T-002/`<br>`prs/T-002.md` | todo |
-| [T-003](T-003-cap-table-vesting-and-exports.md) | Cap Table Builder: share allocation, vesting schedule, CSV and Excel export | T-001 | `launch_agents/rules/cap_table.py`<br>`launch_agents/rules/exports.py`<br>`tests/test_cap_table.py`<br>`tests/test_cap_table_exports.py`<br>`evidence/T-003/`<br>`prs/T-003.md` | todo |
-| [T-004](T-004-signoff-state-machine.md) | Multi-party sign-off state machine with e-signature evidence and audit entries | T-001 | `launch_agents/signoff/`<br>`tests/test_signoff.py`<br>`evidence/T-004/`<br>`prs/T-004.md` | todo |
-| [T-005](T-005-persistence-sqlite-repository.md) | Persistence: engine for SQLite and PostgreSQL, migrations, and the case Repository | T-001 | `launch_agents/persistence/engine.py`<br>`launch_agents/persistence/repository.py`<br>`tests/test_persistence.py`<br>`tests/test_migrations.py`<br>`evidence/T-005/`<br>`prs/T-005.md` | todo |
-| [T-006](T-006-law-agent-and-document-drafting.md) | Law Agent: legal Q&A, issue spotting and founding-document drafting | T-001 | `launch_agents/agents/law/`<br>`tests/test_law_agent.py`<br>`tests/test_law_documents.py`<br>`evidence/T-006/`<br>`prs/T-006.md` | todo |
+| [T-002](T-002-case-validation-rules.md) | Case validation rules (equity, vesting, 83(b), missing facts) | T-001 | `launch_agents/rules/validation.py`<br>`tests/test_validation.py`<br>`evidence/T-002/`<br>`prs/T-002.md` | merged |
+| [T-003](T-003-cap-table-vesting-and-exports.md) | Cap Table Builder: share allocation, vesting schedule, CSV and Excel export | T-001 | `launch_agents/rules/cap_table.py`<br>`launch_agents/rules/exports.py`<br>`tests/test_cap_table.py`<br>`tests/test_cap_table_exports.py`<br>`evidence/T-003/`<br>`prs/T-003.md` | merged |
+| [T-004](T-004-signoff-state-machine.md) | Multi-party sign-off state machine with e-signature evidence and audit entries | T-001 | `launch_agents/signoff/`<br>`tests/test_signoff.py`<br>`evidence/T-004/`<br>`prs/T-004.md` | merged |
+| [T-005](T-005-persistence-sqlite-repository.md) | Persistence: engine for SQLite and PostgreSQL, migrations, and the case Repository | T-001 | `launch_agents/persistence/engine.py`<br>`launch_agents/persistence/repository.py`<br>`tests/test_persistence.py`<br>`tests/test_migrations.py`<br>`evidence/T-005/`<br>`prs/T-005.md` | merged |
+| [T-006](T-006-law-agent-and-document-drafting.md) | Law Agent: legal Q&A, issue spotting and founding-document drafting | T-001 | `launch_agents/agents/law/`<br>`tests/test_law_agent.py`<br>`tests/test_law_documents.py`<br>`evidence/T-006/`<br>`prs/T-006.md` | merged |
 | [T-007](T-007-name-agent-and-rdap-checks.md) | Name Agent with live RDAP domain checks | T-001 | `launch_agents/agents/name/`<br>`launch_agents/adapters/rdap.py`<br>`tests/test_name_agent.py`<br>`tests/test_rdap.py`<br>`evidence/T-007/`<br>`prs/T-007.md` | todo |
 | [T-008](T-008-website-agent-renderer-and-netlify.md) | Website Agent: site content, static renderer and Netlify deploy adapter | T-001 | `launch_agents/agents/website/`<br>`launch_agents/adapters/netlify.py`<br>`tests/test_website_agent.py`<br>`tests/test_site_renderer.py`<br>`tests/test_netlify.py`<br>`evidence/T-008/`<br>`prs/T-008.md` | todo |
 | [T-009](T-009-qa-agent-site-checks.md) | QA Agent: requirement and quality checks for generated websites | T-001 | `launch_agents/agents/qa/`<br>`tests/test_qa_agent.py`<br>`evidence/T-009/`<br>`prs/T-009.md` | todo |
 | [T-010](T-010-registration-guide-agent.md) | Registration Guide Agent with curated Delaware and Wyoming data | T-001 | `launch_agents/agents/guide/`<br>`tests/test_guide_agent.py`<br>`evidence/T-010/`<br>`prs/T-010.md` | todo |
-| [T-011](T-011-frontend-design-system-and-app-shell.md) | Frontend foundation: brand, design system, themes, app shell and layouts, typed API client with auth, UI-run helper | T-001 | `frontend/`<br>`launch_agents/devtools/`<br>`tests/test_devtools.py`<br>`evidence/T-011/`<br>`prs/T-011.md` | todo |
+| [T-011](T-011-frontend-design-system-and-app-shell.md) | Frontend foundation: brand, design system, themes, app shell and layouts, typed API client with auth, UI-run helper | T-001 | `frontend/`<br>`launch_agents/devtools/`<br>`tests/test_devtools.py`<br>`evidence/T-011/`<br>`prs/T-011.md` | approved |
 | [T-024](T-024-llm-provider-claude-code-cli.md) | LLM provider `claude_code`: the Claude Code CLI in print mode for local development and live demos | T-001 | `launch_agents/llm/claude_code.py`<br>`tests/test_llm_claude_code.py`<br>`evidence/T-024/`<br>`prs/T-024.md` | todo |
 | [T-025](T-025-llm-providers-anthropic-and-openai-compatible.md) | LLM providers for production: `anthropic` (official SDK) and `deepseek` / `groq` (OpenAI-compatible) | T-001 | `launch_agents/llm/anthropic_provider.py`<br>`launch_agents/llm/openai_compat.py`<br>`tests/test_llm_anthropic.py`<br>`tests/test_llm_openai_compat.py`<br>`evidence/T-025/`<br>`prs/T-025.md` | todo |
 | [T-026](T-026-accounts-signup-login-sessions-and-password-reset.md) | Accounts: sign-up, login, sessions, email verification and password reset | T-001 | `launch_agents/accounts/`<br>`launch_agents/persistence/accounts.py`<br>`tests/test_auth.py`<br>`tests/test_accounts_repository.py`<br>`evidence/T-026/`<br>`prs/T-026.md` | todo |
@@ -46,7 +49,7 @@ Twenty-one pieces built side by side: the automatic rules (equity, vesting, 83(b
 | [T-031](T-031-signed-pdf-and-word-document-rendering.md) | Signed PDF and editable Word rendering of founding documents | T-001 | `launch_agents/pdf/`<br>`tests/test_pdf.py`<br>`evidence/T-031/`<br>`prs/T-031.md` | todo |
 | [T-032](T-032-security-csrf-headers-rate-limits-usage-limits-and-pii.md) | Security: CSRF, security headers, rate limits, per-account AI usage limits and the sensitive-data scrubber | T-001 | `launch_agents/security/`<br>`launch_agents/persistence/limits.py`<br>`tests/test_security.py`<br>`tests/test_rate_limits.py`<br>`tests/test_metering.py`<br>`tests/test_pii.py`<br>`evidence/T-032/`<br>`prs/T-032.md` | todo |
 | [T-033](T-033-observability-structured-logs-request-ids-and-error-reporting.md) | Observability: structured logs, request ids, redaction and pluggable error reporting | T-001 | `launch_agents/observability/`<br>`tests/test_observability.py`<br>`evidence/T-033/`<br>`prs/T-033.md` | todo |
-| [T-047](T-047-keelstart-brand-and-support-wording-in-foundation.md) | Foundation follow-up: the Keelstart brand and support wording without reply times | T-001 | `launch_agents/domain/constants.py`<br>`launch_agents/domain/billing.py`<br>`.env.example`<br>`tests/test_foundation.py`<br>`evidence/T-047/`<br>`prs/T-047.md` | todo |
+| [T-047](T-047-keelstart-brand-and-support-wording-in-foundation.md) | Foundation follow-up: the Keelstart brand and support wording without reply times | T-001 | `launch_agents/domain/constants.py`<br>`launch_agents/domain/billing.py`<br>`.env.example`<br>`tests/test_foundation.py`<br>`evidence/T-047/`<br>`prs/T-047.md` | merged |
 
 ## Wave 2
 

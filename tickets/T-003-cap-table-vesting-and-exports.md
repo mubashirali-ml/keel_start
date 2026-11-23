@@ -5,7 +5,7 @@
 | **Wave** | 1 |
 | **Depends on** | T-001 |
 | **ADRs** | [ADR-0013](../docs/adr/0013-case-validation-cap-table-and-vesting-rules.md), [ADR-0008](../docs/adr/0008-shared-domain-contracts.md), [ADR-0024](../docs/adr/0024-stack-and-module-layout-v2.md) |
-| **Status** | todo |
+| **Status** | merged |
 
 ## Goal
 

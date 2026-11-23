@@ -1,7 +1,7 @@
 {
   "product": "Keelstart: AI agents that launch your company (LLC formation, name, website, compliance)",
   "updated": "2026-11-23",
-  "owner_brief": "Thank you. Here is what changed.\n\nNew name: the product is now Keelstart everywhere customers look: the app, the landing page, page titles, every email, signed PDFs and Word copies, the data export file, the Manager's greeting and the demo video. It is still a single setting, so a later change is easy. The logo is a simple sailboat with a keel fin beside the word Keelstart, in deep navy, and it stays readable as a tiny browser icon. The look-and-feel piece in round 1 builds this brand. Because the groundwork was already finished with the old name inside it, I added one small round-1 piece that switches the built-in name to Keelstart and updates its checks. The internal code name does not change, and customers never see it.\n\nSupport: as you chose, no plan promises a reply time. Free and Launch say \"Email support\", Team says \"Priority support\". The pricing page, billing settings and the draft Terms say nothing about how fast you reply; the Terms say support is by email, Team requests are handled first, and there is no guaranteed response time. Automatic checks make sure no reply-time wording slips back in.\n\nProgress: the groundwork (round 0) is now merged into the product, with all 590 checks passing. From now on the merge step runs in the operator's session: approved pieces come back as \"approved\" and the operator merges them. That removes what held things up last time.\n\nWhat you'll see next: round 1 can start now, with 21 pieces built side by side (the 20 planned plus the small rename piece). After round 1 you can open the design gallery and see the Keelstart brand and logo in light and dark mode. The rest is unchanged: 47 pieces in 7 rounds, ending with the demo video.\n\nWhat I need from you. 1) One quick question: should the landing-page tagline stay \"Launch your company with a team of AI agents\", or take a keel-themed line? I suggest keeping it, because it says plainly what the product does. 2) Register keelstart.com soon (free names don't stay free) and run a trademark check for \"Keelstart\". 3) Before going live (not needed for building): four prices in Stripe (Launch and Team, monthly and yearly), a support email address, your legal company name for the footer and legal pages, an Anthropic key, an email sending account, a Netlify token and an HTTPS web address.",
+  "owner_brief": "The first part of round 1 is done. Seven of the 21 round-1 pieces were built and passed review. Six are already merged into the product, and one is waiting for the merge step. Nothing was blocked, and no piece needed your decision during this run.\n\nWhat now works inside the product. There are no new screens yet: these are the engine parts the screens will use, and each one has a recorded run that shows it working.\n- Company checks: founder equity must add up to 100%, vesting terms must make sense, each founder's 83(b) tax-election deadline is worked out, and missing facts are listed in plain words.\n- The cap table: shares split between the founders, each founder's vesting schedule month by month, and downloads as CSV and Excel spreadsheets.\n- Founder approvals: each founder signs the founding documents electronically, an edit after signing asks everyone to sign again (as you chose), and every step is written to the audit trail.\n- Saving: companies and everything about them are stored, in SQLite on a single machine or PostgreSQL in production.\n- The Law Agent: answers legal questions with a \"not legal advice\" notice, spots issues, and drafts the founding documents with share numbers that match the cap table.\n- The built-in name is now Keelstart, and no plan promises a support reply time.\n\nWaiting on the merge step: the look and feel of the app. That is the Keelstart logo and brand, light and dark mode, the design gallery, and the app frame with the login redirect. It passed review on its second round. Once the operator merges it, you can open the design gallery and see the Keelstart brand in light and dark mode, on desktop and on a phone.\n\nWhat comes next: the other 14 round-1 pieces. They are the Name Agent with live domain checks, the Website Agent with Netlify publishing, the QA Agent, the Registration Guide Agent, the AI connections (your Claude Code login on your machine, the Anthropic API for production, plus DeepSeek and Groq), accounts and sign-in, co-founder invites and permissions, email, Stripe billing, background jobs, signed PDFs, security, and logging. Round 2, the services that join everything up, starts when round 1 is complete.\n\nWhat I need from you. 1) The tagline question is still open: keep \"Launch your company with a team of AI agents\" (my recommendation, because it says plainly what the product does) or use a keel-themed line? The app uses the current tagline until you decide, and changing it later is a one-line change. 2) Same as last time: register keelstart.com and run a trademark check for \"Keelstart\". 3) Only needed before going live: four prices in Stripe, a support email address, your legal company name, an Anthropic key, an email sending account, a Netlify token and an HTTPS web address.",
   "waves": [
     {
       "wave": 0,
@@ -321,7 +321,7 @@
         "evidence/T-002/",
         "prs/T-002.md"
       ],
-      "status": "todo",
+      "status": "merged",
       "summary_for_owner": "The automatic checks on the founders' facts: equity adds up to exactly 100%, cliffs fit inside vesting, default vesting, and the 83(b) deadline."
     },
     {
@@ -340,7 +340,7 @@
         "evidence/T-003/",
         "prs/T-003.md"
       ],
-      "status": "todo",
+      "status": "merged",
       "summary_for_owner": "Builds the cap table (exactly 10,000,000 shares or units), each founder's vesting schedule, and the CSV and Excel downloads."
     },
     {
@@ -357,7 +357,7 @@
         "evidence/T-004/",
         "prs/T-004.md"
       ],
-      "status": "todo",
+      "status": "merged",
       "summary_for_owner": "The approval rules for documents: versions, cancelled signatures after an edit, rejecting signatures on an old version, and a full history."
     },
     {
@@ -376,7 +376,7 @@
         "evidence/T-005/",
         "prs/T-005.md"
       ],
-      "status": "todo",
+      "status": "merged",
       "summary_for_owner": "Saves every company, conversation, document, signature and website build, on SQLite for development and PostgreSQL in production, with versioned database upgrades."
     },
     {
@@ -394,7 +394,7 @@
         "evidence/T-006/",
         "prs/T-006.md"
       ],
-      "status": "todo",
+      "status": "merged",
       "summary_for_owner": "The Law Agent: answers legal questions in plain words, spots issues, and drafts the founding documents with the not-legal-advice notice."
     },
     {
@@ -485,7 +485,7 @@
         "evidence/T-011/",
         "prs/T-011.md"
       ],
-      "status": "todo",
+      "status": "approved",
       "summary_for_owner": "The app's look and feel: the Keelstart brand with its sailboat logo, colors, light and dark mode, every shared building block, all page layouts and the connection to the backend."
     },
     {
@@ -692,7 +692,7 @@
         "evidence/T-047/",
         "prs/T-047.md"
       ],
-      "status": "todo",
+      "status": "merged",
       "summary_for_owner": "Switches the built-in product name from Charterly to Keelstart and changes the plans' support lines to \"Email support\" and \"Priority support\", with no promised reply time."
     },
     {

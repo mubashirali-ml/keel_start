@@ -5,7 +5,7 @@
 | **Wave** | 1 |
 | **Depends on** | T-001 |
 | **ADRs** | [ADR-0041](../docs/adr/0041-brand-keelstart-everywhere-customers-look.md), [ADR-0038](../docs/adr/0038-plans-v2-free-launch-team-and-plan-settings.md), [ADR-0035](../docs/adr/0035-frontend-v2-brand-routes-layout-and-feature-boundaries.md), [ADR-0025](../docs/adr/0025-dependency-set-v2-python-and-npm.md), [ADR-0036](../docs/adr/0036-ui-recorded-runs-with-accounts-and-demo-seeding-v2.md), [ADR-0032](../docs/adr/0032-services-and-http-api-v2.md), [ADR-0033](../docs/adr/0033-security-hardening.md), [ADR-0023](../docs/adr/0023-reliability-timeouts-retries-and-failure-states.md), [ADR-0009](../docs/adr/0009-agent-message-and-handoff-protocol.md), [ADR-0019](../docs/adr/0019-frontend-design-system-and-app-layout.md) (tokens and components, kept by ADR-0035), [ADR-0005](../docs/adr/0005-frontend-verification-and-browser-recordings.md) |
-| **Status** | todo |
+| **Status** | approved |
 
 ## Goal
 

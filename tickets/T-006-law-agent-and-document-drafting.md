@@ -5,7 +5,7 @@
 | **Wave** | 1 |
 | **Depends on** | T-001 |
 | **ADRs** | [ADR-0009](../docs/adr/0009-agent-message-and-handoff-protocol.md), [ADR-0010](../docs/adr/0010-llm-provider-abstraction-and-fake.md), [ADR-0014](../docs/adr/0014-founding-documents-and-signoff-state-machine.md), [ADR-0013](../docs/adr/0013-case-validation-cap-table-and-vesting-rules.md), [ADR-0008](../docs/adr/0008-shared-domain-contracts.md) |
-| **Status** | todo |
+| **Status** | merged |
 
 ## Goal
 

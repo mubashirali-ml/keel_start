@@ -5,7 +5,7 @@
 | **Wave** | 1 |
 | **Depends on** | T-001 |
 | **ADRs** | [ADR-0027](../docs/adr/0027-persistence-v2-postgresql-sqlite-migrations-and-data-model.md), [ADR-0008](../docs/adr/0008-shared-domain-contracts.md), [ADR-0031](../docs/adr/0031-electronic-signatures-and-signed-pdfs.md), [ADR-0024](../docs/adr/0024-stack-and-module-layout-v2.md), [ADR-0025](../docs/adr/0025-dependency-set-v2-python-and-npm.md) |
-| **Status** | todo |
+| **Status** | merged |
 
 ## Goal
 

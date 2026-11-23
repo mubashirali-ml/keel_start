@@ -5,7 +5,7 @@
 | **Wave** | 1 |
 | **Depends on** | T-001 (merged) |
 | **ADRs** | [ADR-0041](../docs/adr/0041-brand-keelstart-everywhere-customers-look.md), [ADR-0042](../docs/adr/0042-support-wording-no-promised-reply-times.md), [ADR-0038](../docs/adr/0038-plans-v2-free-launch-team-and-plan-settings.md), [ADR-0021](../docs/adr/0021-settings-environments-and-production-guards.md), [ADR-0001](../docs/adr/0001-record-architecture-decisions.md) |
-| **Status** | todo |
+| **Status** | merged |
 
 ## Goal
 
