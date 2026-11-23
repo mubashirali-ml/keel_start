@@ -1,0 +1,85 @@
+# Recorded feature run
+ticket:      T-047
+branch:      ticket/T-047
+commit:      6917c814d5a18a969e64ff11f42c96f5add5e6f4
+uncommitted: 0 file(s) outside evidence/ and prs/
+recorded_at: 2026-11-23T11:43:38Z
+python:      3.12.10
+command:     bash scripts/py.sh evidence/T-047/feature_run.py
+exit_code:   0
+----------------------------------------------------------------------
+SECRET_KEY is not set: using an insecure development key. Never use it in production.
+== 1. Brand constant and settings (ADR-0041)
+  BRAND_NAME                              = 'Keelstart'
+  load_settings({}).brand_name            = 'Keelstart'
+  load_settings({'BRAND_NAME': 'Acme'})   = 'Acme'
+  [ok] BRAND_NAME is 'Keelstart'
+  [ok] default Settings.brand_name is 'Keelstart'
+  [ok] BRAND_NAME env still overrides the default
+
+== 2. Manager greeting
+  Hi, I'm the Manager at Keelstart. I'll guide you through launching your company and bring in the right specialist when you need one:
+
+- **Law Agent**: answers legal questions and drafts your founding documents
+- **Name Agent**: suggests company names and checks .com, .co and .io domains
+- **Website Agent**: builds your website, and the **QA Agent** checks it before it goes live
+- **Registration Guide Agent**: walks you through filing with your state, step by step
+
+To start, tell me what your company does and who the founders are.
+  [ok] greeting says 'the Manager at Keelstart'
+  [ok] greeting follows an overridden brand
+
+== 3. PDF / Word renderer defaults (inspect.signature)
+  render_signed_pdf: brand_name: 'str' = 'Keelstart'
+  [ok] render_signed_pdf default brand_name is the BRAND_NAME constant 'Keelstart'
+  render_docx: brand_name: 'str' = 'Keelstart'
+  [ok] render_docx default brand_name is the BRAND_NAME constant 'Keelstart'
+
+== 4. Plans from Settings.plans() (ADR-0042)
+  Free: support=basic support_label='Email support'
+      - 1 company
+      - 300 AI messages a month
+      - Chat with every agent, legal Q&A and name ideas with live domain checks
+      - Cap table with CSV and Excel downloads
+      - Website preview and .zip download
+      - Registration checklist and 83(b) reminders
+      - Co-founders join free, unlimited
+      - Email support
+  [ok] Free: basic / 'Email support'
+  [ok] Free: support label is the last highlight
+  Launch: support=standard support_label='Email support'
+      - Everything in Free
+      - Up to 3 companies
+      - 2,000 AI messages a month
+      - Founding documents drafted
+      - Electronic signatures
+      - Signed PDF and Word downloads
+      - Website publishing
+      - Co-founders join free, unlimited
+      - Email support
+  [ok] Launch: standard / 'Email support'
+  [ok] Launch: support label is the last highlight
+  Team: support=priority support_label='Priority support'
+      - Everything in Launch
+      - Up to 15 companies
+      - 10,000 AI messages a month
+      - Co-founders join free, unlimited
+      - Priority support
+  [ok] Team: priority / 'Priority support'
+  [ok] Team: support label is the last highlight
+
+== 5. No-promise check over every label and highlight
+  defaults: 25 texts checked, reply-time phrases found: none
+  [ok] defaults: no reply-time promise
+  yearly disabled: 25 texts checked, reply-time phrases found: none
+  [ok] yearly disabled: no reply-time promise
+  overridden amounts: 25 texts checked, reply-time phrases found: none
+  [ok] overridden amounts: no reply-time promise
+
+== 6. Brand scan over launch_agents/
+  files containing 'Keelstart': ['launch_agents/domain/constants.py']
+  files containing the old name: none; in .env.example: False
+  [ok] 'Keelstart' is spelled only in domain/constants.py
+  [ok] the old name appears nowhere in launch_agents/ or .env.example
+
+FEATURE RUN T-047: PASS
