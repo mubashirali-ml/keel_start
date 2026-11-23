@@ -1,0 +1,671 @@
+{
+  "product": "Startup Launch Agents (LLC formation, name, website, compliance)",
+  "updated": "2026-11-23",
+  "owner_brief": "Yes: the backend is FastAPI with a SQLite database, exactly as the brief says. I've recorded that as a fixed architecture decision, so every builder works to it. The web app is React with TypeScript, Vite and Tailwind and talks to that FastAPI backend.\n\nWhat I decided: the work is split into 23 pieces built in 6 rounds. Every rule the brief calls \"deterministic\" is plain code the AI cannot bend: equity adds up to exactly 100%, cliffs are no longer than vesting, the 83(b) deadline is 30 days after incorporation, and the cap table always totals exactly 10,000,000 shares (units for an LLC). The Manager is the only agent that routes the conversation, and every handover shows in the chat (\"Manager brought in the Law Agent\"). For websites, the AI writes the words and our code builds the pages, so the QA Agent can check them reliably. Sites are published to Netlify. Everything is built and tested with stand-ins for the AI, the domain lookups and the hosting, so no paid keys are needed until you want to go live.\n\nWhat you'll see after each round. Round 0 is groundwork with nothing to look at. After round 1 you can open the app's look and feel (colors, light and dark mode, the layout with the chat beside the workspace). Behind it, ten pieces work on their own: the rule checks, the cap table with Excel export, the approval rules, saving, and the Law, Name, Website, QA and Registration Guide agents. After round 2 the Manager connects them into one conversation. After round 3 the full backend is reachable, with demo companies ready at every stage. After round 4 every screen works: chat, overview, names and domains, legal approvals, audit trail, cap table, website preview and publishing, and the registration checklist. Each screen is checked in a real browser, with screenshots on desktop and phone in both themes. Round 5 records the whole journey from the first message to a finished company kit and adds a short guide to running the app.\n\nWhat I need from you: five quick product choices. Each one already has a default in the plan, so you can just accept the recommendations. Later, when you want things live, you'll also need a DeepSeek (or Groq) key and a Netlify token. Neither is needed to build or test.\n\nLimits in the first release: no real sign-in or e-signature (a founder \"approves\" as the person picked in the header), nothing here is legal advice, and the app guides you but never files with the state or buys the domain itself.",
+  "waves": [
+    {
+      "wave": 0,
+      "goal": "Foundation: shared vocabulary, stand-ins for the AI and outside services, and placeholders, so ten pieces can be built at the same time next. Nothing to look at yet."
+    },
+    {
+      "wave": 1,
+      "goal": "Ten pieces built in parallel: the automatic rules (equity, vesting, 83(b), cap table, approvals), saving, the five specialist agents, and the app's look and feel. You can open the app's component gallery and empty layout in light and dark mode."
+    },
+    {
+      "wave": 2,
+      "goal": "The Manager joins everything up: one conversation that gathers facts and hands over to specialists, plus the legal, website and case services behind it."
+    },
+    {
+      "wave": 3,
+      "goal": "The complete backend API (FastAPI) and ready-made demo companies at every stage of the journey."
+    },
+    {
+      "wave": 4,
+      "goal": "All screens: chat and overview, names and domains, legal and audit, cap table, website, registration guide; each checked in a real browser with screenshots."
+    },
+    {
+      "wave": 5,
+      "goal": "The full founder journey from first message to finished company kit, recorded end to end, plus a short run guide."
+    }
+  ],
+  "adrs": [
+    {
+      "number": "0007",
+      "title": "Stack and module layout",
+      "file": "docs/adr/0007-stack-and-module-layout.md",
+      "status": "Accepted"
+    },
+    {
+      "number": "0008",
+      "title": "Shared domain contracts (types, constants, helpers, errors, views)",
+      "file": "docs/adr/0008-shared-domain-contracts.md",
+      "status": "Accepted"
+    },
+    {
+      "number": "0009",
+      "title": "Agent message and handoff protocol",
+      "file": "docs/adr/0009-agent-message-and-handoff-protocol.md",
+      "status": "Accepted"
+    },
+    {
+      "number": "0010",
+      "title": "LLM provider abstraction and deterministic fake",
+      "file": "docs/adr/0010-llm-provider-abstraction-and-fake.md",
+      "status": "Accepted"
+    },
+    {
+      "number": "0011",
+      "title": "External service ports: RDAP domain checks and Netlify hosting",
+      "file": "docs/adr/0011-external-service-ports-rdap-and-hosting.md",
+      "status": "Accepted"
+    },
+    {
+      "number": "0012",
+      "title": "Persistence and data model (SQLite via SQLAlchemy)",
+      "file": "docs/adr/0012-persistence-and-data-model.md",
+      "status": "Accepted"
+    },
+    {
+      "number": "0013",
+      "title": "Deterministic rules: case validation, cap table and vesting",
+      "file": "docs/adr/0013-case-validation-cap-table-and-vesting-rules.md",
+      "status": "Accepted"
+    },
+    {
+      "number": "0014",
+      "title": "Founding documents and the multi-party sign-off state machine",
+      "file": "docs/adr/0014-founding-documents-and-signoff-state-machine.md",
+      "status": "Accepted"
+    },
+    {
+      "number": "0015",
+      "title": "Website generation, QA checks and the fix-and-deploy loop",
+      "file": "docs/adr/0015-website-generation-qa-and-deploy-loop.md",
+      "status": "Accepted"
+    },
+    {
+      "number": "0016",
+      "title": "Registration guide data and checklist",
+      "file": "docs/adr/0016-registration-guide-data-and-checklist.md",
+      "status": "Accepted"
+    },
+    {
+      "number": "0017",
+      "title": "Application services and the HTTP API surface",
+      "file": "docs/adr/0017-services-and-http-api-surface.md",
+      "status": "Accepted"
+    },
+    {
+      "number": "0018",
+      "title": "Frontend stack and the approved npm package set",
+      "file": "docs/adr/0018-frontend-stack-and-npm-package-set.md",
+      "status": "Accepted"
+    },
+    {
+      "number": "0019",
+      "title": "Frontend design system, app layout and feature boundaries",
+      "file": "docs/adr/0019-frontend-design-system-and-app-layout.md",
+      "status": "Accepted"
+    },
+    {
+      "number": "0020",
+      "title": "UI recorded runs: app launch with fakes, screenshot matrix and demo seeding",
+      "file": "docs/adr/0020-ui-recorded-runs-and-demo-seeding.md",
+      "status": "Accepted"
+    }
+  ],
+  "tickets": [
+    {
+      "id": "T-001",
+      "title": "Foundation: package skeleton, shared contracts, LLM abstraction, fakes and typed stubs",
+      "wave": 0,
+      "depends_on": [],
+      "file": "tickets/T-001-foundation-skeleton-contracts-and-fakes.md",
+      "owns": [
+        "launch_agents/",
+        "tests/conftest.py",
+        "tests/test_foundation.py",
+        "pytest.ini",
+        ".env.example",
+        "evidence/T-001/",
+        "prs/T-001.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "Lays the groundwork every other piece builds on: the shared vocabulary of the product, stand-in versions of the AI and outside services for testing, and placeholders for every part."
+    },
+    {
+      "id": "T-002",
+      "title": "Case validation rules (equity, vesting, 83(b), missing facts)",
+      "wave": 1,
+      "depends_on": [
+        "T-001"
+      ],
+      "file": "tickets/T-002-case-validation-rules.md",
+      "owns": [
+        "launch_agents/rules/validation.py",
+        "tests/test_validation.py",
+        "evidence/T-002/",
+        "prs/T-002.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "Checks the founders' facts automatically: equity must add up to exactly 100%, vesting and cliffs must make sense, and missing details are listed in the order the Manager asks."
+    },
+    {
+      "id": "T-003",
+      "title": "Cap Table Builder: share allocation, vesting schedule, CSV and Excel export",
+      "wave": 1,
+      "depends_on": [
+        "T-001"
+      ],
+      "file": "tickets/T-003-cap-table-vesting-and-exports.md",
+      "owns": [
+        "launch_agents/rules/cap_table.py",
+        "launch_agents/rules/exports.py",
+        "tests/test_cap_table.py",
+        "tests/test_cap_table_exports.py",
+        "evidence/T-003/",
+        "prs/T-003.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "Builds the cap table: splits exactly 10,000,000 shares (units for an LLC), works out each founder's monthly vesting with the cliff, and exports CSV and Excel."
+    },
+    {
+      "id": "T-004",
+      "title": "Multi-party sign-off state machine with audit entries",
+      "wave": 1,
+      "depends_on": [
+        "T-001"
+      ],
+      "file": "tickets/T-004-signoff-state-machine.md",
+      "owns": [
+        "launch_agents/signoff/",
+        "tests/test_signoff.py",
+        "evidence/T-004/",
+        "prs/T-004.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "The rules for founders approving documents: versions, cancelled approvals after an edit, rejecting approvals of an outdated version, and a record of every action."
+    },
+    {
+      "id": "T-005",
+      "title": "Persistence: SQLite schema and Repository",
+      "wave": 1,
+      "depends_on": [
+        "T-001"
+      ],
+      "file": "tickets/T-005-persistence-sqlite-repository.md",
+      "owns": [
+        "launch_agents/persistence/",
+        "tests/test_persistence.py",
+        "evidence/T-005/",
+        "prs/T-005.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "Saves everything (the conversation, the facts, documents and approvals, checklist ticks, website builds) so nothing is lost between messages or restarts."
+    },
+    {
+      "id": "T-006",
+      "title": "Law Agent: legal Q&A, issue spotting and founding-document drafting",
+      "wave": 1,
+      "depends_on": [
+        "T-001"
+      ],
+      "file": "tickets/T-006-law-agent-and-document-drafting.md",
+      "owns": [
+        "launch_agents/agents/law/",
+        "tests/test_law_agent.py",
+        "tests/test_law_documents.py",
+        "evidence/T-006/",
+        "prs/T-006.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "The Law Agent: explains LLC vs C-Corp, state choice, taxes, vesting and the 83(b) election, spots issues in the founders' own case, and drafts the founding documents."
+    },
+    {
+      "id": "T-007",
+      "title": "Name Agent with live RDAP domain checks",
+      "wave": 1,
+      "depends_on": [
+        "T-001"
+      ],
+      "file": "tickets/T-007-name-agent-and-rdap-checks.md",
+      "owns": [
+        "launch_agents/agents/name/",
+        "launch_agents/adapters/rdap.py",
+        "tests/test_name_agent.py",
+        "tests/test_rdap.py",
+        "evidence/T-007/",
+        "prs/T-007.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "The Name Agent: suggests company names, checks .com/.co/.io availability live, and links to the official state and trademark searches."
+    },
+    {
+      "id": "T-008",
+      "title": "Website Agent: site content, static renderer and Netlify deploy adapter",
+      "wave": 1,
+      "depends_on": [
+        "T-001"
+      ],
+      "file": "tickets/T-008-website-agent-renderer-and-netlify.md",
+      "owns": [
+        "launch_agents/agents/website/",
+        "launch_agents/adapters/netlify.py",
+        "tests/test_website_agent.py",
+        "tests/test_site_renderer.py",
+        "tests/test_netlify.py",
+        "evidence/T-008/",
+        "prs/T-008.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "The Website Agent: writes and builds the company's website from what the founder said, takes change requests, and can publish it to Netlify."
+    },
+    {
+      "id": "T-009",
+      "title": "QA Agent: requirement and quality checks for generated websites",
+      "wave": 1,
+      "depends_on": [
+        "T-001"
+      ],
+      "file": "tickets/T-009-qa-agent-site-checks.md",
+      "owns": [
+        "launch_agents/agents/qa/",
+        "tests/test_qa_agent.py",
+        "evidence/T-009/",
+        "prs/T-009.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "The QA Agent: checks every website build against what the founder asked for plus basic quality and accessibility rules, and reports pass or fail with a clear issue list."
+    },
+    {
+      "id": "T-010",
+      "title": "Registration Guide Agent with curated Delaware and Wyoming data",
+      "wave": 1,
+      "depends_on": [
+        "T-001"
+      ],
+      "file": "tickets/T-010-registration-guide-agent.md",
+      "owns": [
+        "launch_agents/agents/guide/",
+        "tests/test_guide_agent.py",
+        "evidence/T-010/",
+        "prs/T-010.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "The Registration Guide Agent: a step-by-step checklist for Delaware and Wyoming (generic for other states), including EIN, the 83(b) deadline, yearly obligations and buying the domain."
+    },
+    {
+      "id": "T-011",
+      "title": "Frontend foundation: design system, themes, app shell with agent-aware chat layout, typed API client, UI-run helper",
+      "wave": 1,
+      "depends_on": [
+        "T-001"
+      ],
+      "file": "tickets/T-011-frontend-design-system-and-app-shell.md",
+      "owns": [
+        "frontend/",
+        "launch_agents/devtools/",
+        "tests/test_devtools.py",
+        "evidence/T-011/",
+        "prs/T-011.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "The look and feel of the app: colors, typography, light and dark mode, all shared building blocks, the main layout with the chat beside the workspace, and the founder switcher."
+    },
+    {
+      "id": "T-012",
+      "title": "Manager Agent and the LangGraph turn graph (routing, handoffs, fact gathering)",
+      "wave": 2,
+      "depends_on": [
+        "T-001",
+        "T-002",
+        "T-006",
+        "T-007",
+        "T-008",
+        "T-010"
+      ],
+      "file": "tickets/T-012-manager-agent-and-turn-graph.md",
+      "owns": [
+        "launch_agents/agents/manager/",
+        "launch_agents/orchestrator/",
+        "tests/test_manager_agent.py",
+        "tests/test_orchestrator.py",
+        "evidence/T-012/",
+        "prs/T-012.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "The Manager Agent: understands what the founder wants, gathers and checks the facts, brings in the right specialist with a visible handover, and takes the conversation back."
+    },
+    {
+      "id": "T-013",
+      "title": "Website pipeline and service: build, QA, automatic fixes, deploy gate",
+      "wave": 2,
+      "depends_on": [
+        "T-001",
+        "T-005",
+        "T-008",
+        "T-009"
+      ],
+      "file": "tickets/T-013-website-pipeline-and-service.md",
+      "owns": [
+        "launch_agents/pipelines/",
+        "launch_agents/workflows/website.py",
+        "tests/test_website_pipeline.py",
+        "tests/test_website_service.py",
+        "evidence/T-013/",
+        "prs/T-013.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "Connects the Website and QA agents: build, check, fix automatically up to two times, and publish only when QA passes or the founder explicitly accepts the issues."
+    },
+    {
+      "id": "T-014",
+      "title": "Case service: conversations, action execution, names, checklist and progress",
+      "wave": 2,
+      "depends_on": [
+        "T-001",
+        "T-002",
+        "T-005",
+        "T-007",
+        "T-010"
+      ],
+      "file": "tickets/T-014-case-service-conversation-and-progress.md",
+      "owns": [
+        "launch_agents/workflows/case.py",
+        "tests/test_case_service.py",
+        "evidence/T-014/",
+        "prs/T-014.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "Runs a founder's company case from start to finish: the conversation, what the agents asked to do, the chosen name, checklist progress and the overall progress with the 83(b) countdown."
+    },
+    {
+      "id": "T-015",
+      "title": "Legal service: cap table, document generation, sign-off and audit trail",
+      "wave": 2,
+      "depends_on": [
+        "T-001",
+        "T-002",
+        "T-003",
+        "T-004",
+        "T-005",
+        "T-006"
+      ],
+      "file": "tickets/T-015-legal-service-cap-table-documents-signoff.md",
+      "owns": [
+        "launch_agents/workflows/legal.py",
+        "tests/test_legal_service.py",
+        "evidence/T-015/",
+        "prs/T-015.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "Runs the legal step: cap table and downloads, drafting documents from the confirmed facts, approvals by each founder, and the full audit trail."
+    },
+    {
+      "id": "T-016",
+      "title": "HTTP API core, composition root and demo seeding",
+      "wave": 3,
+      "depends_on": [
+        "T-012",
+        "T-013",
+        "T-014",
+        "T-015"
+      ],
+      "file": "tickets/T-016-api-core-composition-and-demo-seed.md",
+      "owns": [
+        "launch_agents/api/__init__.py",
+        "launch_agents/api/app.py",
+        "launch_agents/api/errors.py",
+        "launch_agents/api/deps.py",
+        "launch_agents/api/schemas.py",
+        "launch_agents/api/routes/__init__.py",
+        "launch_agents/api/routes/cases.py",
+        "launch_agents/composition.py",
+        "launch_agents/demo/",
+        "tests/test_api_cases.py",
+        "tests/test_composition.py",
+        "tests/test_demo_seed.py",
+        "evidence/T-016/",
+        "prs/T-016.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "Opens the product to the web app: the main API, the switch between real and stand-in AI/services by configuration, and ready-made demo companies at every stage."
+    },
+    {
+      "id": "T-017",
+      "title": "HTTP API: cap table, documents and sign-off, audit, and website routes",
+      "wave": 3,
+      "depends_on": [
+        "T-005",
+        "T-013",
+        "T-015"
+      ],
+      "file": "tickets/T-017-api-legal-cap-table-and-website-routes.md",
+      "owns": [
+        "launch_agents/api/routes/legal.py",
+        "launch_agents/api/routes/website.py",
+        "tests/test_api_legal.py",
+        "tests/test_api_website.py",
+        "evidence/T-017/",
+        "prs/T-017.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "The API for the cap table and downloads, documents and approvals, the audit trail, and the website preview, publishing and download."
+    },
+    {
+      "id": "T-018",
+      "title": "Chat experience and Overview screen",
+      "wave": 4,
+      "depends_on": [
+        "T-011",
+        "T-016",
+        "T-017"
+      ],
+      "file": "tickets/T-018-chat-and-overview-screens.md",
+      "owns": [
+        "frontend/src/features/chat/",
+        "frontend/src/features/overview/",
+        "evidence/T-018/",
+        "prs/T-018.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "The chat screen, where each agent has its own name, icon and color and handovers appear inline, plus the Overview with progress across all steps and the 83(b) countdown."
+    },
+    {
+      "id": "T-019",
+      "title": "Names & Domains screen and Registration Guide checklist",
+      "wave": 4,
+      "depends_on": [
+        "T-011",
+        "T-016",
+        "T-017"
+      ],
+      "file": "tickets/T-019-names-domains-and-registration-guide-screens.md",
+      "owns": [
+        "frontend/src/features/names/",
+        "frontend/src/features/guide/",
+        "evidence/T-019/",
+        "prs/T-019.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "The Names & Domains screen with availability badges and choosing a name, and the Registration Guide checklist founders can tick off."
+    },
+    {
+      "id": "T-020",
+      "title": "Legal documents with multi-founder sign-off, and the Audit trail",
+      "wave": 4,
+      "depends_on": [
+        "T-011",
+        "T-016",
+        "T-017"
+      ],
+      "file": "tickets/T-020-legal-signoff-and-audit-screens.md",
+      "owns": [
+        "frontend/src/features/legal/",
+        "frontend/src/features/audit/",
+        "evidence/T-020/",
+        "prs/T-020.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "The Legal screen where founders read, approve and edit documents with clear messages when approvals are cancelled, plus the Audit trail."
+    },
+    {
+      "id": "T-021",
+      "title": "Cap Table screen: table, ownership chart, vesting timeline, downloads",
+      "wave": 4,
+      "depends_on": [
+        "T-011",
+        "T-016",
+        "T-017"
+      ],
+      "file": "tickets/T-021-cap-table-screen.md",
+      "owns": [
+        "frontend/src/features/cap-table/",
+        "evidence/T-021/",
+        "prs/T-021.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "The Cap Table screen: ownership table, ownership chart, vesting timeline with the cliff, and CSV/Excel downloads."
+    },
+    {
+      "id": "T-022",
+      "title": "Website screen: live preview, QA report, deploy status and download",
+      "wave": 4,
+      "depends_on": [
+        "T-011",
+        "T-016",
+        "T-017"
+      ],
+      "file": "tickets/T-022-website-preview-qa-and-deploy-screen.md",
+      "owns": [
+        "frontend/src/features/website/",
+        "evidence/T-022/",
+        "prs/T-022.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "The Website screen: live preview, QA report per round, publish (or explicitly accept issues), live link or 'not configured' status, and download."
+    },
+    {
+      "id": "T-023",
+      "title": "End-to-end founder journey: API test suite and recorded browser demo",
+      "wave": 5,
+      "depends_on": [
+        "T-018",
+        "T-019",
+        "T-020",
+        "T-021",
+        "T-022"
+      ],
+      "file": "tickets/T-023-end-to-end-founder-journey.md",
+      "owns": [
+        "tests/test_e2e_journey.py",
+        "docs/running-the-app.md",
+        "evidence/T-023/",
+        "prs/T-023.md"
+      ],
+      "status": "todo",
+      "summary_for_owner": "Proves the whole journey works from the first chat message to a finished company kit, in tests and in a recorded browser demo, and adds a short guide to running the app."
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q-001",
+      "ticket": "T-006",
+      "question": "Who needs to approve each founder's 83(b) tax election form?",
+      "why_it_matters": "The 83(b) form is a personal tax filing for one founder. It decides whose approval is needed before the legal step counts as complete.",
+      "options": [
+        {
+          "label": "Only that founder",
+          "description": "Each founder approves just their own 83(b). This matches how the IRS form works and means fewer clicks."
+        },
+        {
+          "label": "All founders",
+          "description": "Every founder approves every 83(b) form. This follows the brief word for word but adds clicks and has no legal effect."
+        }
+      ],
+      "recommended": "Only that founder",
+      "status": "open",
+      "answer": null
+    },
+    {
+      "id": "Q-002",
+      "ticket": "T-008",
+      "question": "Which hosting service should publish the founder's website?",
+      "why_it_matters": "It decides which account and token you need for live publishing, and what the site's address looks like (for example crumb-ledger.netlify.app).",
+      "options": [
+        {
+          "label": "Netlify",
+          "description": "Free tier, one upload puts the site live with HTTPS in about a minute. You'd add a Netlify token."
+        },
+        {
+          "label": "Cloudflare Pages",
+          "description": "Fast and free, but more build work on our side. You'd need a Cloudflare account and token."
+        },
+        {
+          "label": "Vercel",
+          "description": "Popular, with similar extra build work to Cloudflare. You'd need a Vercel token."
+        }
+      ],
+      "recommended": "Netlify",
+      "status": "open",
+      "answer": null
+    },
+    {
+      "id": "Q-003",
+      "ticket": "T-004",
+      "question": "Can a founder still edit a document after every founder has approved it?",
+      "why_it_matters": "It decides whether signed documents are final, or whether a late change reopens them for everyone to approve again.",
+      "options": [
+        {
+          "label": "Yes, everyone re-approves",
+          "description": "The edit creates a new version, cancels the other approvals, and marks the legal step incomplete until everyone approves again."
+        },
+        {
+          "label": "No, signed is final",
+          "description": "Approved documents are locked. Any change means generating new documents. Safer, but less flexible."
+        }
+      ],
+      "recommended": "Yes, everyone re-approves",
+      "status": "open",
+      "answer": null
+    },
+    {
+      "id": "Q-004",
+      "ticket": "T-003",
+      "question": "When does founder vesting start?",
+      "why_it_matters": "It sets every date on the vesting timeline, the cliff date, and the date each founder is fully vested.",
+      "options": [
+        {
+          "label": "On the incorporation date",
+          "description": "No extra question for the founder. This is standard for brand-new companies."
+        },
+        {
+          "label": "Ask for a start date",
+          "description": "The Manager asks one more question. Useful when founders worked together before incorporating."
+        }
+      ],
+      "recommended": "On the incorporation date",
+      "status": "open",
+      "answer": null
+    },
+    {
+      "id": "Q-005",
+      "ticket": "T-008",
+      "question": "Which pages should the website have when the founder doesn't say?",
+      "why_it_matters": "It shapes every generated site and what the QA Agent checks for.",
+      "options": [
+        {
+          "label": "Home, About, Services, Contact",
+          "description": "A classic four-page small-business site that looks complete and professional."
+        },
+        {
+          "label": "One long page",
+          "description": "A single scrolling page with all sections. Simpler, but it can feel less established."
+        }
+      ],
+      "recommended": "Home, About, Services, Contact",
+      "status": "open",
+      "answer": null
+    }
+  ]
+}
