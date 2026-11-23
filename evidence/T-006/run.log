@@ -1,0 +1,256 @@
+# Recorded feature run
+ticket:      T-006
+branch:      ticket/T-006
+commit:      8ad675592b75c11127f1a8ed4953bdf95f398505
+uncommitted: 0 file(s) outside evidence/ and prs/
+recorded_at: 2026-11-23T11:52:50Z
+python:      3.12.10
+command:     bash scripts/py.sh evidence/T-006/feature_run.py
+exit_code:   0
+----------------------------------------------------------------------
+
+==============================================================================
+1. Issue spotting
+==============================================================================
+today=2026-11-23  incorporation=2026-12-01  83(b) deadline=2026-12-31
+clean sample -> []
+  [ok] no issues for the clean sample
+unequal facts -> unequal_vesting (info): Your founders are on different vesting schedules (Alice Chen: 48 months with a 12-month cliff; Bob Diaz: 24 months with a 6-month cliff). That is allowed, but make sure everyone agrees to it, because it changes how much equity each founder keeps if they leave early.
+  [ok] unequal vesting is spotted
+on 2026-12-27 -> [('deadline_83b_soon', 'Your 83(b) election deadline is December 31, 2026, only 4 days away. Each founder who wants to make the election must mail it to the IRS by then, so file as early as you can.')]
+  [ok] 83(b) deadline 4 days away is flagged
+
+==============================================================================
+2. Founder asks: 'LLC or C-Corp?'
+==============================================================================
+[law / text] hand_back=False actions=[]
+An **LLC** is simple and flexible: profits pass through to the owners' personal tax returns and the paperwork is light, which suits a business you plan to run and fund yourselves. A **Delaware C-Corp** is what venture investors expect: it can issue preferred stock and stock options, and its law is well known, but it pays its own corporate tax and has more formalities. If you plan to raise outside investment, choose the C-Corp; otherwise an LLC is often enough. You're forming an **LLC** in Wyoming. Your 83(b) deadline is **December 31, 2026** (30 days after your incorporation date).
+
+This is not legal advice. It was generated automatically; have a licensed attorney review it before you rely on it.
+state.legal_issues = []
+  [ok] one message from the Law Agent
+  [ok] ends with the legal notice
+  [ok] keeps the conversation, no actions
+  [ok] explains LLC vs C-Corp
+
+==============================================================================
+3. Founder asks: 'what is an 83(b)?'
+==============================================================================
+[law / text] hand_back=False actions=[]
+An **83(b) election** is a short letter to the IRS saying you want to be taxed on your founder equity now, while it is worth almost nothing, instead of as it vests and (hopefully) grows in value. It must be mailed within 30 days of receiving the equity, with no extensions, so file it early. Your 83(b) deadline is **December 31, 2026** (30 days after your incorporation date). You're forming an **LLC** in Wyoming. I prepare one 83(b) form per founder with your vesting terms filled in.
+
+This is not legal advice. It was generated automatically; have a licensed attorney review it before you rely on it.
+state.legal_issues = []
+  [ok] one message from the Law Agent
+  [ok] ends with the legal notice
+  [ok] keeps the conversation, no actions
+  [ok] names this case's 83(b) deadline
+
+==============================================================================
+4. Founder asks: 'is unequal vesting a problem?'
+==============================================================================
+[law / text] hand_back=False actions=[]
+Vesting means founders earn their equity over time, so someone who leaves early doesn't walk away with a large part of the company. The standard is 48 months with a 12-month cliff: nothing vests in the first year, a quarter vests at the cliff, then the rest monthly. Different schedules for different founders are legal, but everyone should understand and agree to them. In your case, Alice Chen vests over 48 months with a 12-month cliff; Bob Diaz vests over 24 months with a 6-month cliff. Your 83(b) deadline is **December 31, 2026** (30 days after your incorporation date).
+
+**What I noticed in your case:**
+- Your founders are on different vesting schedules (Alice Chen: 48 months with a 12-month cliff; Bob Diaz: 24 months with a 6-month cliff). That is allowed, but make sure everyone agrees to it, because it changes how much equity each founder keeps if they leave early.
+
+This is not legal advice. It was generated automatically; have a licensed attorney review it before you rely on it.
+state.legal_issues = ['unequal_vesting']
+  [ok] one message from the Law Agent
+  [ok] ends with the legal notice
+  [ok] keeps the conversation, no actions
+  [ok] mentions the unequal-vesting issue it spotted
+  [ok] state.legal_issues updated
+
+LLM tasks called: ['law.intent', 'law.answer', 'law.intent', 'law.answer', 'law.intent', 'law.answer']
+
+==============================================================================
+5. Founder asks to draft documents before the facts are confirmed
+==============================================================================
+I can draft your founding documents as soon as your case facts are confirmed. The Manager first needs to confirm the facts with you (founders, equity split, vesting, entity type, state and incorporation date), so that every document and share count matches. I'm handing you back to the Manager to review and confirm them; then ask me again.
+
+This is not legal advice. It was generated automatically; have a licensed attorney review it before you rely on it.
+actions=[] hand_back=True
+  [ok] no action, hands back to the Manager
+  [ok] explains the Manager must confirm the facts first
+
+==============================================================================
+6. Same request with locked facts
+==============================================================================
+Your facts are confirmed, so I'm preparing your founding documents now: the Founder IP Assignment Agreement, the Operating Agreement Summary and an IRS 83(b) election for each founder. Share counts come straight from your cap table. They will open in the Legal view for every founder to review and sign; details I don't know, like addresses, stay as placeholders for you to fill in. Remember: each 83(b) must reach the IRS by **December 31, 2026**.
+
+This is not legal advice. It was generated automatically; have a licensed attorney review it before you rely on it.
+actions=[{'type': 'draft_documents'}, {'type': 'open_view', 'view': 'legal'}] hand_back=True
+  [ok] DraftDocuments + OpenView
+  [ok] opens the legal view, hands back
+
+==============================================================================
+7. Drafting the LLC set (sample case, no company name chosen yet)
+==============================================================================
+cap table (units): Alice Chen 6,000,000, Bob Diaz 4,000,000
+
+--- Founder IP Assignment Agreement  [ip_assignment]  signers=['f1', 'f2']
+    This is not legal advice. It was generated automatically; have a licensed attorney review it before you rely on it.
+    # Founder IP Assignment Agreement
+    This Founder IP Assignment Agreement (the "Agreement") is made between **[COMPANY NAME]**, a Wyoming limited liability company (the "Company"), and each founder listed below (each a "Founder"). It takes effect on December 1, 2026, the Company's incorporation date. Draft prepared on November 23, 2026.
+    ## Parties
+    - Company: [COMPANY NAME], principal office at [ADDRESS], taxpayer ID [TAXPAYER ID]
+    - Registered agent: [REGISTERED AGENT]
+    ... - Alice Chen (60% ownership): 6,000,000 units.
+    ... - Bob Diaz (40% ownership): 4,000,000 units.
+    numbers next to shares/units: [4000000, 6000000]  (cap table: [4000000, 6000000])
+  [ok] Founder IP Assignment Agreement: share counts match the cap table
+  [ok] Founder IP Assignment Agreement: notice at start and end
+  [ok] Founder IP Assignment Agreement: placeholders kept
+  [ok] Founder IP Assignment Agreement: all founders sign
+
+--- Operating Agreement Summary  [operating_agreement_summary]  signers=['f1', 'f2']
+    This is not legal advice. It was generated automatically; have a licensed attorney review it before you rely on it.
+    # Operating Agreement Summary
+    This is a plain-English summary of the main rules in the operating agreement of **[COMPANY NAME]**, a Wyoming limited liability company (the "Company") formed on December 1, 2026. Draft prepared on November 23, 2026.
+    ## Company details
+    - Company: [COMPANY NAME]
+    - Business: bookkeeping software for small bakeries
+    ... - Alice Chen (60% ownership): 6,000,000 units.
+    ... - Bob Diaz (40% ownership): 4,000,000 units.
+    numbers next to shares/units: [4000000, 6000000]  (cap table: [4000000, 6000000])
+  [ok] Operating Agreement Summary: share counts match the cap table
+  [ok] Operating Agreement Summary: notice at start and end
+  [ok] Operating Agreement Summary: placeholders kept
+  [ok] Operating Agreement Summary: all founders sign
+
+--- IRS 83(b) Election — Alice Chen  [election_83b]  signers=['f1']
+    This is not legal advice. It was generated automatically; have a licensed attorney review it before you rely on it.
+    # IRS 83(b) Election — Alice Chen
+    Election under Section 83(b) of the Internal Revenue Code. The taxpayer named below elects to include in gross income, for the year of transfer, the fair market value of the property described below at the time of transfer, minus the amount paid for it.
+    ## Taxpayer
+    - Name: Alice Chen
+    - Address: [ADDRESS]
+    ... - Date of transfer: December 1, 2026 (the incorporation date of [COMPANY NAME])
+    ... - Property: 6,000,000 membership units of [COMPANY NAME], a Wyoming limited liability company.
+    ... - Restrictions: unvested units may be bought back by [COMPANY NAME] at the original price if the taxpayer stops working for it. Vesting: monthly over 48 months starting December 1, 2026, with a 12-month cliff (nothing vests before the cliff, the accrued part vests at the cliff, then the rest monthly); fully vested on December 1, 2030.
+    ... Mail this election to the IRS office where the taxpayer files their federal tax return no later than **December 31, 2026**, which is 30 days after the date of transfer. The IRS does not accept late elections and the date is not moved for weekends or holidays, so file early, by certified mail with return receipt. Give a copy to [COMPANY NAME] and keep a copy for your records.
+    numbers next to shares/units: [6000000]  (cap table: [6000000])
+  [ok] IRS 83(b) Election — Alice Chen: share counts match the cap table
+  [ok] IRS 83(b) Election — Alice Chen: notice at start and end
+  [ok] IRS 83(b) Election — Alice Chen: placeholders kept
+  [ok] IRS 83(b) Election — Alice Chen: signed by that founder only
+  [ok] IRS 83(b) Election — Alice Chen: transfer date and filing deadline stated
+
+--- IRS 83(b) Election — Bob Diaz  [election_83b]  signers=['f2']
+    This is not legal advice. It was generated automatically; have a licensed attorney review it before you rely on it.
+    # IRS 83(b) Election — Bob Diaz
+    Election under Section 83(b) of the Internal Revenue Code. The taxpayer named below elects to include in gross income, for the year of transfer, the fair market value of the property described below at the time of transfer, minus the amount paid for it.
+    ## Taxpayer
+    - Name: Bob Diaz
+    - Address: [ADDRESS]
+    ... - Date of transfer: December 1, 2026 (the incorporation date of [COMPANY NAME])
+    ... - Property: 4,000,000 membership units of [COMPANY NAME], a Wyoming limited liability company.
+    ... - Restrictions: unvested units may be bought back by [COMPANY NAME] at the original price if the taxpayer stops working for it. Vesting: monthly over 48 months starting December 1, 2026, with a 12-month cliff (nothing vests before the cliff, the accrued part vests at the cliff, then the rest monthly); fully vested on December 1, 2030.
+    ... Mail this election to the IRS office where the taxpayer files their federal tax return no later than **December 31, 2026**, which is 30 days after the date of transfer. The IRS does not accept late elections and the date is not moved for weekends or holidays, so file early, by certified mail with return receipt. Give a copy to [COMPANY NAME] and keep a copy for your records.
+    numbers next to shares/units: [4000000]  (cap table: [4000000])
+  [ok] IRS 83(b) Election — Bob Diaz: share counts match the cap table
+  [ok] IRS 83(b) Election — Bob Diaz: notice at start and end
+  [ok] IRS 83(b) Election — Bob Diaz: placeholders kept
+  [ok] IRS 83(b) Election — Bob Diaz: signed by that founder only
+  [ok] IRS 83(b) Election — Bob Diaz: transfer date and filing deadline stated
+  [ok] the right documents, in order
+  [ok] LLC set uses [COMPANY NAME]
+
+==============================================================================
+8. Drafting a Delaware C-Corp set (Molar Labs Inc., three founders)
+==============================================================================
+cap table (shares): Dana Park 3,333,300, Eli Stone 3,333,300, Fay Wu 3,333,400
+
+--- Founder IP Assignment Agreement  [ip_assignment]  signers=['f1', 'f2', 'f3']
+    This is not legal advice. It was generated automatically; have a licensed attorney review it before you rely on it.
+    # Founder IP Assignment Agreement
+    This Founder IP Assignment Agreement (the "Agreement") is made between **Molar Labs Inc.**, a Delaware corporation (the "Company"), and each founder listed below (each a "Founder"). It takes effect on December 1, 2026, the Company's incorporation date. Draft prepared on November 23, 2026.
+    ## Parties
+    - Company: Molar Labs Inc., principal office at [ADDRESS], taxpayer ID [TAXPAYER ID]
+    - Registered agent: [REGISTERED AGENT]
+    ... - Dana Park (33.33% ownership): 3,333,300 shares.
+    ... - Eli Stone (33.33% ownership): 3,333,300 shares.
+    ... - Fay Wu (33.34% ownership): 3,333,400 shares.
+    numbers next to shares/units: [3333300, 3333400]  (cap table: [3333300, 3333400])
+  [ok] Founder IP Assignment Agreement: share counts match the cap table
+  [ok] Founder IP Assignment Agreement: notice at start and end
+  [ok] Founder IP Assignment Agreement: placeholders kept
+  [ok] Founder IP Assignment Agreement: all founders sign
+
+--- Bylaws Summary  [bylaws_summary]  signers=['f1', 'f2', 'f3']
+    This is not legal advice. It was generated automatically; have a licensed attorney review it before you rely on it.
+    # Bylaws Summary
+    This is a plain-English summary of the main rules in the bylaws of **Molar Labs Inc.**, a Delaware corporation (the "Company") incorporated on December 1, 2026. Draft prepared on November 23, 2026.
+    ## Company details
+    - Company: Molar Labs Inc.
+    - Business: AI scheduling for dental clinics
+    ... - Dana Park (33.33% ownership): 3,333,300 shares.
+    ... - Eli Stone (33.33% ownership): 3,333,300 shares.
+    ... - Fay Wu (33.34% ownership): 3,333,400 shares.
+    numbers next to shares/units: [3333300, 3333400]  (cap table: [3333300, 3333400])
+  [ok] Bylaws Summary: share counts match the cap table
+  [ok] Bylaws Summary: notice at start and end
+  [ok] Bylaws Summary: placeholders kept
+  [ok] Bylaws Summary: all founders sign
+
+--- IRS 83(b) Election — Dana Park  [election_83b]  signers=['f1']
+    This is not legal advice. It was generated automatically; have a licensed attorney review it before you rely on it.
+    # IRS 83(b) Election — Dana Park
+    Election under Section 83(b) of the Internal Revenue Code. The taxpayer named below elects to include in gross income, for the year of transfer, the fair market value of the property described below at the time of transfer, minus the amount paid for it.
+    ## Taxpayer
+    - Name: Dana Park
+    - Address: [ADDRESS]
+    ... - Date of transfer: December 1, 2026 (the incorporation date of Molar Labs Inc.)
+    ... - Property: 3,333,300 shares of common stock of Molar Labs Inc., a Delaware corporation.
+    ... - Restrictions: unvested shares may be bought back by Molar Labs Inc. at the original price if the taxpayer stops working for it. Vesting: monthly over 48 months starting December 1, 2026, with a 12-month cliff (nothing vests before the cliff, the accrued part vests at the cliff, then the rest monthly); fully vested on December 1, 2030.
+    ... Mail this election to the IRS office where the taxpayer files their federal tax return no later than **December 31, 2026**, which is 30 days after the date of transfer. The IRS does not accept late elections and the date is not moved for weekends or holidays, so file early, by certified mail with return receipt. Give a copy to Molar Labs Inc. and keep a copy for your records.
+    numbers next to shares/units: [3333300]  (cap table: [3333300])
+  [ok] IRS 83(b) Election — Dana Park: share counts match the cap table
+  [ok] IRS 83(b) Election — Dana Park: notice at start and end
+  [ok] IRS 83(b) Election — Dana Park: placeholders kept
+  [ok] IRS 83(b) Election — Dana Park: signed by that founder only
+  [ok] IRS 83(b) Election — Dana Park: transfer date and filing deadline stated
+
+--- IRS 83(b) Election — Eli Stone  [election_83b]  signers=['f2']
+    This is not legal advice. It was generated automatically; have a licensed attorney review it before you rely on it.
+    # IRS 83(b) Election — Eli Stone
+    Election under Section 83(b) of the Internal Revenue Code. The taxpayer named below elects to include in gross income, for the year of transfer, the fair market value of the property described below at the time of transfer, minus the amount paid for it.
+    ## Taxpayer
+    - Name: Eli Stone
+    - Address: [ADDRESS]
+    ... - Date of transfer: December 1, 2026 (the incorporation date of Molar Labs Inc.)
+    ... - Property: 3,333,300 shares of common stock of Molar Labs Inc., a Delaware corporation.
+    ... - Restrictions: unvested shares may be bought back by Molar Labs Inc. at the original price if the taxpayer stops working for it. Vesting: monthly over 36 months starting December 1, 2026, with no cliff; fully vested on December 1, 2029.
+    ... Mail this election to the IRS office where the taxpayer files their federal tax return no later than **December 31, 2026**, which is 30 days after the date of transfer. The IRS does not accept late elections and the date is not moved for weekends or holidays, so file early, by certified mail with return receipt. Give a copy to Molar Labs Inc. and keep a copy for your records.
+    numbers next to shares/units: [3333300]  (cap table: [3333300])
+  [ok] IRS 83(b) Election — Eli Stone: share counts match the cap table
+  [ok] IRS 83(b) Election — Eli Stone: notice at start and end
+  [ok] IRS 83(b) Election — Eli Stone: placeholders kept
+  [ok] IRS 83(b) Election — Eli Stone: signed by that founder only
+  [ok] IRS 83(b) Election — Eli Stone: transfer date and filing deadline stated
+
+--- IRS 83(b) Election — Fay Wu  [election_83b]  signers=['f3']
+    This is not legal advice. It was generated automatically; have a licensed attorney review it before you rely on it.
+    # IRS 83(b) Election — Fay Wu
+    Election under Section 83(b) of the Internal Revenue Code. The taxpayer named below elects to include in gross income, for the year of transfer, the fair market value of the property described below at the time of transfer, minus the amount paid for it.
+    ## Taxpayer
+    - Name: Fay Wu
+    - Address: [ADDRESS]
+    ... - Date of transfer: December 1, 2026 (the incorporation date of Molar Labs Inc.)
+    ... - Property: 3,333,400 shares of common stock of Molar Labs Inc., a Delaware corporation.
+    ... - Restrictions: unvested shares may be bought back by Molar Labs Inc. at the original price if the taxpayer stops working for it. Vesting: fully vested on December 1, 2026, with no vesting schedule.
+    ... Mail this election to the IRS office where the taxpayer files their federal tax return no later than **December 31, 2026**, which is 30 days after the date of transfer. The IRS does not accept late elections and the date is not moved for weekends or holidays, so file early, by certified mail with return receipt. Give a copy to Molar Labs Inc. and keep a copy for your records.
+    numbers next to shares/units: [3333400]  (cap table: [3333400])
+  [ok] IRS 83(b) Election — Fay Wu: share counts match the cap table
+  [ok] IRS 83(b) Election — Fay Wu: notice at start and end
+  [ok] IRS 83(b) Election — Fay Wu: placeholders kept
+  [ok] IRS 83(b) Election — Fay Wu: signed by that founder only
+  [ok] IRS 83(b) Election — Fay Wu: transfer date and filing deadline stated
+  [ok] the right documents, in order
+
+==============================================================================
+Result
+==============================================================================
+all checks passed
