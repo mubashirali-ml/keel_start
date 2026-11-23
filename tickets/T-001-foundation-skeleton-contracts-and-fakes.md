@@ -111,3 +111,20 @@ After the merge, T-001's status becomes `merged` and wave 1 starts as planned.
 Raised during review, not blocking T-001 and handled separately in a later Supervisor pass:
 ADR-0008 says founder ids are never reused, but `apply_patch` can only guarantee that within one
 patch (`CaseFacts` keeps no high-water mark).
+
+## Delivery run closed (2026-11-23): still escalated, not merged
+
+The delivery run for waves 0 and 1 ended with T-001 escalated after 3 review rounds (last
+verdict APPROVED in round 3). At close, `ticket/T-001` still has the Builder's own
+`### Round 1` / `### Round 2` reply headings in `prs/T-001.md`, so the gate would still count
+5 rounds, and `scripts/merge_pr.sh T-001` has not been run. The decision above stands: no
+re-scope, no new review round. Remaining steps, in order:
+
+1. Builder: rename the two reply headings under "## Builder response" (nothing else) and
+   commit `T-001: rename builder reply headings for the gate`.
+2. A human runs `bash scripts/merge_pr.sh T-001` once from the main checkout (or permits that
+   command for the gate agent).
+
+Wave 1 (T-002 to T-011, T-024 to T-033) did not start, because every wave-1 ticket depends on
+T-001 being on `main`. Those tickets stay `todo` with unchanged scope; the next delivery run
+starts wave 1 once T-001 is `merged`.
