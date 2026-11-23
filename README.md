@@ -112,6 +112,18 @@ bash scripts/verify.sh T-002           # builder/reviewer: ownership, scope, tes
 bash scripts/merge_pr.sh T-002         # gate: the only path to main
 ```
 
+## Demo video
+
+The product records its own demo video, showing each agent's work with captions. Reliable
+mode works offline and gives the same result every run; live mode uses real AI, real domain
+checks and real publishing. Design: [ADR-0037](docs/adr/0037-demo-video-scripted-recording-reliable-and-live-modes.md).
+Once built (ticket T-046), instructions are in [demo/README.md](demo/README.md):
+
+```bash
+bash scripts/py.sh demo/record_demo.py                 # reliable (default)
+bash scripts/py.sh demo/record_demo.py --mode live     # live
+```
+
 ## Status
 
 See [tickets/BACKLOG.md](tickets/BACKLOG.md) for the plan and progress.
