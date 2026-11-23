@@ -14,6 +14,12 @@ cd "$REPO_ROOT"
 [ -d "$WT" ] || die "no worktree for $T at $WT"
 
 cd "$WT"
+# A leftover re-recording of this ticket's run.log (e.g. from the Reviewer running verify.sh) is not work:
+# the gate records a fresh one on the merged code anyway, so restore it. Anything else must be committed.
+if [ "$(git status --porcelain)" = " M evidence/$T/run.log" ]; then
+  git checkout -q -- "evidence/$T/run.log"
+  echo "note: restored an uncommitted re-recording of evidence/$T/run.log (the gate records a fresh one)"
+fi
 [ -z "$(git status --porcelain)" ] || die "$T worktree has uncommitted changes; commit them first"
 
 # 4. Review: last verdict APPROVED, at most 3 rounds. (Checked first: a refused PR leaves no gate commits.)
