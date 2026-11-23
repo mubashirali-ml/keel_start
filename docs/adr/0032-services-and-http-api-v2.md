@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Accepted |
+| **Status** | Accepted; billing routes changed by [ADR-0038](0038-plans-v2-free-launch-team-and-plan-settings.md) |
 | **Date** | 2026-11-23 |
 | **Deciders** | Supervisor |
 | **Tickets** | T-001 (views, ports, app skeleton), T-013/T-014/T-015 (services), T-016 (composition, app, deps), T-017/T-039/T-040/T-041 (routes), T-011 + waves 4–6 (client) |

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Accepted |
+| **Status** | Accepted; billing settings and guards extended by [ADR-0038](0038-plans-v2-free-launch-team-and-plan-settings.md) |
 | **Date** | 2026-11-23 |
 | **Deciders** | Supervisor |
 | **Tickets** | T-001 (implements), every ticket that reads configuration |

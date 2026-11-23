@@ -4,7 +4,7 @@
 |---|---|
 | **Wave** | 1 |
 | **Depends on** | T-001 |
-| **ADRs** | [ADR-0031](../docs/adr/0031-electronic-signatures-and-signed-pdfs.md), [ADR-0014](../docs/adr/0014-founding-documents-and-signoff-state-machine.md), [ADR-0025](../docs/adr/0025-dependency-set-v2-python-and-npm.md), [ADR-0033](../docs/adr/0033-security-hardening.md) |
+| **ADRs** | [ADR-0039](../docs/adr/0039-brand-charterly-everywhere-customers-look.md), [ADR-0031](../docs/adr/0031-electronic-signatures-and-signed-pdfs.md), [ADR-0014](../docs/adr/0014-founding-documents-and-signoff-state-machine.md), [ADR-0025](../docs/adr/0025-dependency-set-v2-python-and-npm.md), [ADR-0033](../docs/adr/0033-security-hardening.md) |
 | **Status** | todo |
 
 ## Goal
@@ -23,7 +23,7 @@ the placeholders themselves.
 
 ## Contracts
 
-- **Provides:** `SignerInfo`, `render_signed_pdf(doc, *, company_name, signers, audit, generated_at) -> bytes`, `render_docx(doc, *, company_name) -> bytes`, `markdown_blocks(content) -> list[Block]` (ADR-0031).
+- **Provides:** `SignerInfo`, `render_signed_pdf(doc, *, company_name, signers, audit, generated_at, brand_name=BRAND_NAME) -> bytes`, `render_docx(doc, *, company_name, brand_name=BRAND_NAME) -> bytes`, `markdown_blocks(content) -> list[Block]` (ADR-0031).
 - **Consumes:** `Document`, `Signature`, `AuditEntry`, `DocumentStatus`, `NotExecutedError`, `LEGAL_NOTICE`, `document_sha256` (T-001); packages `reportlab`, `python-docx`.
 
 ## Acceptance criteria
@@ -33,9 +33,10 @@ the placeholders themselves.
 3. The PDF contains (asserted on the flowables the renderer builds and, rendered with page compression off, on the PDF content streams): company, title, "Version n", the full body, one signature block per signer with typed name, founder name, account email, UTC timestamp, IP, consent version, the document SHA-256, "acted in demo mode" when applicable, the certificate of completion with this document's audit entries, and on every page the footer with document id, version, hash prefix, page x of y and `LEGAL_NOTICE`.
 4. Placeholders (`[ADDRESS]`, `[TAXPAYER ID]` ...) are kept verbatim; no other personal data is added.
 5. Determinism: same inputs -> byte-identical PDF (`invariant=1`), asserted by hashing two renders.
-6. `render_docx` returns a valid `.docx` (opens with python-docx) with the title, an "Editable copy - not the signed record" note, the body, and every placeholder highlighted; works for any status.
+6. `render_docx` returns a valid `.docx` (opens with python-docx) with the title, the ADR-0039 editable-copy note, the body, and every placeholder highlighted; works for any status.
 7. Non-ASCII names (e.g. "José Núñez") render correctly using the Vera TrueType fonts bundled with reportlab (embedded; italic for the typed signature); no font files are downloaded.
 8. A 30-page document renders in under 2 s.
+9. Branding (ADR-0039): PDF metadata creator and producer are the brand name, title is the document title and author the company; the certificate is titled "Certificate of completion - Charterly e-signature record"; every page footer ends with "Signed with Charterly"; the Word copy's core properties creator is the brand and its first-page note reads "Editable copy from Charterly - not the signed record"; passing `brand_name="Acme Sign"` changes all of them; the document body never names the brand.
 
 ## Feature run (`evidence/T-031/feature_run.py`)
 

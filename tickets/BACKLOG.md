@@ -16,7 +16,7 @@ Groundwork: the shared vocabulary of the product, the contracts for accounts, bi
 
 ## Wave 1
 
-Twenty pieces built side by side: the automatic rules (equity, vesting, 83(b), cap table, approvals), saving to SQLite and PostgreSQL, the five specialist agents, the AI connections (your own Claude Code login on your machine, the Anthropic API for production), accounts and co-founder invites, email, Stripe billing, background jobs, signed PDFs, security and logging, and the app's look and feel. You can open the design gallery and see the brand in light and dark mode.
+Twenty pieces built side by side: the automatic rules (equity, vesting, 83(b), cap table, approvals), saving to SQLite and PostgreSQL, the five specialist agents, the AI connections (your own Claude Code login on your machine, the Anthropic API for production), accounts and co-founder invites, email, Stripe billing for the Free, Launch and Team plans, background jobs, signed PDFs, security and logging, and the app's look and feel. You can open the design gallery and see the brand in light and dark mode.
 
 | Ticket | Title | Depends on | Owns | Status |
 |---|---|---|---|---|
@@ -69,7 +69,7 @@ The complete, secured backend: every endpoint checks who you are and what you ma
 
 ## Wave 4
 
-Every screen: landing and pricing, sign-up and onboarding, chat and overview, names and domains, legal e-signing, cap table, website, registration guide, settings with billing and team, and the admin area, each checked in a real browser; plus Docker with PostgreSQL and automatic checks on every change.
+Every screen: the Charterly landing page and pricing with Free, Launch and Team, sign-up and onboarding, chat and overview, names and domains, legal e-signing, cap table, website, registration guide, settings with billing and team, and the admin area, each checked in a real browser; plus Docker with PostgreSQL and automatic checks on every change.
 
 | Ticket | Title | Depends on | Owns | Status |
 |---|---|---|---|---|
@@ -107,9 +107,7 @@ Each has a default already applied in the plan; confirm or change it.
 
 | Id | Ticket | Question | Recommended |
 |---|---|---|---|
-| Q-006 | T-029 | How should founders pay for the product, and how much? | Free + $39/month |
-| Q-007 | T-011 | What should the product be called? | Charterly |
-| Q-008 | T-037 | When a founder deletes their account, what happens to a company they share with co-founders? | Company stays with co-founders |
+| Q-009 | T-043 | What reply times do you promise on each plan? | Best effort / 2 days / 1 day |
 
 ## Answered
 
@@ -120,3 +118,6 @@ Each has a default already applied in the plan; confirm or change it.
 | Q-003 | Can a founder still edit a document after every founder has approved it? | Yes, everyone re-approves |
 | Q-004 | When does founder vesting start? | On the incorporation date |
 | Q-005 | Which pages should the website have when the founder doesn't say? | Home, About, Services, Contact |
+| Q-006 | How should founders pay for the product, and how much? | Three tiers: Free, Launch $29/month, Team $79/month ([ADR-0038](../docs/adr/0038-plans-v2-free-launch-team-and-plan-settings.md)) |
+| Q-007 | What should the product be called? | Charterly ([ADR-0039](../docs/adr/0039-brand-charterly-everywhere-customers-look.md)) |
+| Q-008 | When a founder deletes their account, what happens to a company they share with co-founders? | Company stays with co-founders |

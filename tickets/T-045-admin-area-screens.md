@@ -4,7 +4,7 @@
 |---|---|
 | **Wave** | 4 |
 | **Depends on** | T-011, T-016, T-040 |
-| **ADRs** | [ADR-0034](../docs/adr/0034-deployment-operations-privacy-and-admin.md), [ADR-0035](../docs/adr/0035-frontend-v2-brand-routes-layout-and-feature-boundaries.md), [ADR-0032](../docs/adr/0032-services-and-http-api-v2.md), [ADR-0005](../docs/adr/0005-frontend-verification-and-browser-recordings.md) |
+| **ADRs** | [ADR-0038](../docs/adr/0038-plans-v2-free-launch-team-and-plan-settings.md), [ADR-0034](../docs/adr/0034-deployment-operations-privacy-and-admin.md), [ADR-0035](../docs/adr/0035-frontend-v2-brand-routes-layout-and-feature-boundaries.md), [ADR-0032](../docs/adr/0032-services-and-http-api-v2.md), [ADR-0005](../docs/adr/0005-frontend-verification-and-browser-recordings.md) |
 | **Status** | todo |
 
 ## Goal
@@ -27,9 +27,9 @@ configuration, without access to any customer's content.
 ## Acceptance criteria
 
 1. Section tabs with URL state; each list has search (users, companies), status filter (jobs, emails), paging, loading skeletons, empty states and error states.
-2. Users: email, name, verified, plan badge, companies, created, last seen. Companies: name, members, milestone chips, plan, created. Usage: month picker, per-user calls/tokens with a bar against the plan limit (warning tone above 80 %).
+2. Users: email, name, verified, plan badge (Free / Launch / Team) with a priority-support marker for Team, companies, created, last seen, and a plan filter. Companies: name, members, milestone chips, plan, created. Usage: month picker, per-user calls/tokens with a bar against the plan limit (warning tone above 80 %).
 3. Jobs: kind, company, status, attempts, friendly error, updated; "Retry" with confirmation updates the row. Emails: masked recipient, template, status, error, time.
-4. System: provider names and per-agent models, domain checker, hosting configured, email provider, payments mode, migration status, last worker heartbeat (stale shown in danger tone).
+4. System: provider names and per-agent models, domain checker, hosting configured, email provider, payments mode, migration status, last worker heartbeat (stale shown in danger tone), and the price checks per paid plan and interval (a mismatch shown in danger tone with its plain explanation).
 5. A banner states "Admins see account metadata only; company content stays private." No view renders chat, document or website content.
 6. Non-admins get the friendly "not available" page (from T-011) and the API's 403.
 7. Component tests cover filters, paging, retry confirmation and the usage bar thresholds.

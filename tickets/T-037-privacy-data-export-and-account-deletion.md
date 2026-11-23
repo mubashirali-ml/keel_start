@@ -4,7 +4,7 @@
 |---|---|
 | **Wave** | 2 |
 | **Depends on** | T-003, T-005, T-026, T-027, T-029, T-031 |
-| **ADRs** | [ADR-0034](../docs/adr/0034-deployment-operations-privacy-and-admin.md), [ADR-0027](../docs/adr/0027-persistence-v2-postgresql-sqlite-migrations-and-data-model.md), [ADR-0026](../docs/adr/0026-accounts-sessions-request-context-and-authorization.md), [ADR-0030](../docs/adr/0030-plans-billing-stripe-and-entitlements.md) |
+| **ADRs** | [ADR-0039](../docs/adr/0039-brand-charterly-everywhere-customers-look.md), [ADR-0034](../docs/adr/0034-deployment-operations-privacy-and-admin.md), [ADR-0027](../docs/adr/0027-persistence-v2-postgresql-sqlite-migrations-and-data-model.md), [ADR-0026](../docs/adr/0026-accounts-sessions-request-context-and-authorization.md), [ADR-0030](../docs/adr/0030-plans-billing-stripe-and-entitlements.md) |
 | **Status** | todo |
 
 ## Goal
@@ -29,7 +29,7 @@ deleted completely, and their subscription is cancelled.
 
 ## Acceptance criteria
 
-1. `export_zip(user)` returns `({brand}-export-{date}.zip, bytes)` containing exactly the ADR-0034 files for every company the user belongs to, and nothing from companies they do not belong to (tested with a second customer's data in the same database); never password hashes, session or invite tokens.
+1. `export_zip(user)` returns `({brand slug}-export-{date}.zip, bytes)` (`charterly-export-2026-11-23.zip` by default, ADR-0039) containing exactly the ADR-0034 files for every company the user belongs to, and nothing from companies they do not belong to (tested with a second customer's data in the same database); never password hashes, session or invite tokens.
 2. Export of a company with executed documents includes their signed PDFs; every JSON file is valid and pretty-printed; the zip is reproducible for the same data and date.
 3. `delete_account` requires the right password and `confirm == "DELETE"` (else `InvalidCredentialsError` / `InvalidStateError`); cancels the subscription through the billing service immediately.
 4. Companies where the user is the only member are deleted with everything in them (cascade); in shared companies the membership is removed, ownership and billing pass to the longest-standing remaining member, executed documents and signature rows stay with `user_id` set to NULL and the typed name and timestamp kept; an audit entry records "member left (account deleted)".

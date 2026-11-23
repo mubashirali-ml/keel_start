@@ -4,7 +4,7 @@
 |---|---|
 | **Wave** | 1 |
 | **Depends on** | T-001 |
-| **ADRs** | [ADR-0029](../docs/adr/0029-transactional-email-notifications-and-83b-reminders.md), [ADR-0028](../docs/adr/0028-background-jobs-queue-worker-and-scheduler.md), [ADR-0023](../docs/adr/0023-reliability-timeouts-retries-and-failure-states.md), [ADR-0027](../docs/adr/0027-persistence-v2-postgresql-sqlite-migrations-and-data-model.md), [ADR-0035](../docs/adr/0035-frontend-v2-brand-routes-layout-and-feature-boundaries.md) |
+| **ADRs** | [ADR-0039](../docs/adr/0039-brand-charterly-everywhere-customers-look.md), [ADR-0029](../docs/adr/0029-transactional-email-notifications-and-83b-reminders.md), [ADR-0028](../docs/adr/0028-background-jobs-queue-worker-and-scheduler.md), [ADR-0023](../docs/adr/0023-reliability-timeouts-retries-and-failure-states.md), [ADR-0027](../docs/adr/0027-persistence-v2-postgresql-sqlite-migrations-and-data-model.md), [ADR-0035](../docs/adr/0035-frontend-v2-brand-routes-layout-and-feature-boundaries.md) |
 | **Status** | todo |
 
 ## Goal
@@ -31,7 +31,7 @@ never sent twice for the same event, and printed to the console in development.
 
 ## Acceptance criteria
 
-1. `render_email` produces subject, text and HTML for all six templates with the ADR-0029 data keys; missing keys raise `KeyError`; every value is HTML-escaped (a `<script>` founder name renders as text); links only from `APP_BASE_URL`; brand name in subject prefix, header and footer; footer explains why the email was sent; legal-content emails carry the not-legal-advice line.
+1. `render_email` produces subject, text and HTML for all six templates with the ADR-0029 data keys; missing keys raise `KeyError`; every value is HTML-escaped (a `<script>` founder name renders as text); links only from `APP_BASE_URL`; brand name in subject prefix (`Charterly: `), header (word mark as text) and footer (ADR-0039); when `EMAIL_FROM` has no display name the From header reads `Charterly <address>`; footer explains why the email was sent; legal-content emails carry the not-legal-advice line.
 2. Snapshot-style tests keep the six rendered emails (text parts) stable; HTML has no remote images, scripts or external CSS.
 3. No template accepts or prints a document body, share counts, tax ids or addresses (the data-key allow-list enforces it).
 4. `OutboxMailer.send` stores the row and enqueues `email.send` (5 attempts); the same `dedupe_key` twice stores and sends once and returns None the second time.

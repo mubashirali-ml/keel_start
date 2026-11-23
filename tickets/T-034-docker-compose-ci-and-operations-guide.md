@@ -4,7 +4,7 @@
 |---|---|
 | **Wave** | 4 |
 | **Depends on** | T-005, T-016, T-030, T-033 |
-| **ADRs** | [ADR-0034](../docs/adr/0034-deployment-operations-privacy-and-admin.md), [ADR-0027](../docs/adr/0027-persistence-v2-postgresql-sqlite-migrations-and-data-model.md), [ADR-0021](../docs/adr/0021-settings-environments-and-production-guards.md), [ADR-0003](../docs/adr/0003-merge-gate-tests-and-recorded-run.md), [ADR-0005](../docs/adr/0005-frontend-verification-and-browser-recordings.md) |
+| **ADRs** | [ADR-0038](../docs/adr/0038-plans-v2-free-launch-team-and-plan-settings.md), [ADR-0034](../docs/adr/0034-deployment-operations-privacy-and-admin.md), [ADR-0027](../docs/adr/0027-persistence-v2-postgresql-sqlite-migrations-and-data-model.md), [ADR-0021](../docs/adr/0021-settings-environments-and-production-guards.md), [ADR-0003](../docs/adr/0003-merge-gate-tests-and-recorded-run.md), [ADR-0005](../docs/adr/0005-frontend-verification-and-browser-recordings.md) |
 | **Status** | todo |
 
 ## Goal
@@ -37,7 +37,7 @@ explains first deploy, configuration, backups and restores.
 3. `.dockerignore` excludes `.venv`, `node_modules`, `.worktrees`, `evidence`, `demo/output`, `*.db`, `.env`, `prs`.
 4. CI (`ci.yml`): on push and pull request; jobs for backend tests on SQLite, backend tests on PostgreSQL 16 service with `LAUNCH_TEST_POSTGRES_URL` incl. the migration round trip, frontend `npm ci` / `build` / `test`, every `evidence/T-*/feature_run.py` with `LAUNCH_FAKE_SERVICES=1` after `playwright install --with-deps chromium`, and `docker build`; caching for pip and npm; Python 3.12, Node 20; no secrets required.
 5. `tests/test_deploy_files.py` validates without Docker: the compose file parses (PyYAML is available transitively; skip with a reason if not), has the four services and healthchecks, the Dockerfile has a non-root `USER` and the expected `CMD`, the CI workflow has the five jobs.
-6. `docs/operations.md`: requirements; first deploy step by step (copy `.env.example`, set production values, `docker compose up -d`, grant the first admin with the CLI); every production environment variable and where to get it (Anthropic key, SMTP, Stripe keys, price ids and webhook endpoint `/api/billing/webhook`, Netlify token, `SECRET_KEY` generation); TLS via a reverse proxy; upgrades (`migrate` runs first); backups (daily `pg_dump`, 30-day retention, monthly restore test) and restore steps; logs and request ids; what to do when readiness fails.
+6. `docs/operations.md`: requirements; first deploy step by step (copy `.env.example`, set production values, `docker compose up -d`, grant the first admin with the CLI); every production environment variable and where to get it (Anthropic key, SMTP, Stripe keys, the four price ids for Launch and Team monthly and yearly with the matching `PLAN_*` amounts, the customer portal settings (cancellation and invoices on), the webhook endpoint `/api/billing/webhook`, `SUPPORT_EMAIL`, `BRAND_NAME`, Netlify token, `SECRET_KEY` generation); how to change a price or an allowance (new Stripe price + two env values, then check the admin price checks); watching AI cost on the admin usage page (ADR-0038); TLS via a reverse proxy; upgrades (`migrate` runs first); backups (daily `pg_dump`, 30-day retention, monthly restore test) and restore steps; logs and request ids; what to do when readiness fails.
 
 ## Feature run (`evidence/T-034/feature_run.py`)
 

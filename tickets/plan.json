@@ -1,7 +1,7 @@
 {
-  "product": "Startup Launch Agents (LLC formation, name, website, compliance)",
+  "product": "Charterly: AI agents that launch your company (LLC formation, name, website, compliance)",
   "updated": "2026-11-23",
-  "owner_brief": "Thank you for the answers. All five confirmed the defaults already in the plan, so nothing changed there: each founder approves only their own 83(b), sites publish to Netlify, an edit after approval makes everyone sign again, vesting starts on the incorporation date, and websites get Home, About, Services and Contact unless the founder asks otherwise.\n\nWhat I changed. The product is now planned as something you can sell, not a demo. Founders get real accounts (sign up, log in, reset a password, confirm their email) and invite co-founders by email; everyone sees only their own companies and can act only as themselves. The \"act as founder\" switch survives only in demo mode. Approving a document becomes a proper electronic signature: you type your full name, tick a consent box, and we record the time, your account, your IP address and a fingerprint of the exact text. Signed documents download as a PDF with a signature page, plus an editable Word copy for filling in addresses and tax IDs offline. Plans and payments run through Stripe (test mode until you switch on live keys). Emails go out for invites, signatures and the 83(b) deadline at 14, 7 and 2 days. There is a landing page, pricing, Terms, Privacy, data export and account deletion, and a small admin area that shows account information but never your customers' documents. Behind the scenes: PostgreSQL in production, Docker, automatic checks on every change, limits on login attempts and AI use, removal of tax IDs typed into the chat, and background jobs so nothing hangs. All the shared rules for this sit in the very first round, so later rounds only add features.\n\nThe AI is one setting. On your own computer the agents can use your Claude Code login (no API key); the app warns that this is for your own use only and refuses to start in production. Production uses an Anthropic API key with Claude Opus 5.5 by default, and a cheaper model per agent if you want (for example Haiku for the Name and QA agents). If Claude declines a request on safety grounds, it automatically retries on a fallback model. DeepSeek and Groq stay available.\n\nThe demo video is a real feature. One command drives the actual app at 1920x1080 with a caption per step and shows each agent's output: the case summary, a legal answer and the three document types, name cards with domain badges, the cap table with chart and Excel file, signing with a cancelled-and-redone signature, the website preview with its QA report and live link (or \"packaged\"), and the registration checklist. Each run saves WebM and MP4 videos, a screenshot per step and every file the agents made. \"Reliable\" mode is offline and identical every run; \"live\" mode uses real AI, real domain checks and real publishing. It must pass three times in a row before it counts as done.\n\nWhat you'll see after each round. The plan grew from 23 to 46 pieces in 7 rounds. Round 0 is groundwork. After round 1 you can open the design gallery with the brand in light and dark mode; behind it twenty pieces work on their own (rules, saving, agents, AI connections, accounts, email, payments, background jobs, PDFs, security). Round 2 joins them into the conversation, website, legal, email and admin services. Round 3 makes the whole backend available and secured. After round 4 every screen works, from the landing page to the admin area, and the product runs in Docker. Round 5 tests the full customer journey and adds a guide to running it. Round 6 records the demo video.\n\nWhat I need from you. 1) Answer three questions: pricing, the product name, and what happens to shared companies when someone deletes their account. Each already has a recommended answer in the plan. 2) Have the operator install seven Python packages before building starts: alembic, psycopg[binary], argon2-cffi, stripe, reportlab, python-docx and email-validator. The web app's few new form and control packages install automatically. 3) Have the operator add a link to the demo-video instructions in the main README, which only the operator may edit. 4) Before going live (not needed for building): an Anthropic API key; a Stripe account with a monthly and a yearly price and a webhook secret; an email-sending (SMTP) account with a verified sending domain; a Netlify token; a web address with HTTPS for the app; and your legal company name, contact email and governing-law state for the Terms and Privacy pages, which ship as marked drafts for your lawyer to review.",
+  "owner_brief": "Thank you for the answers. Here is what changed.\n\nPricing: three plans, as you chose. Free ($0) gives one company and 300 AI messages a month, with everything except founding documents, e-signing and publishing the website; support is email, best effort. Launch ($29 a month) gives up to 3 companies and 2,000 AI messages a month, and adds founding documents, e-signatures, signed PDF and Word downloads and website publishing; email support within 2 business days. Team ($79 a month) has the same features with up to 15 companies, 10,000 AI messages a month and priority support within 1 business day. Co-founders never pay on any plan. Yearly billing is two months free ($290 and $790 a year). I decided that myself because it is standard and one setting hides it. Paying customers switch between Launch and Team, or monthly and yearly, inside the app, and Stripe adjusts the charge. Going back to Free means cancelling in the billing portal. After a downgrade nothing is locked or deleted. Every price and limit is a setting, and the admin area warns you if Stripe charges a different amount than the pricing page shows. The pricing page shows the three plans side by side with a comparison table, and the billing settings show how much of the plan a customer has used.\n\nName: Charterly is now the product name everywhere customers look: the app, the landing page, page titles, every email, signed PDFs and Word copies, the data export and the demo video. It stays one setting. The internal code name does not change, and customers never see it.\n\nAccount deletion: confirmed as planned, so nothing changed.\n\nAlso noted: the seven libraries are installed and the README links the demo-video instructions, so nothing is waiting on the operator.\n\nWhat you'll see after each round is unchanged: 46 pieces in 7 rounds. Round 0 is groundwork. After round 1 you can open the design gallery with the Charterly brand in light and dark mode. Round 2 joins the pieces into services. Round 3 makes the whole backend available and secured. After round 4 every screen works, including pricing with the three plans and plan switching in settings. Round 5 tests the full customer journey (it now includes switching from Launch to Team). Round 6 records the demo video.\n\nWhat I need from you. 1) One question: what support reply times the pricing page should promise. I suggest best effort on Free, 2 business days on Launch and 1 business day on Team. 2) Tell me if you want different numbers for companies or AI messages; each one is a single setting. A heavy Team customer can cost real money in AI each month, and the admin usage page shows what each customer uses. 3) Before going live (not needed for building): four prices in Stripe (Launch and Team, monthly and yearly), a support email address, a check that the Charterly domain and trademark are free, and your legal company name for the footer and legal pages, along with the items listed earlier (Anthropic key, email sending account, Netlify token, an HTTPS web address).",
   "waves": [
     {
       "wave": 0,
@@ -9,7 +9,7 @@
     },
     {
       "wave": 1,
-      "goal": "Twenty pieces built side by side: the automatic rules (equity, vesting, 83(b), cap table, approvals), saving to SQLite and PostgreSQL, the five specialist agents, the AI connections (your own Claude Code login on your machine, the Anthropic API for production), accounts and co-founder invites, email, Stripe billing, background jobs, signed PDFs, security and logging, and the app's look and feel. You can open the design gallery and see the brand in light and dark mode."
+      "goal": "Twenty pieces built side by side: the automatic rules (equity, vesting, 83(b), cap table, approvals), saving to SQLite and PostgreSQL, the five specialist agents, the AI connections (your own Claude Code login on your machine, the Anthropic API for production), accounts and co-founder invites, email, Stripe billing for the Free, Launch and Team plans, background jobs, signed PDFs, security and logging, and the app's look and feel. You can open the design gallery and see the brand in light and dark mode."
     },
     {
       "wave": 2,
@@ -21,7 +21,7 @@
     },
     {
       "wave": 4,
-      "goal": "Every screen: landing and pricing, sign-up and onboarding, chat and overview, names and domains, legal e-signing, cap table, website, registration guide, settings with billing and team, and the admin area, each checked in a real browser; plus Docker with PostgreSQL and automatic checks on every change."
+      "goal": "Every screen: the Charterly landing page and pricing with Free, Launch and Team, sign-up and onboarding, chat and overview, names and domains, legal e-signing, cap table, website, registration guide, settings with billing and team, and the admin area, each checked in a real browser; plus Docker with PostgreSQL and automatic checks on every change."
     },
     {
       "wave": 5,
@@ -157,7 +157,7 @@
       "number": "0021",
       "title": "Settings, environments (APP_ENV) and production guards",
       "file": "docs/adr/0021-settings-environments-and-production-guards.md",
-      "status": "Accepted"
+      "status": "Accepted (billing settings extended by 0038)"
     },
     {
       "number": "0022",
@@ -205,43 +205,43 @@
       "number": "0029",
       "title": "Transactional email, notifications and 83(b) reminders",
       "file": "docs/adr/0029-transactional-email-notifications-and-83b-reminders.md",
-      "status": "Accepted"
+      "status": "Accepted (branding by 0039)"
     },
     {
       "number": "0030",
       "title": "Plans, billing with Stripe, and entitlements",
       "file": "docs/adr/0030-plans-billing-stripe-and-entitlements.md",
-      "status": "Accepted"
+      "status": "Partly superseded by 0038"
     },
     {
       "number": "0031",
       "title": "Electronic signatures and signed PDF / Word downloads",
       "file": "docs/adr/0031-electronic-signatures-and-signed-pdfs.md",
-      "status": "Accepted"
+      "status": "Accepted (branding by 0039)"
     },
     {
       "number": "0032",
       "title": "Application services and the HTTP API v2 (authenticated)",
       "file": "docs/adr/0032-services-and-http-api-v2.md",
-      "status": "Accepted"
+      "status": "Accepted (billing routes changed by 0038)"
     },
     {
       "number": "0033",
       "title": "Security hardening",
       "file": "docs/adr/0033-security-hardening.md",
-      "status": "Accepted"
+      "status": "Accepted (allowance message by 0038)"
     },
     {
       "number": "0034",
       "title": "Deployment, operations, privacy controls and the admin area",
       "file": "docs/adr/0034-deployment-operations-privacy-and-admin.md",
-      "status": "Accepted"
+      "status": "Accepted (admin additions by 0038)"
     },
     {
       "number": "0035",
       "title": "Frontend v2: brand, routes, layouts and feature boundaries",
       "file": "docs/adr/0035-frontend-v2-brand-routes-layout-and-feature-boundaries.md",
-      "status": "Accepted"
+      "status": "Partly superseded by 0039"
     },
     {
       "number": "0036",
@@ -253,6 +253,18 @@
       "number": "0037",
       "title": "Demo video: scripted browser recording in reliable and live modes",
       "file": "docs/adr/0037-demo-video-scripted-recording-reliable-and-live-modes.md",
+      "status": "Accepted"
+    },
+    {
+      "number": "0038",
+      "title": "Plans v2: Free, Launch and Team, with amounts as settings",
+      "file": "docs/adr/0038-plans-v2-free-launch-team-and-plan-settings.md",
+      "status": "Accepted"
+    },
+    {
+      "number": "0039",
+      "title": "Brand: \"Charterly\" everywhere customers look",
+      "file": "docs/adr/0039-brand-charterly-everywhere-customers-look.md",
       "status": "Accepted"
     }
   ],
@@ -571,7 +583,7 @@
         "prs/T-029.md"
       ],
       "status": "todo",
-      "summary_for_owner": "Plans and payments with Stripe: checkout, the billing portal for invoices and cancellation, and knowing which features each account paid for."
+      "summary_for_owner": "Payments through Stripe for three plans (Free, Launch $29, Team $79, yearly at two months free): checkout, switching between Launch and Team, the billing portal for invoices and cancelling, and always knowing what each customer has paid for."
     },
     {
       "id": "T-030",
@@ -1122,7 +1134,7 @@
         "prs/T-043.md"
       ],
       "status": "todo",
-      "summary_for_owner": "The public pages: landing page explaining the agents, pricing, Terms of Service, Privacy Policy, disclaimer and security."
+      "summary_for_owner": "The public Charterly pages: the landing page, pricing with the Free, Launch and Team plans side by side, and Terms, Privacy, disclaimer and security pages."
     },
     {
       "id": "T-044",
@@ -1142,7 +1154,7 @@
         "prs/T-044.md"
       ],
       "status": "todo",
-      "summary_for_owner": "Settings: your profile and password, your plan and billing, downloading or deleting your data, and the team screen for inviting co-founders."
+      "summary_for_owner": "Settings: your profile and password, your plan with how much you have used, upgrading or switching between Launch and Team, downloading or deleting your data, and inviting co-founders."
     },
     {
       "id": "T-045",
@@ -1332,8 +1344,8 @@
         }
       ],
       "recommended": "Free + $39/month",
-      "status": "open",
-      "answer": null
+      "status": "answered",
+      "answer": "Three tiers"
     },
     {
       "id": "Q-007",
@@ -1359,8 +1371,8 @@
         }
       ],
       "recommended": "Charterly",
-      "status": "open",
-      "answer": null
+      "status": "answered",
+      "answer": "Charterly"
     },
     {
       "id": "Q-008",
@@ -1382,6 +1394,29 @@
         }
       ],
       "recommended": "Company stays with co-founders",
+      "status": "answered",
+      "answer": "Company stays with co-founders"
+    },
+    {
+      "id": "Q-009",
+      "ticket": "T-043",
+      "question": "What reply times should the pricing page promise for support on each plan?",
+      "why_it_matters": "Team is sold partly on priority support, and you will be the one answering support email. The promise is printed on the pricing page and in billing settings, so it should be one you can keep.",
+      "options": [
+        {
+          "label": "Best effort / 2 days / 1 day",
+          "description": "Free: no promised time; Launch: reply within 2 business days; Team: within 1 business day and answered first."
+        },
+        {
+          "label": "No promised times",
+          "description": "Every plan says 'email support'; Team just says 'priority'. Nothing to keep up with, but Team's extra is vaguer."
+        },
+        {
+          "label": "Faster: 1 day / same day",
+          "description": "Launch within 1 business day; Team the same business day. Stronger selling point, more work for you."
+        }
+      ],
+      "recommended": "Best effort / 2 days / 1 day",
       "status": "open",
       "answer": null
     }

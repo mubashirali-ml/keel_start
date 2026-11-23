@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Accepted |
+| **Status** | Accepted; allowance message per plan in [ADR-0038](0038-plans-v2-free-launch-team-and-plan-settings.md) |
 | **Date** | 2026-11-23 |
 | **Deciders** | Supervisor |
 | **Tickets** | T-001 (contracts), T-032 (implements), T-016 (wires middleware), T-039/T-041 (apply limits), T-011 (CSRF in the client, no inline scripts) |

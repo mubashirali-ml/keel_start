@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Accepted |
+| **Status** | Accepted; plans, prices and entitlement contracts superseded by [ADR-0038](0038-plans-v2-free-launch-team-and-plan-settings.md) |
 | **Date** | 2026-11-23 |
 | **Deciders** | Supervisor, product owner (pricing: open question Q-006) |
 | **Tickets** | T-001 (types, ports, fakes), T-029 (billing + Stripe adapter), T-040 (routes), T-043 (pricing page), T-044 (billing settings), services that gate features |

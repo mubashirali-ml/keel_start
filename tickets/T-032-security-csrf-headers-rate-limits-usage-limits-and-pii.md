@@ -4,7 +4,7 @@
 |---|---|
 | **Wave** | 1 |
 | **Depends on** | T-001 |
-| **ADRs** | [ADR-0033](../docs/adr/0033-security-hardening.md), [ADR-0022](../docs/adr/0022-llm-providers-fake-claude-code-anthropic-deepseek-groq.md), [ADR-0030](../docs/adr/0030-plans-billing-stripe-and-entitlements.md), [ADR-0027](../docs/adr/0027-persistence-v2-postgresql-sqlite-migrations-and-data-model.md) |
+| **ADRs** | [ADR-0038](../docs/adr/0038-plans-v2-free-launch-team-and-plan-settings.md), [ADR-0033](../docs/adr/0033-security-hardening.md), [ADR-0022](../docs/adr/0022-llm-providers-fake-claude-code-anthropic-deepseek-groq.md), [ADR-0030](../docs/adr/0030-plans-billing-stripe-and-entitlements.md), [ADR-0027](../docs/adr/0027-persistence-v2-postgresql-sqlite-migrations-and-data-model.md) |
 | **Status** | todo |
 
 ## Goal
@@ -35,7 +35,7 @@ tax ids or card numbers typed into the chat are removed before anything stores o
 1. CSRF: unsafe methods without the header, with a mismatching header, or from a foreign `Origin` -> `CsrfError`; GET/HEAD/OPTIONS and `/api/billing/webhook` exempt; tokens are HMACs bound to the session key and differ per session; constant-time comparison.
 2. Headers: every ADR-0033 header on app responses; HSTS only in production; the website preview path gets the sandbox CSP and `frame-ancestors 'self'` instead; a test asserts the CSP has no `unsafe-eval` and no inline script allowance.
 3. `RateLimiter.hit` enforces every ADR-0033 class with fixed windows in `rate_limits`; the error carries `retry_after_s` and a friendly message with minutes; disabled limiter never blocks; windows work across two `RateLimiter` instances on the same database (multi-process stand-in); prune removes old windows.
-4. `MeteredLLM`: below the limit passes through and records one `llm_usage` row per call with tokens from the inner provider's reported usage; at the limit raises `UsageLimitError` with the plan name and reset date **before** calling the inner provider; counts reset at the UTC month boundary (injected clock); `user_id=None` (system jobs) is metered against the case's billing user when given, else unlimited but recorded.
+4. `MeteredLLM`: below the limit passes through and records one `llm_usage` row per call with tokens from the inner provider's reported usage; at the limit raises `UsageLimitError` with the plan name, reset date and the ADR-0038 next step (Free / Launch: "Upgrade to {next plan} or wait until {date}."; Team: "Your allowance resets on {date}. Contact support if you need more before then.") **before** calling the inner provider; counts reset at the UTC month boundary (injected clock); `user_id=None` (system jobs) is metered against the case's billing user when given, else unlimited but recorded.
 5. `scrub`: removes SSNs (`123-45-6789`, `123 45 6789`, nine digits next to "SSN"/"social"), ITINs (9xx-7x/8x-xxxx), EINs (`12-3456789` next to "EIN"/"tax id"), Luhn-valid card numbers; keeps dates, phone numbers, share counts and money amounts (table-driven tests with at least 25 positive and 25 negative cases); returns the redaction kinds.
 6. Nothing in this package logs a token, cookie, password or the unscrubbed text.
 

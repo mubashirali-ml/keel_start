@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Accepted |
+| **Status** | Accepted; admin plan filter and price checks added by [ADR-0038](0038-plans-v2-free-launch-team-and-plan-settings.md) |
 | **Date** | 2026-11-23 |
 | **Deciders** | Supervisor, product owner |
 | **Tickets** | T-033 (logs, request ids, error hook), T-034 (Docker, compose, CI, operations guide), T-037 (export + delete), T-038 (admin service + CLI), T-040 (admin routes), T-044/T-045 (screens) |
