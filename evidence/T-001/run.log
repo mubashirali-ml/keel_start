@@ -1,0 +1,413 @@
+# Recorded feature run
+ticket:      T-001
+branch:      ticket/T-001
+commit:      9238696635a8ce8c3cc7dc4c9743a60d0028b011
+uncommitted: 0 file(s) outside evidence/ and prs/
+recorded_at: 2026-11-23T10:44:41Z
+python:      3.12.10
+command:     bash scripts/py.sh evidence/T-001/feature_run.py
+exit_code:   0
+----------------------------------------------------------------------
+SECRET_KEY is not set: using an insecure development key. Never use it in production.
+
+==============================================================================
+1. Settings resolution (ADR-0021, ADR-0022); keys redacted
+==============================================================================
+
+[fake (no keys)] env={}
+  app_env / llm_provider           development / fake -> FakeLLM
+  model_for(name.suggest)          None
+  model_for(qa.review)             None
+  model_for(law.answer)            None
+  email / payments / worker / log  console / fake / True / text
+
+[anthropic + Haiku for Name and QA] env={'ANTHROPIC_API_KEY': '***', 'LLM_MODEL_NAME': 'claude-haiku-5-5', 'LLM_MODEL_QA': 'claude-haiku-5-5'}
+  app_env / llm_provider           development / anthropic -> AnthropicProvider
+  model_for(name.suggest)          claude-haiku-5-5
+  model_for(qa.review)             claude-haiku-5-5
+  model_for(law.answer)            None
+  email / payments / worker / log  console / fake / True / text
+
+[deepseek] env={'DEEPSEEK_API_KEY': '***'}
+  app_env / llm_provider           development / deepseek -> OpenAICompatibleProvider
+  model_for(name.suggest)          None
+  model_for(qa.review)             None
+  model_for(law.answer)            None
+  email / payments / worker / log  console / fake / True / text
+
+[claude_code in development] env={'APP_ENV': 'development', 'LLM_PROVIDER': 'claude_code'}
+  app_env / llm_provider           development / claude_code -> ClaudeCodeProvider
+  model_for(name.suggest)          None
+  model_for(qa.review)             None
+  model_for(law.answer)            None
+  email / payments / worker / log  console / fake / True / text
+
+repr(settings) shows              anthropic_api_key='***'
+
+[production with every mistake] -> ConfigError:
+  - LLM_PROVIDER=claude_code is not allowed in production: it uses a personal Claude Code login, which Anthropic's terms allow only for your own local development. Use LLM_PROVIDER=anthropic with ANTHROPIC_API_KEY.
+  - DEMO_MODE must be off in production (acting as another founder is a demo-only feature).
+  - PAYMENTS_PROVIDER must be stripe in production (got fake).
+  - STRIPE_PRICE_TEAM_MONTHLY is required in production.
+  - PLAN_LAUNCH_PRICE_MONTH_CENTS must be above 0 for a paid plan (got 0).
+  - SUPPORT_EMAIL is required in production (the help menu's Contact support).
+  - EMAIL_PROVIDER must be smtp in production (got console).
+  - SECRET_KEY must be at least 32 characters in production.
+  - LAUNCH_DB_URL must be a PostgreSQL URL (postgresql+psycopg://...) in production.
+  - APP_BASE_URL must start with https:// in production.
+
+==============================================================================
+2. FakeLLM call inside a usage_sink (ADR-0010, ADR-0022)
+==============================================================================
+complete() ->                      Hello Alice, here are three name ideas.
+usage                              {'provider': 'fake', 'model': None, 'task': 'demo.task', 'input_tokens': None, 'output_tokens': None, 'duration_ms': 0, 'ok': True}
+
+==============================================================================
+3. apply_patch on sample facts (ADR-0008)
+==============================================================================
+patch                              {'founders': [{'email': 'ALICE@example.com', 'equity_percent': '55'}, {'name': 'Bob Diaz', 'email': 'bob@example.com', 'equity_percent': '45'}], 'remove_founder_ids': [], 'entity_type': 'Delaware C-Corp'}
+  founder f1                       Alice Chen <ALICE@example.com> 55% vesting=48
+  founder f2                       Bob Diaz <bob@example.com> 45% vesting=None
+entity / state                     Delaware C-Corp / DE
+
+==============================================================================
+4. 83(b) deadline (ADR-0013)
+==============================================================================
+incorporated 2026-12-01 -> file by 2026-12-31 (38 days from 2026-11-23)
+
+==============================================================================
+5. Handoff messages (ADR-0009)
+==============================================================================
+{"agent": "manager", "content": "Manager brought in the Law Agent", "kind": "handoff", "payload": {"direction": "handover", "from": "manager", "reason": "legal question", "to": "law"}, "role": "agent"}
+{"agent": "law", "content": "Law Agent handed the conversation back to the Manager", "kind": "handoff", "payload": {"direction": "return", "from": "law", "reason": "question answered", "to": "manager"}, "role": "agent"}
+
+==============================================================================
+6. CaseAccess for a member and for the system (ADR-0026, ADR-0038)
+==============================================================================
+member permissions                 ['build_website', 'chat', 'deploy', 'edit_documents', 'sign', 'tick_guide', 'view']
+member audit actor                 f2
+system permissions                 ['build_website', 'chat', 'delete_company', 'deploy', 'edit_documents', 'manage_team', 'sign', 'tick_guide', 'view']
+system audit actor                 system
+Free + ESIGN ->                    plan_required 402: Electronic signatures are included in the Launch and Team plans. {'feature': 'esign', 'required_plan': 'launch'}
+
+==============================================================================
+7. InlineJobRunner: retried, then succeeds (ADR-0028)
+==============================================================================
+attempts seen by the handler       [1, 2, 3]
+job                                {'kind': 'website.build', 'status': 'succeeded', 'result': {'build_id': 'site_demo', 'attempt': 3}, 'error': None, 'attempts': 3}
+
+==============================================================================
+8. RecordingMailer dedupe (ADR-0029)
+==============================================================================
+outbox ids for 3 identical sends   ['outbox_000001', None, None]
+recorded emails                    [('signature_needed', 'bob@example.com', 'sig:doc_1:1:f2')]
+
+==============================================================================
+9. Fake checkout -> webhook event round trip, then Launch -> Team (ADR-0030, ADR-0038)
+==============================================================================
+checkout url                       http://localhost:8000/app/billing/test-checkout?session=cs_fake_000002
+webhook signature header           t=1795435200,v1=...
+parsed event                       {'id': 'evt_fake_000004', 'type': 'checkout.session.completed', 'customer_id': 'cus_fake_000001', 'subscription_id': 'sub_fake_000003', 'client_reference_id': 'usr_alice', 'price_id': 'price_fake_launch_monthly', 'status': 'active', 'current_period_end': '2026-12-23T12:00:00Z', 'cancel_at_period_end': False}
+price change event                 {'type': 'customer.subscription.updated', 'price_id': 'price_fake_team_monthly', 'status': 'active'}
+Team monthly price amount          (7900, <BillingInterval.MONTH: 'month'>)
+tampered payload ->                WebhookSignatureError: This payment notification could not be verified.
+
+==============================================================================
+10. Plans from Settings.plans() with PLAN_TEAM_AI_MESSAGES=20000 (ADR-0038)
+==============================================================================
+
+Free (rank 0): $0/month, $0/year (yearly offered: False)
+  companies 1, AI messages 300, features [], support basic
+  * 1 company
+  * 300 AI messages a month
+  * Chat with every agent, legal Q&A and name ideas with live domain checks
+  * Cap table with CSV and Excel downloads
+  * Website preview and .zip download
+  * Registration checklist and 83(b) reminders
+  * Co-founders join free, unlimited
+  * Help guides and email, best effort
+
+Launch (rank 1): $29/month, $290/year (yearly offered: True)
+  companies 3, AI messages 2,000, features ['documents', 'esign', 'signed_pdf', 'website_deploy'], support standard
+  * Everything in Free
+  * Up to 3 companies
+  * 2,000 AI messages a month
+  * Founding documents drafted
+  * Electronic signatures
+  * Signed PDF and Word downloads
+  * Website publishing
+  * Co-founders join free, unlimited
+  * Email, reply within 2 business days
+
+Team (rank 2): $79/month, $790/year (yearly offered: True)
+  companies 15, AI messages 20,000, features ['documents', 'esign', 'signed_pdf', 'website_deploy'], support priority
+  * Everything in Launch
+  * Up to 15 companies
+  * 20,000 AI messages a month
+  * Co-founders join free, unlimited
+  * Priority email, reply within 1 business day, answered first
+
+==============================================================================
+11. document_sha256 (ADR-0031)
+==============================================================================
+sha256 (LF)                        04ed641faa7074f49dd76db047149b451237182a68d753b7110ff74200fbeb7d
+sha256 (CRLF)                      04ed641faa7074f49dd76db047149b451237182a68d753b7110ff74200fbeb7d
+
+==============================================================================
+12. Migrated tables of a temp SQLite database (ADR-0027)
+==============================================================================
+revision                           0001_initial
+tables (22)                        admin_audit, alembic_version, audit_log, auth_tokens, billing_events, cases, checklist_items, document_versions, documents, email_outbox, invites, jobs, llm_usage, memberships, messages, rate_limits, sessions, signatures, site_builds, subscriptions, users, worker_heartbeats
+autogenerate diff vs tables.py     []
+
+==============================================================================
+13. GET /api/health on the skeleton app (ADR-0032)
+==============================================================================
+GET /api/health                    200 {'status': 'ok'}
+GET /api/nope                      404 {'error': {'code': 'not_found', 'message': "We couldn't find that.", 'details': {}}}
+app.state.services                 None
+
+==============================================================================
+14. Typed stubs: exact signatures, owner ticket (behaviour arrives with the owner)
+==============================================================================
+[T-002] launch_agents.rules.validation:apply_vesting_defaults(facts: 'CaseFacts') -> 'tuple[CaseFacts, list[str]]'
+[T-002] launch_agents.rules.validation:missing_facts(facts: 'CaseFacts') -> 'list[str]'
+[T-002] launch_agents.rules.validation:validate_facts(facts: 'CaseFacts') -> 'ValidationResult'
+[T-003] launch_agents.rules.cap_table:allocate_shares(percents: 'Sequence[Decimal]', total: 'int' = 10000000) -> 'list[int]'
+[T-003] launch_agents.rules.cap_table:build_cap_table(facts: 'CaseFacts') -> 'CapTable'
+[T-003] launch_agents.rules.cap_table:vesting_schedule(total: 'int', vesting_months: 'int', cliff_months: 'int', start: 'date') -> 'list[VestingEvent]'
+[T-003] launch_agents.rules.exports:cap_table_csv(cap: 'CapTable') -> 'str'
+[T-003] launch_agents.rules.exports:cap_table_xlsx(cap: 'CapTable') -> 'bytes'
+[T-004] launch_agents.signoff.machine:create_document(case_id: 'str', draft: 'DraftDocument', *, now: 'datetime') -> 'SignOffOutcome'
+[T-004] launch_agents.signoff.machine:edit(doc: 'Document', editor_id: 'str', version: 'int', new_content: 'str', *, evidence: 'SignatureEvidence', now: 'datetime') -> 'SignOffOutcome'
+[T-004] launch_agents.signoff.machine:is_legal_complete(docs: 'Sequence[Document]') -> 'bool'
+[T-004] launch_agents.signoff.machine:regenerate(doc: 'Document', draft: 'DraftDocument', *, now: 'datetime', actor: 'str' = 'system') -> 'SignOffOutcome'
+[T-004] launch_agents.signoff.machine:sign(doc: 'Document', founder_id: 'str', version: 'int', *, evidence: 'SignatureEvidence', now: 'datetime') -> 'SignOffOutcome'
+[T-005] launch_agents.persistence.engine:create_db_engine(url: 'str') -> 'Engine'
+[T-005] launch_agents.persistence.engine:init_db(engine: 'Engine') -> 'None'
+[T-005] launch_agents.persistence.engine:schema_is_current(engine: 'Engine') -> 'bool'
+[T-005] launch_agents.persistence.repository:Repository.append_audit(self, entries: 'Sequence[AuditEntry]') -> 'list[AuditEntry]'
+[T-005] launch_agents.persistence.repository:Repository.append_messages(self, case_id: 'str', messages: 'Sequence[ChatMessage]') -> 'list[ChatMessage]'
+[T-005] launch_agents.persistence.repository:Repository.create_case(self, *, created_by: 'str | None' = None, facts: 'CaseFacts | None' = None, state: 'CaseState | None' = None) -> 'CaseRecord'
+[T-005] launch_agents.persistence.repository:Repository.delete_case(self, case_id: 'str') -> 'None'
+[T-005] launch_agents.persistence.repository:Repository.delete_document(self, document_id: 'str') -> 'None'
+[T-005] launch_agents.persistence.repository:Repository.get_case(self, case_id: 'str') -> 'CaseRecord'
+[T-005] launch_agents.persistence.repository:Repository.get_checklist(self, case_id: 'str') -> 'dict[str, bool]'
+[T-005] launch_agents.persistence.repository:Repository.get_document(self, document_id: 'str') -> 'Document'
+[T-005] launch_agents.persistence.repository:Repository.get_site_build(self, build_id: 'str') -> 'SiteBuild'
+[T-005] launch_agents.persistence.repository:Repository.latest_site_build(self, case_id: 'str') -> 'SiteBuild | None'
+[T-005] launch_agents.persistence.repository:Repository.list_audit(self, case_id: 'str', document_id: 'str | None' = None) -> 'list[AuditEntry]'
+[T-005] launch_agents.persistence.repository:Repository.list_cases(self, case_ids: 'Sequence[str]') -> 'list[CaseRecord]'
+[T-005] launch_agents.persistence.repository:Repository.list_documents(self, case_id: 'str') -> 'list[Document]'
+[T-005] launch_agents.persistence.repository:Repository.list_messages(self, case_id: 'str', after_seq: 'int | None' = None, limit: 'int | None' = None) -> 'list[ChatMessage]'
+[T-005] launch_agents.persistence.repository:Repository.list_site_builds(self, case_id: 'str') -> 'list[SiteBuild]'
+[T-005] launch_agents.persistence.repository:Repository.save_case(self, case: 'CaseRecord') -> 'CaseRecord'
+[T-005] launch_agents.persistence.repository:Repository.save_document(self, doc: 'Document', *, expected_version: 'int | None', created_by: 'str') -> 'Document'
+[T-005] launch_agents.persistence.repository:Repository.save_site_build(self, build: 'SiteBuild') -> 'SiteBuild'
+[T-005] launch_agents.persistence.repository:Repository.set_billing_user(self, case_id: 'str', user_id: 'str') -> 'None'
+[T-005] launch_agents.persistence.repository:Repository.set_checklist_item(self, case_id: 'str', item_id: 'str', done: 'bool', updated_by: 'str | None') -> 'None'
+[T-005] launch_agents.persistence.repository:Repository.transaction(self) -> "Iterator['Repository']"
+[T-006] launch_agents.agents.law.agent:LawAgent.handle(self, ctx: 'AgentContext') -> 'AgentReply'
+[T-006] launch_agents.agents.law.documents:draft_documents(facts: 'CaseFacts', cap_table: 'CapTable', today: 'date') -> 'list[DraftDocument]'
+[T-006] launch_agents.agents.law.issues:spot_legal_issues(facts: 'CaseFacts', state: 'CaseState', today: 'date') -> 'list[LegalIssue]'
+[T-007] launch_agents.adapters.rdap:RdapDomainChecker.check(self, domain: 'str') -> 'DomainCheck'
+[T-007] launch_agents.agents.name.agent:NameAgent.handle(self, ctx: 'AgentContext') -> 'AgentReply'
+[T-007] launch_agents.agents.name.agent:check_candidate(suggestion: 'NameSuggestion', checker: 'DomainChecker', state_code: 'str | None', now: 'datetime') -> 'NameCandidate'
+[T-007] launch_agents.agents.name.agent:suggest_names(facts: 'CaseFacts', llm: 'LLMProvider', count: 'int' = 5) -> 'list[NameSuggestion]'
+[T-008] launch_agents.adapters.netlify:NetlifySiteHost.deploy(self, site_slug: 'str', bundle: 'SiteBundle') -> 'DeployResult'
+[T-008] launch_agents.agents.website.agent:WebsiteAgent.handle(self, ctx: 'AgentContext') -> 'AgentReply'
+[T-008] launch_agents.agents.website.content:fix_content(content: 'SiteContent', issues: 'list[QaIssue]', facts: 'CaseFacts', llm: 'LLMProvider') -> 'SiteContent'
+[T-008] launch_agents.agents.website.content:generate_content(facts: 'CaseFacts', llm: 'LLMProvider') -> 'SiteContent'
+[T-008] launch_agents.agents.website.content:revise_content(content: 'SiteContent', change_request: 'str', facts: 'CaseFacts', llm: 'LLMProvider') -> 'SiteContent'
+[T-008] launch_agents.agents.website.renderer:render_site(content: 'SiteContent') -> 'SiteBundle'
+[T-008] launch_agents.agents.website.renderer:required_pages(facts: 'CaseFacts') -> 'list[str]'
+[T-009] launch_agents.agents.qa.checks:deterministic_checks(bundle: 'SiteBundle', facts: 'CaseFacts') -> 'list[QaCheckResult]'
+[T-009] launch_agents.agents.qa.checks:qa_summary_message(report: 'QaReport') -> 'ChatMessage'
+[T-009] launch_agents.agents.qa.checks:run_qa(bundle: 'SiteBundle', facts: 'CaseFacts', llm: 'LLMProvider', *, round: 'int' = 0, now: 'datetime') -> 'QaReport'
+[T-010] launch_agents.agents.guide.agent:GuideAgent.handle(self, ctx: 'AgentContext') -> 'AgentReply'
+[T-010] launch_agents.agents.guide.agent:build_guide(facts: 'CaseFacts', *, chosen_domain: 'str | None', deployed_url: 'str | None') -> 'RegistrationGuide'
+[T-011] launch_agents.devtools.ui_run:assert_no_horizontal_scroll(page: "'Page'") -> 'None'
+[T-011] launch_agents.devtools.ui_run:assert_no_raw_json(page: "'Page'") -> 'None'
+[T-011] launch_agents.devtools.ui_run:build_frontend(*, force: 'bool' = False) -> 'Path'
+[T-011] launch_agents.devtools.ui_run:capture_matrix(browser: "'Browser'", url: 'str', name: 'str', out_dir: 'Path', *, prepare: "Callable[['Page'], None] | None" = None, storage_state: 'str | None' = None) -> 'list[Path]'
+[T-011] launch_agents.devtools.ui_run:login(page: "'Page'", app: 'RunningApp', who: 'str' = 'alice') -> 'None'
+[T-011] launch_agents.devtools.ui_run:running_app(*, seed_stage: 'str | None' = None, plan: 'str' = 'launch', demo_mode: 'bool' = True, env: 'Mapping[str, str] | None' = None) -> 'Iterator[RunningApp]'
+[T-012] launch_agents.agents.manager.agent:ManagerAgent.handle(self, ctx: 'AgentContext') -> 'AgentReply'
+[T-012] launch_agents.agents.manager.agent:facts_summary(facts: 'CaseFacts') -> 'str'
+[T-012] launch_agents.agents.manager.agent:next_question(result: 'ValidationResult') -> 'ChatMessage'
+[T-012] launch_agents.orchestrator.graph:build_graph(deps: 'AgentDeps') -> 'Any'
+[T-012] launch_agents.orchestrator.graph:handle_turn(turn: 'TurnInput', deps: 'AgentDeps') -> 'TurnResult'
+[T-013] launch_agents.pipelines.website:build_site(facts: 'CaseFacts', llm: 'LLMProvider', *, previous: 'SiteContent | None' = None, change_request: 'str | None' = None, now: 'datetime') -> 'PipelineResult'
+[T-013] launch_agents.pipelines.website:deploy_build(build: 'SiteBuild', host: 'SiteHost', site_slug: 'str', *, override_qa: 'bool') -> 'DeployResult'
+[T-013] launch_agents.workflows.website:WebsiteService.download_zip(self, access: 'CaseAccess') -> 'bytes'
+[T-013] launch_agents.workflows.website:WebsiteService.latest(self, access: 'CaseAccess') -> 'SiteBuild | None'
+[T-013] launch_agents.workflows.website:WebsiteService.preview_file(self, access: 'CaseAccess', path: 'str') -> 'SiteFile'
+[T-013] launch_agents.workflows.website:WebsiteService.request_build(self, access: 'CaseAccess', change_request: 'str | None' = None) -> 'JobRecord'
+[T-013] launch_agents.workflows.website:WebsiteService.request_deploy(self, access: 'CaseAccess', *, override_qa: 'bool' = False) -> 'JobRecord'
+[T-013] launch_agents.workflows.website:WebsiteService.run_build(self, case_id: 'str', change_request: 'str | None', actor: 'Actor') -> 'SiteBuildOutcome'
+[T-013] launch_agents.workflows.website:WebsiteService.run_deploy(self, case_id: 'str', actor: 'Actor', *, override_qa: 'bool') -> 'SiteBuildOutcome'
+[T-013] launch_agents.workflows.website:register_website_jobs(registry: 'JobRegistry', service: 'WebsiteService') -> 'None'
+[T-014] launch_agents.workflows.case:CaseService.choose_name(self, access: 'CaseAccess', name: 'str', domain: 'str | None' = None) -> 'CaseView'
+[T-014] launch_agents.workflows.case:CaseService.create_case(self, ctx: 'RequestContext') -> 'CaseView'
+[T-014] launch_agents.workflows.case:CaseService.delete_case(self, access: 'CaseAccess') -> 'None'
+[T-014] launch_agents.workflows.case:CaseService.get_guide(self, access: 'CaseAccess') -> 'GuideView'
+[T-014] launch_agents.workflows.case:CaseService.get_view(self, access: 'CaseAccess') -> 'CaseView'
+[T-014] launch_agents.workflows.case:CaseService.list_cases(self, ctx: 'RequestContext') -> 'list[CaseSummary]'
+[T-014] launch_agents.workflows.case:CaseService.list_messages(self, access: 'CaseAccess', after_seq: 'int | None' = None) -> 'list[ChatMessage]'
+[T-014] launch_agents.workflows.case:CaseService.post_message(self, access: 'CaseAccess', text: 'str') -> 'PostMessageResult'
+[T-014] launch_agents.workflows.case:CaseService.recheck_names(self, access: 'CaseAccess') -> 'list[NameCandidate]'
+[T-014] launch_agents.workflows.case:CaseService.set_guide_item(self, access: 'CaseAccess', item_id: 'str', done: 'bool') -> 'GuideView'
+[T-015] launch_agents.workflows.legal:LegalService.audit(self, access: 'CaseAccess') -> 'list[AuditEntry]'
+[T-015] launch_agents.workflows.legal:LegalService.cap_table(self, access: 'CaseAccess') -> 'CapTable'
+[T-015] launch_agents.workflows.legal:LegalService.cap_table_csv(self, access: 'CaseAccess') -> 'str'
+[T-015] launch_agents.workflows.legal:LegalService.cap_table_xlsx(self, access: 'CaseAccess') -> 'bytes'
+[T-015] launch_agents.workflows.legal:LegalService.docx(self, access: 'CaseAccess', document_id: 'str') -> 'tuple[str, bytes]'
+[T-015] launch_agents.workflows.legal:LegalService.edit(self, access: 'CaseAccess', document_id: 'str', req: 'EditRequest') -> 'EditOutcome'
+[T-015] launch_agents.workflows.legal:LegalService.generate_documents(self, access: 'CaseAccess') -> 'DocumentsOutcome'
+[T-015] launch_agents.workflows.legal:LegalService.get_document(self, access: 'CaseAccess', document_id: 'str') -> 'Document'
+[T-015] launch_agents.workflows.legal:LegalService.legal_complete(self, access: 'CaseAccess') -> 'bool'
+[T-015] launch_agents.workflows.legal:LegalService.list_documents(self, access: 'CaseAccess') -> 'list[Document]'
+[T-015] launch_agents.workflows.legal:LegalService.regenerate_if_drafted(self, access: 'CaseAccess') -> 'DocumentsOutcome'
+[T-015] launch_agents.workflows.legal:LegalService.sign(self, access: 'CaseAccess', document_id: 'str', req: 'SignRequest') -> 'Document'
+[T-015] launch_agents.workflows.legal:LegalService.signed_pdf(self, access: 'CaseAccess', document_id: 'str') -> 'tuple[str, bytes]'
+[T-016] launch_agents.api.deps:clear_session_cookie(response: 'Response', settings: 'Settings') -> 'None'
+[T-016] launch_agents.api.deps:get_ctx(request: 'Request') -> 'RequestContext'
+[T-016] launch_agents.api.deps:rate_limit(cls: 'str') -> 'Callable[..., Any]'
+[T-016] launch_agents.api.deps:require_admin(request: 'Request') -> 'User'
+[T-016] launch_agents.api.deps:require_case(permission: 'Permission') -> 'Callable[..., CaseAccess]'
+[T-016] launch_agents.api.deps:require_user(request: 'Request') -> 'User'
+[T-016] launch_agents.api.deps:set_session_cookie(response: 'Response', raw_token: 'str', settings: 'Settings') -> 'None'
+[T-016] launch_agents.api.middleware:install_middleware(app: 'FastAPI', settings: 'Settings') -> 'None'
+[T-016] launch_agents.composition:build_services(settings: 'Settings', *, jobs: 'JobRunner | None' = None) -> 'Services'
+[T-016] launch_agents.demo.__main__:main(argv: 'Sequence[str] | None' = None) -> 'int'
+[T-016] launch_agents.demo.seed:seed_case(settings: 'Settings', stage: 'str', *, plan: 'PlanId' = <PlanId.LAUNCH: 'launch'>) -> 'SeedResult'
+[T-024] launch_agents.llm.claude_code:ClaudeCodeProvider.complete(self, request: 'LLMRequest') -> 'str'
+[T-024] launch_agents.llm.claude_code:ClaudeCodeProvider.complete_json(self, request: 'LLMRequest', schema: 'type[T]') -> 'T'
+[T-024] launch_agents.llm.claude_code:find_claude_binary(settings: 'Settings', *, home: 'Path | None' = None) -> 'str'
+[T-025] launch_agents.llm.anthropic_provider:AnthropicProvider.complete(self, request: 'LLMRequest') -> 'str'
+[T-025] launch_agents.llm.anthropic_provider:AnthropicProvider.complete_json(self, request: 'LLMRequest', schema: 'type[T]') -> 'T'
+[T-025] launch_agents.llm.openai_compat:OpenAICompatibleProvider.complete(self, request: 'LLMRequest') -> 'str'
+[T-025] launch_agents.llm.openai_compat:OpenAICompatibleProvider.complete_json(self, request: 'LLMRequest', schema: 'type[T]') -> 'T'
+[T-026] launch_agents.accounts.passwords:check_password_policy(password: 'str', *, email: 'str') -> 'None'
+[T-026] launch_agents.accounts.passwords:hash_password(password: 'str') -> 'str'
+[T-026] launch_agents.accounts.passwords:needs_rehash(stored_hash: 'str') -> 'bool'
+[T-026] launch_agents.accounts.passwords:verify_password(stored_hash: 'str', password: 'str') -> 'bool'
+[T-026] launch_agents.accounts.service:AuthService.change_password(self, user: 'User', current: 'str', new: 'str', *, keep_session: 'str') -> 'None'
+[T-026] launch_agents.accounts.service:AuthService.login(self, email: 'str', password: 'str', *, ctx: 'RequestContext') -> 'tuple[User, SessionToken]'
+[T-026] launch_agents.accounts.service:AuthService.logout(self, raw_token: 'str') -> 'None'
+[T-026] launch_agents.accounts.service:AuthService.request_email_verification(self, user: 'User') -> 'None'
+[T-026] launch_agents.accounts.service:AuthService.request_password_reset(self, email: 'str', *, ctx: 'RequestContext') -> 'None'
+[T-026] launch_agents.accounts.service:AuthService.reset_password(self, raw_token: 'str', new_password: 'str') -> 'None'
+[T-026] launch_agents.accounts.service:AuthService.resolve_session(self, raw_token: 'str', *, touch: 'bool' = True) -> 'User | None'
+[T-026] launch_agents.accounts.service:AuthService.signup(self, email: 'str', password: 'str', full_name: 'str', *, ctx: 'RequestContext') -> 'tuple[User, SessionToken]'
+[T-026] launch_agents.accounts.service:AuthService.update_profile(self, user: 'User', *, full_name: 'str') -> 'User'
+[T-026] launch_agents.accounts.service:AuthService.verify_email(self, raw_token: 'str') -> 'User'
+[T-026] launch_agents.persistence.accounts:AccountsRepository.create_session(self, *, token_hash: 'str', user_id: 'str', expires_at: 'datetime', ip: 'str | None', user_agent: 'str | None') -> 'None'
+[T-026] launch_agents.persistence.accounts:AccountsRepository.create_token(self, *, token_hash: 'str', user_id: 'str', purpose: 'str', expires_at: 'datetime') -> 'None'
+[T-026] launch_agents.persistence.accounts:AccountsRepository.create_user(self, *, email: 'str', full_name: 'str', password_hash: 'str') -> 'User'
+[T-026] launch_agents.persistence.accounts:AccountsRepository.delete_user(self, user_id: 'str') -> 'None'
+[T-026] launch_agents.persistence.accounts:AccountsRepository.find_user_by_email(self, email: 'str') -> 'User | None'
+[T-026] launch_agents.persistence.accounts:AccountsRepository.get_password_hash(self, user_id: 'str') -> 'str'
+[T-026] launch_agents.persistence.accounts:AccountsRepository.get_session(self, token_hash: 'str') -> 'SessionRecord | None'
+[T-026] launch_agents.persistence.accounts:AccountsRepository.get_user(self, user_id: 'str') -> 'User'
+[T-026] launch_agents.persistence.accounts:AccountsRepository.list_users(self, *, query: 'str | None', offset: 'int', limit: 'int') -> 'list[User]'
+[T-026] launch_agents.persistence.accounts:AccountsRepository.revoke_session(self, token_hash: 'str') -> 'None'
+[T-026] launch_agents.persistence.accounts:AccountsRepository.revoke_user_sessions(self, user_id: 'str', *, except_hash: 'str | None' = None) -> 'int'
+[T-026] launch_agents.persistence.accounts:AccountsRepository.set_password_hash(self, user_id: 'str', h: 'str') -> 'None'
+[T-026] launch_agents.persistence.accounts:AccountsRepository.touch_session(self, token_hash: 'str', *, now: 'datetime', expires_at: 'datetime') -> 'None'
+[T-026] launch_agents.persistence.accounts:AccountsRepository.update_user(self, user_id: 'str', **fields: 'Any') -> 'User'
+[T-026] launch_agents.persistence.accounts:AccountsRepository.use_token(self, token_hash: 'str', purpose: 'str', *, now: 'datetime') -> 'str'
+[T-027] launch_agents.access.policy:authorize_case(ctx: 'RequestContext', case_id: 'str', permission: 'Permission', *, team: 'TeamRepository', repo: 'Repository', entitlements: 'EntitlementsProvider') -> 'CaseAccess'
+[T-027] launch_agents.persistence.team:TeamRepository.add_member(self, m: 'Membership') -> 'Membership'
+[T-027] launch_agents.persistence.team:TeamRepository.create_invite(self, invite: 'Invite', *, token_hash: 'str') -> 'Invite'
+[T-027] launch_agents.persistence.team:TeamRepository.find_invite_by_token(self, token_hash: 'str') -> 'Invite | None'
+[T-027] launch_agents.persistence.team:TeamRepository.get_membership(self, case_id: 'str', user_id: 'str') -> 'Membership | None'
+[T-027] launch_agents.persistence.team:TeamRepository.list_invites(self, case_id: 'str') -> 'list[Invite]'
+[T-027] launch_agents.persistence.team:TeamRepository.list_members(self, case_id: 'str') -> 'list[Membership]'
+[T-027] launch_agents.persistence.team:TeamRepository.mark_invite(self, invite_id: 'str', *, accepted_at: 'datetime | None' = None, revoked_at: 'datetime | None' = None) -> 'Invite'
+[T-027] launch_agents.persistence.team:TeamRepository.member_case_ids(self, user_id: 'str') -> 'list[str]'
+[T-027] launch_agents.persistence.team:TeamRepository.remove_member(self, case_id: 'str', user_id: 'str') -> 'None'
+[T-027] launch_agents.persistence.team:TeamRepository.update_member(self, case_id: 'str', user_id: 'str', **fields: 'Any') -> 'Membership'
+[T-027] launch_agents.team.service:TeamService.accept_invite(self, raw_token: 'str', user: 'User') -> 'Membership'
+[T-027] launch_agents.team.service:TeamService.add_owner(self, case_id: 'str', user: 'User', *, founder_id: 'str | None' = None) -> 'Membership'
+[T-027] launch_agents.team.service:TeamService.invite(self, access: 'CaseAccess', *, email: 'str', founder_id: 'str | None') -> 'Invite'
+[T-027] launch_agents.team.service:TeamService.link_founder(self, access: 'CaseAccess', user_id: 'str', founder_id: 'str') -> 'Membership'
+[T-027] launch_agents.team.service:TeamService.list_invites(self, access: 'CaseAccess') -> 'list[Invite]'
+[T-027] launch_agents.team.service:TeamService.members(self, access: 'CaseAccess') -> 'list[MemberView]'
+[T-027] launch_agents.team.service:TeamService.preview_invite(self, raw_token: 'str') -> 'InvitePreview'
+[T-027] launch_agents.team.service:TeamService.remove_member(self, access: 'CaseAccess', user_id: 'str') -> 'None'
+[T-027] launch_agents.team.service:TeamService.revoke_invite(self, access: 'CaseAccess', invite_id: 'str') -> 'None'
+[T-028] launch_agents.adapters.smtp_email:SmtpEmailSender.send(self, message: 'EmailMessage') -> 'SendResult'
+[T-028] launch_agents.email.outbox:OutboxMailer.send(self, template: 'EmailTemplate', to: 'str', data: 'Mapping[str, Any]', *, user_id: 'str | None' = None, case_id: 'str | None' = None, dedupe_key: 'str | None' = None) -> 'str | None'
+[T-028] launch_agents.email.outbox:send_outbox_email(job: 'JobRecord', ctx: 'JobContext', *, outbox: 'EmailOutboxRepository', sender: 'EmailSender') -> 'dict'
+[T-028] launch_agents.email.senders:ConsoleEmailSender.send(self, message: 'EmailMessage') -> 'SendResult'
+[T-028] launch_agents.email.senders:FileDropEmailSender.send(self, message: 'EmailMessage') -> 'SendResult'
+[T-028] launch_agents.email.templates:render_email(template: 'EmailTemplate', data: 'Mapping[str, Any]', *, brand_name: 'str', base_url: 'str') -> 'EmailMessage'
+[T-028] launch_agents.persistence.email_outbox:EmailOutboxRepository.add(self, message: 'EmailMessage', *, user_id: 'str | None', case_id: 'str | None', dedupe_key: 'str | None') -> 'str | None'
+[T-028] launch_agents.persistence.email_outbox:EmailOutboxRepository.get(self, outbox_id: 'str') -> 'OutboxEmail'
+[T-028] launch_agents.persistence.email_outbox:EmailOutboxRepository.list_recent(self, *, status: 'str | None' = None, limit: 'int' = 100) -> 'list[OutboxEmail]'
+[T-028] launch_agents.persistence.email_outbox:EmailOutboxRepository.mark_failed(self, outbox_id: 'str', error: 'str', *, now: 'datetime') -> 'None'
+[T-028] launch_agents.persistence.email_outbox:EmailOutboxRepository.mark_sent(self, outbox_id: 'str', provider_id: 'str | None', *, now: 'datetime') -> 'None'
+[T-029] launch_agents.adapters.stripe_payments:StripePaymentGateway.change_subscription_price(self, *, subscription_id: 'str', price_id: 'str') -> 'PaymentEvent'
+[T-029] launch_agents.adapters.stripe_payments:StripePaymentGateway.create_checkout_session(self, *, customer_id: 'str', price_id: 'str', user_id: 'str', success_url: 'str', cancel_url: 'str') -> 'CheckoutSession'
+[T-029] launch_agents.adapters.stripe_payments:StripePaymentGateway.create_customer(self, *, email: 'str', user_id: 'str') -> 'str'
+[T-029] launch_agents.adapters.stripe_payments:StripePaymentGateway.create_portal_session(self, *, customer_id: 'str', return_url: 'str') -> 'str'
+[T-029] launch_agents.adapters.stripe_payments:StripePaymentGateway.parse_webhook(self, payload: 'bytes', signature_header: 'str | None') -> 'PaymentEvent'
+[T-029] launch_agents.adapters.stripe_payments:StripePaymentGateway.price_amount(self, price_id: 'str') -> 'tuple[int, BillingInterval] | None'
+[T-029] launch_agents.billing.service:BillingService.change_plan(self, user: 'User', plan: 'PlanId', interval: 'BillingInterval') -> 'Subscription'
+[T-029] launch_agents.billing.service:BillingService.check_prices(self) -> 'list[PriceCheck]'
+[T-029] launch_agents.billing.service:BillingService.complete_test_checkout(self, session_id: 'str') -> 'None'
+[T-029] launch_agents.billing.service:BillingService.handle_webhook(self, payload: 'bytes', signature_header: 'str | None') -> 'None'
+[T-029] launch_agents.billing.service:BillingService.overview(self, user: 'User') -> 'BillingOverview'
+[T-029] launch_agents.billing.service:BillingService.plans(self) -> 'list[Plan]'
+[T-029] launch_agents.billing.service:BillingService.portal_url(self, user: 'User') -> 'str'
+[T-029] launch_agents.billing.service:BillingService.start_checkout(self, user: 'User', plan: 'PlanId', interval: 'BillingInterval') -> 'CheckoutSession'
+[T-029] launch_agents.billing.service:BillingService.subscription(self, user: 'User') -> 'Subscription'
+[T-029] launch_agents.billing.service:DbEntitlements.for_user(self, user_id: 'str | None') -> 'Entitlements'
+[T-029] launch_agents.billing.service:plan_for_price(settings: 'Settings', price_id: 'str') -> 'tuple[PlanId, BillingInterval] | None'
+[T-029] launch_agents.billing.service:price_id_for(settings: 'Settings', plan: 'PlanId', interval: 'BillingInterval') -> 'str'
+[T-030] launch_agents.jobs.__main__:main(argv: 'Sequence[str] | None' = None) -> 'int'
+[T-030] launch_agents.jobs.runner:DbJobRunner.enqueue(self, kind: 'str', payload: 'dict[str, Any]', *, case_id: 'str | None' = None, user_id: 'str | None' = None, run_at: 'datetime | None' = None, max_attempts: 'int' = 3, dedupe_key: 'str | None' = None) -> 'JobRecord'
+[T-030] launch_agents.jobs.runner:DbJobRunner.get(self, job_id: 'str') -> 'JobRecord'
+[T-030] launch_agents.jobs.runner:DbJobRunner.list_for_case(self, case_id: 'str', *, limit: 'int' = 20) -> 'list[JobRecord]'
+[T-030] launch_agents.jobs.runner:DbJobRunner.retry(self, job_id: 'str') -> 'JobRecord'
+[T-030] launch_agents.jobs.worker:Scheduler.tick(self) -> 'list[JobRecord]'
+[T-030] launch_agents.jobs.worker:Worker.run_forever(self, stop: 'threading.Event') -> 'None'
+[T-030] launch_agents.jobs.worker:Worker.run_once(self) -> 'bool'
+[T-030] launch_agents.jobs.worker:start_embedded_worker(services: "'Services'") -> 'threading.Thread'
+[T-031] launch_agents.pdf.render:markdown_blocks(content: 'str') -> 'list[Block]'
+[T-031] launch_agents.pdf.render:render_docx(doc: 'Document', *, company_name: 'str', brand_name: 'str' = 'Charterly') -> 'bytes'
+[T-031] launch_agents.pdf.render:render_signed_pdf(doc: 'Document', *, company_name: 'str', signers: 'Mapping[str, SignerInfo]', audit: 'Sequence[AuditEntry]', generated_at: 'datetime', brand_name: 'str' = 'Charterly') -> 'bytes'
+[T-032] launch_agents.security.csrf:check_csrf(method: 'str', path: 'str', header_token: 'str | None', cookie_token: 'str | None', origin: 'str | None', settings: 'Settings') -> 'None'
+[T-032] launch_agents.security.csrf:issue_csrf_token(secret: 'str', session_key: 'str') -> 'str'
+[T-032] launch_agents.security.headers:SecurityHeadersMiddleware.__call__(self, scope: 'Any', receive: 'Any', send: 'Any') -> 'None'
+[T-032] launch_agents.security.headers:security_headers(path: 'str', settings: 'Settings') -> 'dict[str, str]'
+[T-032] launch_agents.security.metering:MeteredLLM.complete(self, request: 'LLMRequest') -> 'str'
+[T-032] launch_agents.security.metering:MeteredLLM.complete_json(self, request: 'LLMRequest', schema: 'type[T]') -> 'T'
+[T-032] launch_agents.security.pii:scrub(text: 'str') -> 'ScrubResult'
+[T-032] launch_agents.security.rate_limit:RateLimiter.hit(self, cls: 'str', *, keys: 'Mapping[str, str]') -> 'None'
+[T-033] launch_agents.observability.errors:load_error_reporter(dotted: 'str | None') -> 'ErrorReporter'
+[T-033] launch_agents.observability.errors:report_error(exc: 'BaseException', **context: 'Any') -> 'None'
+[T-033] launch_agents.observability.logs:RedactingFilter.filter(self, record: 'logging.LogRecord') -> 'bool'
+[T-033] launch_agents.observability.logs:configure_logging(settings: 'Settings') -> 'None'
+[T-033] launch_agents.observability.logs:current_request_id() -> 'str | None'
+[T-033] launch_agents.observability.logs:log_context(**fields: 'Any') -> 'Iterator[None]'
+[T-033] launch_agents.observability.middleware:RequestContextMiddleware.__call__(self, scope: 'Any', receive: 'Any', send: 'Any') -> 'None'
+[T-035] launch_agents.notifications.notifier:EmailNotifier.document_executed(self, case_id: 'str', document: 'Document') -> 'None'
+[T-035] launch_agents.notifications.notifier:EmailNotifier.signatures_needed(self, case_id: 'str', document: 'Document', founder_ids: 'Sequence[str]') -> 'None'
+[T-035] launch_agents.notifications.notifier:ReminderSweep.run(self, job: 'JobRecord | None' = None, ctx: 'JobContext | None' = None) -> 'dict[str, Any]'
+[T-035] launch_agents.notifications.notifier:register_notification_jobs(registry: 'JobRegistry', sweep: 'ReminderSweep') -> 'None'
+[T-037] launch_agents.privacy.service:PrivacyService.delete_account(self, user: 'User', *, password: 'str', confirm: 'str') -> 'DeletionReport'
+[T-037] launch_agents.privacy.service:PrivacyService.export_zip(self, user: 'User') -> 'tuple[str, bytes]'
+[T-038] launch_agents.admin.__main__:main(argv: 'Sequence[str] | None' = None) -> 'int'
+[T-038] launch_agents.admin.service:AdminService.companies(self, *, query: 'str | None', page: 'int') -> 'Page[AdminCaseRow]'
+[T-038] launch_agents.admin.service:AdminService.emails(self, *, status: 'str | None', page: 'int') -> 'Page[OutboxEmailRow]'
+[T-038] launch_agents.admin.service:AdminService.jobs(self, *, status: 'JobStatus | None', page: 'int') -> 'Page[JobRecord]'
+[T-038] launch_agents.admin.service:AdminService.retry_job(self, admin: 'User', job_id: 'str') -> 'JobRecord'
+[T-038] launch_agents.admin.service:AdminService.system(self) -> 'SystemInfo'
+[T-038] launch_agents.admin.service:AdminService.usage(self, *, month: 'str') -> 'list[AdminUsageRow]'
+[T-038] launch_agents.admin.service:AdminService.users(self, *, query: 'str | None', page: 'int', plan: 'PlanId | None' = None) -> 'Page[AdminUserRow]'
+
+237 stubs across 28 owner tickets
+
+FEATURE RUN T-001: OK
