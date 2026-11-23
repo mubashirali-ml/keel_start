@@ -1,0 +1,64 @@
+# Recorded feature run
+ticket:      T-005
+branch:      ticket/T-005
+commit:      b29b543067896479139f90a9f43219c5c0ea0807
+uncommitted: 0 file(s) outside evidence/ and prs/
+recorded_at: 2026-11-23T11:50:07Z
+python:      3.12.10
+command:     bash scripts/py.sh evidence/T-005/feature_run.py
+exit_code:   0
+----------------------------------------------------------------------
+SQLite file: <tmp>/feature_run.db
+=== SQLite ===
+  migration head: 0001_initial
+  schema_is_current: True
+  tables (21): admin_audit, audit_log, auth_tokens, billing_events, cases, checklist_items, document_versions, documents, email_outbox, invites, jobs, llm_usage, memberships, messages, rate_limits, sessions, signatures, site_builds, subscriptions, users, worker_heartbeats
+company
+  id: case_5fccba0fc779
+  created_by / billing_user_id: usr_4063c43a78e4 / usr_4063c43a78e4
+  equity: ['62.5', '37.5']
+messages
+  seq 1: [founder/f1] We want to form a Wyoming LLC.
+  seq 2: [agent/manager] Manager brought in the Law Agent
+  seq 3: [agent/law] I drafted your IP assignment.
+document v1 signed; evidence:
+  founder_id: f1
+  version: 1
+  signed_at: 2026-11-23T10:05:00Z
+  user_id: usr_4063c43a78e4
+  typed_name: Alice Chen
+  consent_version: esign-2026-11
+  content_sha256: ad5ffabd4eb8d90b7ad4b33701531a9a0e4bb2f4c767f90c8ae4a4ab922e7d0f
+  ip: 203.0.113.7
+  user_agent: Mozilla/5.0 (feature run)
+  acted_by_user_id: None
+  stale save (expected_version=1 while at v2): rejected: stale_version {'document_id': 'doc_b5cb10078790', 'current_version': 2, 'expected_version': 1}
+  document now: v2, signatures on current version: 0
+audit
+  #1: facts_locked by system (None->None)
+  #2: created by law (None->1)
+  #3: signed by f1 (1->1)
+  #4: edited by f1 (1->2)
+  checklist: {'file_articles': True, 'get_ein': False}
+  site build: v1 qa_passed, 1 file(s)
+read back through a new engine
+  company: Crumb Ledger LLC, founders [('f1', '62.5'), ('f2', '37.5')], active agent law
+  messages: [1, 2, 3]
+  document: v2 awaiting_signatures
+  audit: ['facts_locked', 'created', 'signed', 'edited']
+  checklist: {'file_articles': True, 'get_ein': False}
+  site build: v1 files=['index.html']
+  equal to what was stored: True
+  document_versions rows: [1, 2]
+  signature history rows (version, typed name): [(1, 'Alice Chen')]
+after delete_case
+  messages: 0
+  documents: 0
+  document_versions: 0
+  signatures: 0
+  audit_log: 0
+  checklist_items: 0
+  site_builds: 0
+=== SQLite: OK ===
+PostgreSQL part skipped: LAUNCH_TEST_POSTGRES_URL is not set
+FEATURE RUN T-005: OK
