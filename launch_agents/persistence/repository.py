@@ -218,6 +218,24 @@ class Repository:
         with self.engine.begin() as connection:
             yield connection
 
+    @staticmethod
+    @contextmanager
+    def _savepoint(conn: Connection) -> Iterator[None]:
+        """Wraps one statement that may violate a constraint, so that a caught ``IntegrityError``
+        (turned into ``ConflictError``) leaves an enclosing ``transaction()`` usable.
+
+        PostgreSQL aborts the whole transaction on a failed statement, so there the statement
+        runs inside a ``SAVEPOINT`` (``begin_nested``) and only the savepoint is rolled back.
+        SQLite already rolls back just the failing statement and keeps the transaction open. A
+        savepoint there would do harm: with pysqlite's legacy transaction handling no ``BEGIN``
+        has been sent before the first write, so ``RELEASE SAVEPOINT`` would commit the work of
+        an enclosing ``transaction()`` early and its rollback would no longer undo it."""
+        if conn.dialect.name == "postgresql":
+            with conn.begin_nested():
+                yield
+        else:
+            yield
+
     # ------------------------------------------------------------------------------------
     # existence checks
     # ------------------------------------------------------------------------------------
@@ -394,12 +412,19 @@ class Repository:
     def save_document(self, doc: Document, *, expected_version: int | None, created_by: str) -> Document:
         """Insert when new; else the stored version must equal ``expected_version``
         (``StaleVersionError``); writes ``document_versions`` for a new version; replaces the
-        current version's signatures, with every evidence field."""
+        current version's signatures, with every evidence field.
+
+        One document per (case, kind, founder), company-wide documents (no founder) included:
+        another one raises ``ConflictError`` and leaves an enclosing ``transaction()`` usable.
+        A document never moves to another company (``NotFoundError``)."""
         for sig in doc.signatures:
             if sig.version != doc.version:
                 raise ValueError(
                     f"signature of {sig.founder_id} is for version {sig.version}, document is at {doc.version}"
                 )
+        signers = [s.founder_id for s in doc.signatures]
+        if len(signers) != len(set(signers)):
+            raise ValueError(f"each founder signs version {doc.version} at most once: {signers}")
         now_values = {
             "kind": doc.kind.value,
             "founder_id": doc.founder_id,
@@ -410,24 +435,43 @@ class Repository:
             "required_signers_json": _dumps(list(doc.required_signers)),
             "updated_at": _to_db(doc.updated_at),
         }
+        conflict = ConflictError(
+            "That document already exists for this company.",
+            details={"case_id": doc.case_id, "kind": doc.kind.value, "founder_id": doc.founder_id},
+        )
         with self._tx() as conn:
+            # The company's write lock comes first: saves of one company's documents serialise,
+            # so two concurrent inserts cannot both pass the (case, kind, founder) check below.
+            self._lock_case(conn, doc.case_id)
             stored = conn.execute(
                 select(documents.c.case_id, documents.c.version).where(documents.c.id == doc.id)
             ).first()
+            if stored is not None and stored.case_id != doc.case_id:
+                raise NotFoundError("We couldn't find that document.",
+                                    details={"document_id": doc.id, "case_id": doc.case_id})
             self._require_users(
                 conn, [u for s in doc.signatures for u in (s.user_id, s.acted_by_user_id)]
             )
+            # One document per (case, kind, founder). UNIQUE(case_id, kind, founder_id) does not
+            # cover company-wide documents: NULL founder ids never collide, on either database.
+            same_founder = (documents.c.founder_id.is_(None) if doc.founder_id is None
+                            else documents.c.founder_id == doc.founder_id)
+            twin = conn.execute(
+                select(documents.c.id).where(and_(
+                    documents.c.case_id == doc.case_id, documents.c.kind == doc.kind.value,
+                    same_founder, documents.c.id != doc.id,
+                ))
+            ).first()
+            if twin is not None:
+                raise conflict
             if stored is None:
-                self._require_case(conn, doc.case_id)
                 try:
-                    conn.execute(insert(documents).values(
-                        id=doc.id, case_id=doc.case_id, created_at=_to_db(doc.created_at), **now_values
-                    ))
+                    with self._savepoint(conn):
+                        conn.execute(insert(documents).values(
+                            id=doc.id, case_id=doc.case_id, created_at=_to_db(doc.created_at), **now_values
+                        ))
                 except IntegrityError as exc:
-                    raise ConflictError(
-                        "That document already exists for this company.",
-                        details={"case_id": doc.case_id, "kind": doc.kind.value, "founder_id": doc.founder_id},
-                    ) from exc
+                    raise conflict from exc
             else:
                 if expected_version is None or stored.version != expected_version:
                     raise StaleVersionError(
@@ -435,11 +479,15 @@ class Repository:
                         details={"document_id": doc.id, "current_version": stored.version,
                                  "expected_version": expected_version},
                     )
-                result = conn.execute(
-                    update(documents)
-                    .where(and_(documents.c.id == doc.id, documents.c.version == expected_version))
-                    .values(**now_values)
-                )
+                try:
+                    with self._savepoint(conn):
+                        result = conn.execute(
+                            update(documents)
+                            .where(and_(documents.c.id == doc.id, documents.c.version == expected_version))
+                            .values(**now_values)
+                        )
+                except IntegrityError as exc:
+                    raise conflict from exc
                 if result.rowcount == 0:  # someone else saved in between
                     current = conn.execute(select(documents.c.version).where(documents.c.id == doc.id)).scalar()
                     raise StaleVersionError(
@@ -601,16 +649,22 @@ class Repository:
     # site builds
     # ------------------------------------------------------------------------------------
     def save_site_build(self, build: SiteBuild) -> SiteBuild:
-        """Insert or update by id."""
+        """Insert or update by id. ``ConflictError`` when the company already has another build
+        with that version (an enclosing ``transaction()`` stays usable). An update never moves a
+        build to another company (``NotFoundError``)."""
         values = _build_values(build)
         with self._tx() as conn:
-            self._require_case(conn, build.case_id)
-            exists = conn.execute(select(site_builds.c.id).where(site_builds.c.id == build.id)).first()
+            self._lock_case(conn, build.case_id)
+            stored = conn.execute(select(site_builds.c.case_id).where(site_builds.c.id == build.id)).first()
+            if stored is not None and stored.case_id != build.case_id:
+                raise NotFoundError("We couldn't find that website build.",
+                                    details={"build_id": build.id, "case_id": build.case_id})
             try:
-                if exists is None:
-                    conn.execute(insert(site_builds).values(id=build.id, **values))
-                else:
-                    conn.execute(update(site_builds).where(site_builds.c.id == build.id).values(**values))
+                with self._savepoint(conn):
+                    if stored is None:
+                        conn.execute(insert(site_builds).values(id=build.id, **values))
+                    else:
+                        conn.execute(update(site_builds).where(site_builds.c.id == build.id).values(**values))
             except IntegrityError as exc:
                 raise ConflictError(
                     "That website version already exists for this company.",

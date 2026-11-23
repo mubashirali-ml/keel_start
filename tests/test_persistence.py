@@ -22,6 +22,7 @@ from launch_agents.domain.documents import (
     DocumentStatus,
     Signature,
 )
+from launch_agents.domain.constants import ESIGN_CONSENT_VERSION
 from launch_agents.domain.errors import ConflictError, NotFoundError, StaleVersionError
 from launch_agents.domain.helpers import document_sha256
 from launch_agents.domain.messages import (
@@ -162,7 +163,7 @@ def make_signature(founder_id: str, version: int, content: str, *, user_id: str 
                    acted_by: str | None = None) -> Signature:
     return Signature(
         founder_id=founder_id, version=version, signed_at=T0 + timedelta(minutes=minute), user_id=user_id,
-        typed_name={"f1": "Alice Chen", "f2": "Bob Diaz"}[founder_id], consent_version="esign-2026-11",
+        typed_name={"f1": "Alice Chen", "f2": "Bob Diaz"}[founder_id], consent_version=ESIGN_CONSENT_VERSION,
         content_sha256=document_sha256(content), ip="203.0.113.7", user_agent="Mozilla/5.0 (test)",
         acted_by_user_id=acted_by,
     )
@@ -350,7 +351,7 @@ def test_document_versions_optimistic_check_and_signature_evidence(repo, db_engi
     evidence = {k: getattr(got, k) for k in ("typed_name", "consent_version", "content_sha256", "user_id", "ip",
                                               "user_agent", "acted_by_user_id", "signed_at", "version")}
     assert evidence == {
-        "typed_name": "Alice Chen", "consent_version": "esign-2026-11",
+        "typed_name": "Alice Chen", "consent_version": ESIGN_CONSENT_VERSION,
         "content_sha256": document_sha256("Operating agreement v1"), "user_id": alice, "ip": "203.0.113.7",
         "user_agent": "Mozilla/5.0 (test)", "acted_by_user_id": None, "signed_at": T0 + timedelta(minutes=1),
         "version": 1,
@@ -402,6 +403,38 @@ def test_save_document_rules(repo, db_engine):
     repo.save_document(doc, expected_version=None, created_by="system")
     with pytest.raises(ConflictError):  # one document per (case, kind, founder)
         repo.save_document(doc.model_copy(update={"id": "doc_other"}), expected_version=None, created_by="system")
+
+    # ... company-wide documents (no founder) included, which the UNIQUE constraint misses (NULLs)
+    summary = make_document(case.id, kind=DocumentKind.OPERATING_AGREEMENT_SUMMARY, founder_id=None)
+    repo.save_document(summary, expected_version=None, created_by="system")
+    with pytest.raises(ConflictError):
+        repo.save_document(summary.model_copy(update={"id": "doc_summary_2"}), expected_version=None,
+                           created_by="system")
+    # an update cannot turn a document into a twin of another one either
+    other_founder = make_document(case.id, founder_id="f2")
+    repo.save_document(other_founder, expected_version=None, created_by="system")
+    with pytest.raises(ConflictError):
+        repo.save_document(other_founder.model_copy(update={"founder_id": "f1"}), expected_version=1,
+                           created_by="system")
+    with pytest.raises(ConflictError):
+        repo.save_document(other_founder.model_copy(update={"kind": DocumentKind.OPERATING_AGREEMENT_SUMMARY,
+                                                            "founder_id": None}),
+                           expected_version=1, created_by="system")
+    # the same kind for another company is fine
+    elsewhere = repo.create_case(facts=two_founder_facts())
+    repo.save_document(summary.model_copy(update={"id": "doc_summary_elsewhere", "case_id": elsewhere.id}),
+                       expected_version=None, created_by="system")
+    assert sorted((d.id, d.founder_id or "") for d in repo.list_documents(case.id)) == sorted([
+        (doc.id, "f1"), (other_founder.id, "f2"), (summary.id, ""),
+    ])
+    assert [d.id for d in repo.list_documents(elsewhere.id)] == ["doc_summary_elsewhere"]
+    assert repo.get_document(other_founder.id) == other_founder  # the rejected updates changed nothing
+    with pytest.raises(NotFoundError):  # a document never moves to another company
+        repo.save_document(doc.model_copy(update={"case_id": elsewhere.id}), expected_version=1, created_by="s")
+    with pytest.raises(ValueError):  # a founder signs a version once
+        sig = make_signature("f1", 1, doc.content, user_id=None)
+        repo.save_document(doc.model_copy(update={"signatures": [sig, sig]}), expected_version=1, created_by="f1")
+
     with pytest.raises(NotFoundError):
         repo.save_document(make_document("case_missing", doc_id="doc_x"), expected_version=None, created_by="s")
     with pytest.raises(NotFoundError):  # signer user ids must exist
@@ -413,6 +446,61 @@ def test_save_document_rules(repo, db_engine):
     assert repo.get_document(doc.id) == doc
     with pytest.raises(NotFoundError):
         repo.get_document("doc_missing")
+
+
+def test_concurrent_company_wide_inserts_store_exactly_one(repo):
+    """A double submit of "generate documents": the case lock serialises the inserts, so only
+    one company-wide document survives and the others get ConflictError."""
+    case = repo.create_case(facts=two_founder_facts())
+    outcomes: list[str] = []
+    barrier = threading.Barrier(4)
+
+    def worker(n: int) -> None:
+        summary = make_document(case.id, kind=DocumentKind.OPERATING_AGREEMENT_SUMMARY, founder_id=None,
+                                doc_id=f"doc_summary_{n}")
+        barrier.wait()
+        try:
+            repo.save_document(summary, expected_version=None, created_by="system")
+            outcomes.append("saved")
+        except ConflictError:
+            outcomes.append("conflict")
+        except BaseException as exc:  # pragma: no cover - reported below
+            outcomes.append(repr(exc))
+
+    threads = [threading.Thread(target=worker, args=(n,)) for n in range(4)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    assert sorted(outcomes) == ["conflict", "conflict", "conflict", "saved"]
+    assert len(repo.list_documents(case.id)) == 1
+
+
+def test_concurrent_saves_of_one_version_give_one_winner_and_stale_errors(repo):
+    case = repo.create_case(facts=two_founder_facts())
+    doc = make_document(case.id)
+    repo.save_document(doc, expected_version=None, created_by="system")
+    outcomes: list[str] = []
+    barrier = threading.Barrier(4)
+
+    def worker(n: int) -> None:
+        v2 = doc.model_copy(update={"version": 2, "content": f"v2 by {n}"})
+        barrier.wait()
+        try:
+            repo.save_document(v2, expected_version=1, created_by=f"f{n}")
+            outcomes.append("saved")
+        except StaleVersionError:
+            outcomes.append("stale")
+        except BaseException as exc:  # pragma: no cover - reported below
+            outcomes.append(repr(exc))
+
+    threads = [threading.Thread(target=worker, args=(n,)) for n in range(4)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    assert sorted(outcomes) == ["saved", "stale", "stale", "stale"]
+    assert repo.get_document(doc.id).version == 2
 
 
 def test_list_documents_orders_by_kind_then_founder_order(repo):
@@ -514,6 +602,12 @@ def test_site_builds_round_trip_and_latest_picks_the_highest_version(repo):
     assert repo.latest_site_build(case.id) == deployed and len(repo.list_site_builds(case.id)) == 3
     with pytest.raises(ConflictError):
         repo.save_site_build(make_build(case.id, 2, build_id="site_dup"))
+    with pytest.raises(ConflictError):  # an update onto another build's version
+        repo.save_site_build(v1.model_copy(update={"version": 3}))
+    other = repo.create_case()
+    with pytest.raises(NotFoundError):  # a build never moves to another company
+        repo.save_site_build(v1.model_copy(update={"case_id": other.id}))
+    assert repo.get_site_build(v1.id) == v1 and repo.list_site_builds(other.id) == []
     with pytest.raises(NotFoundError):
         repo.get_site_build("site_missing")
     with pytest.raises(NotFoundError):
@@ -614,6 +708,36 @@ def test_transaction_commits_and_a_domain_error_inside_rolls_back(repo):
             tx.append_messages(case.id, [ChatMessage(role=MessageRole.FOUNDER, content="lost")])
             tx.get_document("doc_missing")
     assert [m.content for m in repo.list_messages(case.id)] == ["kept"]
+
+
+def test_a_caught_conflict_inside_a_transaction_leaves_it_usable(repo):
+    """PostgreSQL aborts a transaction on a failed statement; the repository uses a savepoint
+    there, so a handled ConflictError behaves the same on both databases."""
+    case = repo.create_case(facts=two_founder_facts())
+    doc = make_document(case.id)
+    summary = make_document(case.id, kind=DocumentKind.OPERATING_AGREEMENT_SUMMARY, founder_id=None)
+    with repo.transaction() as tx:
+        tx.save_site_build(make_build(case.id, 1))  # the first write of the transaction
+        with pytest.raises(ConflictError):  # unique (case, version) violated in the database
+            tx.save_site_build(make_build(case.id, 1, build_id="site_dup"))
+        tx.save_document(doc, expected_version=None, created_by="system")
+        with pytest.raises(ConflictError):  # a duplicate document, caught by the explicit check
+            tx.save_document(doc.model_copy(update={"id": "doc_dup"}), expected_version=None, created_by="s")
+        tx.save_document(summary, expected_version=None, created_by="system")
+        with pytest.raises(ConflictError):  # a duplicate company-wide document
+            tx.save_document(summary.model_copy(update={"id": "doc_dup_all"}), expected_version=None,
+                             created_by="s")
+        tx.save_site_build(make_build(case.id, 9))
+        with pytest.raises(ConflictError):  # an update onto another build's version (database constraint)
+            tx.save_site_build(make_build(case.id, 1, build_id="site_v9"))
+        # the transaction is still usable: more writes, then commit
+        tx.set_checklist_item(case.id, "get_ein", True, None)
+        tx.append_messages(case.id, [ChatMessage(role=MessageRole.FOUNDER, content="after the conflicts")])
+        tx.save_site_build(make_build(case.id, 2))
+    assert repo.get_checklist(case.id) == {"get_ein": True}
+    assert [m.content for m in repo.list_messages(case.id)] == ["after the conflicts"]
+    assert [b.id for b in repo.list_site_builds(case.id)] == ["site_v1", "site_v2", "site_v9"]
+    assert sorted(d.id for d in repo.list_documents(case.id)) == sorted([doc.id, summary.id])
 
 
 def test_unknown_ids_raise_not_found(repo):

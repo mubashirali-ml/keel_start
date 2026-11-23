@@ -22,7 +22,8 @@ from pathlib import Path
 from sqlalchemy import delete, func, inspect, insert, select
 
 from launch_agents.domain.documents import AuditAction, AuditEntry, Document, DocumentKind, DocumentStatus, Signature
-from launch_agents.domain.errors import StaleVersionError
+from launch_agents.domain.constants import ESIGN_CONSENT_VERSION
+from launch_agents.domain.errors import ConflictError, StaleVersionError
 from launch_agents.domain.helpers import document_sha256, new_id
 from launch_agents.domain.messages import AgentId, ChatMessage, MessageRole, agent_message, handoff_message
 from launch_agents.domain.state import CaseState
@@ -115,7 +116,7 @@ def round_trip(make_engine, label: str) -> None:
     )
     repo.save_document(doc, expected_version=None, created_by="law")
     sig = Signature(founder_id="f1", version=1, signed_at=T0 + timedelta(minutes=5), user_id=user_id,
-                    typed_name="Alice Chen", consent_version="esign-2026-11", content_sha256=document_sha256(v1_text),
+                    typed_name="Alice Chen", consent_version=ESIGN_CONSENT_VERSION, content_sha256=document_sha256(v1_text),
                     ip="203.0.113.7", user_agent="Mozilla/5.0 (feature run)", acted_by_user_id=None)
     signed = repo.save_document(doc.model_copy(update={"signatures": [sig], "status": DocumentStatus.EXECUTED,
                                                        "updated_at": sig.signed_at}),
@@ -173,9 +174,39 @@ def round_trip(make_engine, label: str) -> None:
     repo.save_site_build(build)
     show("site build", f"v{build.version} {build.status.value}, {len(build.bundle.files)} file(s)")
 
+    # one transaction: a double-submitted company-wide document and a duplicate build version are
+    # rejected with ConflictError, and the transaction stays usable and commits
+    summary = Document(
+        id=new_id("doc"), case_id=case.id, kind=DocumentKind.OPERATING_AGREEMENT_SUMMARY,
+        title="Operating agreement summary", founder_id=None, version=1, content="Operating agreement summary",
+        status=DocumentStatus.AWAITING_SIGNATURES, required_signers=["f1", "f2"], signatures=[],
+        created_at=T0, updated_at=T0,
+    )
+    print("conflicts inside one transaction")
+    with repo.transaction() as tx:
+        tx.save_document(summary, expected_version=None, created_by="law")
+        for what, call in (
+            ("second company-wide summary", lambda: tx.save_document(
+                summary.model_copy(update={"id": new_id("doc")}), expected_version=None, created_by="law")),
+            ("site build v1 again", lambda: tx.save_site_build(build.model_copy(update={"id": new_id("site")}))),
+        ):
+            try:
+                call()
+            except ConflictError as exc:
+                show(what, f"rejected: {exc.code} {exc.details}")
+            else:
+                raise AssertionError(f"{what} was accepted")
+        tx.set_checklist_item(case.id, "open_bank_account", True, "f1")  # still usable after the conflicts
+    show("committed", f"documents={[d.kind.value for d in repo.list_documents(case.id)]}, "
+                      f"builds={[b.version for b in repo.list_site_builds(case.id)]}, "
+                      f"open_bank_account={repo.get_checklist(case.id)['open_bank_account']}")
+    assert [d.id for d in repo.list_documents(case.id)] == [doc.id, summary.id]
+    assert [b.version for b in repo.list_site_builds(case.id)] == [1]
+    assert repo.get_checklist(case.id)["open_bank_account"] is True
+
     expected = {
         "case": repo.get_case(case.id), "messages": msgs, "document": v2, "audit": audit,
-        "checklist": {"file_articles": True, "get_ein": False}, "build": build,
+        "checklist": {"file_articles": True, "get_ein": False, "open_bank_account": True}, "build": build,
     }
     engine.dispose()
 
