@@ -44,3 +44,4 @@ New ADR: copy [0000-template.md](0000-template.md) to the next free number.
 | [0037](0037-demo-video-scripted-recording-reliable-and-live-modes.md) | Demo video: scripted browser recording in reliable and live modes | Accepted |
 | [0038](0038-plans-v2-free-launch-team-and-plan-settings.md) | Plans v2: Free, Launch and Team, with amounts as settings | Accepted |
 | [0039](0039-brand-charterly-everywhere-customers-look.md) | Brand: "Charterly" everywhere customers look | Accepted |
+| [0040](0040-merge-gate-runs-in-the-operators-session.md) | The merge gate runs in the operator's session | Accepted |

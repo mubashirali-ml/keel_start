@@ -21,6 +21,9 @@ const STAGE = args.stage || 'plan'
 const WAVES = args.waves || [0, 1]
 const MIN_PARALLEL = args.minParallel || 5
 const ANSWERS = args.answers || {}
+// 'operator' (default): approved tickets come back as 'approved'; the operator runs scripts/merge_pr.sh in the
+// interactive session (ADR-0040). 'agent': a subagent runs the gate (only where permission rules allow it).
+const GATE = args.gate === 'agent' ? 'agent' : 'operator'
 const ONLY = Array.isArray(args.only) && args.only.length ? args.only : null   // optional ticket subset for a deliver run
 const MAX_ROUNDS = 3          // ADR-0002; also enforced by scripts/merge_pr.sh
 const MAX_UNBLOCKS = 2
@@ -248,10 +251,15 @@ async function deliver(t, waveTickets, ph, merged) {
         continue
       }
       approved = true
+      if (GATE === 'operator') { log(`${t.id} APPROVED after ${rounds} review round(s); ready for the operator's merge gate`); return done('approved', { rounds }) }
     }
     gateAttempts++
     const g = await onMain(() => agent(gatePrompt(t), { label: `gate:${t.id}`, phase: ph, schema: GATE_SCHEMA, effort: 'low' }))
     if (g && g.exit_code === 0) { log(`${t.id} MERGED after ${rounds} review round(s)`); return done('merged', { rounds, gate_attempts: gateAttempts }) }
+    if (!g || g.exit_code < 0 || /NOT RUN|permission/i.test(g.output_tail || '')) {  // gate didn't run: not a code problem
+      log(`${t.id} gate could not run; approved and waiting for the operator's merge gate`)
+      return done('approved', { rounds, gate_tail: g && g.output_tail })
+    }
     log(`${t.id} gate refused (exit ${g ? g.exit_code : '?'})`)
     if (gateAttempts >= MAX_GATE_ATTEMPTS) return done('gate_failed', { rounds, gate_tail: g && g.output_tail })
     s = await settle(build(t, builderGateFix(t, g), ph, 'gate-fix'), rounds)
@@ -314,6 +322,7 @@ for (const w of WAVES) {
   const ph = `Wave ${w}`
   phase(ph)
   const merged = mergedBefore.concat(results.filter(r => r.outcome === 'merged').map(r => r.id))
+  if (GATE === 'operator' && results.some(r => r.outcome === 'approved')) { log(`Wave ${w}: stopping; earlier approved tickets must pass the operator's merge gate before dependent waves start`); break }
   const ready = ts.filter(t => t.depends_on.every(d => merged.includes(d)))
   ts.filter(t => !ready.includes(t)).forEach(t => results.push({ id: t.id, title: t.title, wave: w, outcome: 'skipped_dependency_not_merged' }))
   log(`${ph}: launching ${ready.length} builder(s) in parallel: ${ready.map(t => t.id).join(', ')}`)
@@ -327,6 +336,6 @@ const closing = await onMain(() => agent(`${PRE('Supervisor')}
 
 Delivery run finished (waves ${WAVES.join(',')}, mode ${MODE}). Outcomes per ticket:
 ${results.map(r => `- ${r.id} ${r.title}: ${r.outcome}${r.rounds != null ? `, ${r.rounds} review round(s)` : ''}${r.unblocks ? `, ${r.unblocks} unblock(s)` : ''}${r.question ? ` — waiting on: ${qText(r.question)}` : ''}`).join('\n')}
-Update tickets/BACKLOG.md and tickets/plan.json statuses (merged / escalated / blocked / needs_human / todo) and each executed ticket file's Status row, make sure docs/adr/README.md and plan.json list every ADR now on main (including ones builders proposed and reviewers accepted), and note what the next wave is. Rewrite owner_brief in plan.json for the owner: what they can now see or use, what is waiting on them, what comes next. Commit as Supervisor ("plan: close delivery run"). Docs/tickets only. Return that owner brief as your answer.`, { label: 'supervisor:close', phase: 'Close' }))
+('approved' means the Reviewer approved it and it is waiting for the operator to run the merge gate.) Update tickets/BACKLOG.md and tickets/plan.json statuses (merged / approved / escalated / blocked / needs_human / todo) and each executed ticket file's Status row, make sure docs/adr/README.md and plan.json list every ADR now on main (including ones builders proposed and reviewers accepted), and note what the next wave is. Rewrite owner_brief in plan.json for the owner: what they can now see or use, what is waiting on them, what comes next. Commit as Supervisor ("plan: close delivery run"). Docs/tickets only. Return that owner brief as your answer.`, { label: 'supervisor:close', phase: 'Close' }))
 
 return { stage: STAGE, mode: MODE, results, needs_human: results.filter(r => r.outcome === 'needs_human').map(r => ({ id: r.id, question: r.question })), owner_brief: closing }
