@@ -16,23 +16,9 @@ cd "$REPO_ROOT"
 cd "$WT"
 [ -z "$(git status --porcelain)" ] || die "$T worktree has uncommitted changes; commit them first"
 
-# 1. Bring the branch up to date with main, so every check runs on the post-merge code.
-if ! "${GATE_GIT[@]}" merge --no-edit -q main -m "gate: merge main into $BRANCH" >/dev/null 2>&1; then
-  echo "CONFLICT: $BRANCH does not merge cleanly with main. Conflicting files:"
-  git diff --name-only --diff-filter=U || true
-  git merge --abort || true
-  exit 2
-fi
-
-# 2-3, 5. Tests, fresh recording on the merged code, ownership and role scope.
-bash "$REPO_ROOT/scripts/verify.sh" "$T" || { echo "GATE $T: FAIL (verify)"; exit 1; }
-if [ -n "$(git status --porcelain -- "evidence/$T")" ]; then
-  git add "evidence/$T"
-  "${GATE_GIT[@]}" commit -q -m "gate: $T re-record feature run on merged code" -m "$TRAILER"
-fi
-
-# 4. Review: last verdict APPROVED, at most 3 rounds.
+# 4. Review: last verdict APPROVED, at most 3 rounds. (Checked first: a refused PR leaves no gate commits.)
 PR="prs/$T.md"
+[ -f "$PR" ] || { echo "GATE $T: FAIL (missing $PR)"; exit 1; }
 ROUNDS="$(grep -cE '^### Round [0-9]+' "$PR" || true)"
 LAST="$(grep -E '^Verdict:' "$PR" | tail -1 | sed -E 's/^Verdict:[[:space:]]*//; s/[[:space:]]*$//')"
 [ "$ROUNDS" -ge 1 ] || { echo "GATE $T: FAIL (no review rounds in $PR)"; exit 1; }
@@ -46,6 +32,27 @@ for adr in $(git diff --name-only --diff-filter=A main...HEAD -- docs/adr/); do
     || { echo "GATE $T: FAIL ($adr is not Accepted)"; exit 1; }
 done
 echo "PASS  every ADR added by $T is Accepted"
+
+# 1. Bring the branch up to date with main, so every check runs on the post-merge code.
+PRE_GATE="$(git rev-parse HEAD)"
+if ! "${GATE_GIT[@]}" merge --no-edit -q main -m "gate: merge main into $BRANCH" >/dev/null 2>&1; then
+  echo "CONFLICT: $BRANCH does not merge cleanly with main. Conflicting files:"
+  git diff --name-only --diff-filter=U || true
+  git merge --abort || true
+  exit 2
+fi
+
+# 2-3, 5. Tests, fresh recording on the merged code, ownership and role scope.
+if ! bash "$REPO_ROOT/scripts/verify.sh" "$T"; then
+  # Leave the branch as the builder had it: undo the gate's main-merge and the re-recording.
+  git reset -q --hard "$PRE_GATE"
+  git clean -fq -- "evidence/$T/run.log"
+  echo "GATE $T: FAIL (verify on code merged with main; branch reset to pre-gate state)"; exit 1
+fi
+if [ -n "$(git status --porcelain -- "evidence/$T")" ]; then
+  git add "evidence/$T"
+  "${GATE_GIT[@]}" commit -q -m "gate: $T re-record feature run on merged code" -m "$TRAILER"
+fi
 
 # Merge: one ticket = one merge commit on main.
 cd "$REPO_ROOT"

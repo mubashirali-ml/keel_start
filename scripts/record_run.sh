@@ -28,7 +28,7 @@ set -e
   echo "command:     bash scripts/py.sh $SCRIPT"
   echo "exit_code:   $CODE"
   echo "----------------------------------------------------------------------"
-  cat "$TMP"
+  tr -d '\r' <"$TMP"
 } >"$LOG"
 rm -f "$TMP"
 echo "recorded $LOG (exit $CODE)"
